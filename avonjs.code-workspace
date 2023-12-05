@@ -1,0 +1,11 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.fontFamily": "JetBrains Mono , Regular",
+    "editor.formatOnSave": true
+  }
+}
