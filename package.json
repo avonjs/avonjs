@@ -1,6 +1,6 @@
 {
   "name": "@avonjs/avonjs",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A fluent Node.js API generator.",
   "main": "dist/index.js",
   "types": "dist/index.ts",
