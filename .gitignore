@@ -133,3 +133,4 @@ dist
 
 # Tests
 tests/*/*.json
+install-release.sh
