@@ -1,7 +1,7 @@
 import { OpenAPIV3 } from 'openapi-types';
 import AvonRequest from '../../Http/Requests/AvonRequest';
 import { Repository } from '../../Repositories';
-import { Model } from '../../contracts';
+import { Model, OpenApiSchema } from '../../contracts';
 import Filter from './Filter';
 
 export default class NumberFilter extends Filter {
@@ -48,9 +48,7 @@ export default class NumberFilter extends Filter {
   /**
    * Get the swagger-ui schema.
    */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  schema(request: AvonRequest): OpenApiSchema {
     return {
       type: 'number',
       nullable: this.isNullable(),

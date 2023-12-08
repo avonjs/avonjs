@@ -8,6 +8,7 @@ import {
   Direction,
   SeeCallback,
   Model,
+  OpenApiSchema,
 } from '../contracts';
 import { Repository } from '../Repositories';
 
@@ -51,9 +52,7 @@ export default abstract class Ordering
   /**
    * Get the swagger-ui schema.
    */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  schema(request: AvonRequest): OpenApiSchema {
     return {
       type: 'string',
       nullable: this.isNullable(),
