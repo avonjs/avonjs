@@ -12,6 +12,8 @@ import {
   Model,
   TrashedStatus,
   OpenApiSchema,
+  FilterableCallback,
+  Operator,
 } from '../contracts';
 import Field from './Field';
 import RelatableFilter from './Filters/RelatableFilter';
@@ -255,6 +257,23 @@ export default abstract class Relation extends Field {
    */
   public makeFilter(request: AvonRequest): Filter {
     return new RelatableFilter(this);
+  }
+
+  /**
+   * Define the default filterable callback.
+   */
+  public defaultFilterableCallback(): FilterableCallback {
+    return async (
+      request: AvonRequest,
+      repository: Repository<Model>,
+      value: any,
+    ) => {
+      return repository.where({
+        key: this.foreignKeyName(request),
+        operator: Operator.in,
+        value,
+      });
+    };
   }
 
   /**

@@ -1,34 +1,35 @@
 import collect from 'collect.js';
+import { NullableCallback, OpenApiSchema } from '../../contracts';
+import FilterableFields from '../../Mixins/FilterableFields';
+import { Filter } from '../../Filters';
 import AvonRequest from '../../Http/Requests/AvonRequest';
-import { Repository } from '../../Repositories';
-import { NullableCallback, Model } from '../../contracts';
-import Filter from './Filter';
+import Relation from '../Relation';
 
-export default class RelatableFilter extends Filter {
+export default class RelatableFilter extends FilterableFields(Filter) {
+  constructor(public field: Relation) {
+    super();
+  }
   /**
    * Values which will be replaced to null.
    */
   public nullValidator: NullableCallback = (value: any) => {
-    return collect<number | string>(value)
-      .filter((value) => value !== undefined && String(value).length > 0)
-      .isEmpty();
+    return this.parseValue(value).length === 0;
   };
 
-  /**
-   * Apply the filter into the given repository.
-   */
-  public async apply(
-    request: AvonRequest,
-    repository: Repository<Model>,
-    value: any,
-  ): Promise<any> {
-    return await super.apply(request, repository, collect(value).all());
+  public parseValue(value: any) {
+    return collect<number | string>(value)
+      .filter((value) => value !== undefined && String(value).length > 0)
+      .all();
   }
 
   /**
-   * Get the query parameter key for filter.
+   * Get the swagger-ui schema.
    */
-  public key(): string {
-    return this.field.constructor.name + ':' + this.field.attribute;
+  schema(request: AvonRequest): OpenApiSchema {
+    return {
+      type: 'array',
+      items: { oneOf: [{ type: 'number' }, { type: 'string' }] },
+      nullable: this.isNullable(),
+    };
   }
 }
