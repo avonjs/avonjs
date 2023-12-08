@@ -10,8 +10,8 @@ import {
   Operator,
 } from '../contracts';
 import Field from './Field';
-import TextFilter from './Filters/TextFilter';
 import { Repository } from '../Repositories';
+import BinaryFilter from './Filters/BinaryFilter';
 
 export default class Binary extends Field {
   /**
@@ -61,7 +61,7 @@ export default class Binary extends Field {
    * Make the field filter.
    */
   public makeFilter(request: AvonRequest): Filter {
-    return new TextFilter(this);
+    return new BinaryFilter(this);
   }
 
   /**
