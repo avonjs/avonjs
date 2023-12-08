@@ -2,7 +2,7 @@ import { Collection } from 'collect.js';
 import { Field } from '../Fields';
 import Relation from '../Fields/Relation';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { Model } from '../contracts';
+import { Model, OpenApiSchema } from '../contracts';
 
 export default class FieldCollection<
   TItem extends Field = Field,
@@ -167,5 +167,34 @@ export default class FieldCollection<
     return new FieldCollection<TItem>(
       this.filter((field) => field.authorize(request)).values(),
     );
+  }
+
+  /**
+   * Transform fields to open api valid schema.
+   */
+  public payloadSchemas(request: AvonRequest): Record<string, OpenApiSchema> {
+    return this.mapWithKeys((field: Field) => [
+      field.attribute,
+      field.schema(request).payload,
+    ]).all() as unknown as Record<string, OpenApiSchema>;
+  }
+  /**
+   * Transform fields to open api valid schema.
+   */
+  public responseSchemas(request: AvonRequest): Record<string, OpenApiSchema> {
+    return this.mapWithKeys((field: Field) => [
+      field.attribute,
+      field.schema(request).response,
+    ]).all() as unknown as Record<string, OpenApiSchema>;
+  }
+
+  /**
+   * Transform fields to object by values.
+   */
+  public fieldValues(request: AvonRequest): Record<string, any> {
+    return this.mapWithKeys((field: Field) => [
+      field.attribute,
+      field.getValue(request),
+    ]).all();
   }
 }

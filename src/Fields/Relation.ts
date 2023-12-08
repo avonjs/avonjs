@@ -102,8 +102,7 @@ export default abstract class Relation extends Field {
   ): Record<string, any> {
     return new FieldCollection(this.relatableFields(request))
       .resolve(resource)
-      .mapWithKeys((field: Field) => [field.attribute, field.getValue(request)])
-      .all();
+      .fieldValues(request);
   }
 
   /**
@@ -272,27 +271,23 @@ export default abstract class Relation extends Field {
     return false;
   }
 
-  /**
-   * Get the swagger-ui schema.
-   */
-  protected baseSchema(request: AvonRequest): OpenApiSchema {
+  protected responseSchema(request: AvonRequest): OpenApiSchema {
     const fields = new FieldCollection(this.relatableFields(request));
     return {
-      ...super.baseSchema(request),
+      ...super.responseSchema(request),
       type: 'array',
-      default: fields
-        .mapWithKeys((field: Field) => [
-          field.attribute,
-          field.getValue(request),
-        ])
-        .all(),
-      items: {
-        type: 'object',
-        properties: fields.mapWithKeys((field: Field) => [
-          field.attribute,
-          field.schema(request),
-        ]) as Record<string, OpenApiSchema>,
-      },
+      default: fields.fieldValues(request),
+      items: { type: 'object', properties: fields.responseSchemas(request) },
+    };
+  }
+
+  protected payloadSchema(request: AvonRequest): OpenApiSchema {
+    const fields = new FieldCollection(this.relatableFields(request));
+    return {
+      ...super.payloadSchema(request),
+      type: 'array',
+      default: fields.fieldValues(request),
+      items: { type: 'object', properties: fields.payloadSchemas(request) },
     };
   }
 }

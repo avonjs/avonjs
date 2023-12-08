@@ -146,8 +146,15 @@ export default class BelongsTo extends Relation {
         items: undefined,
       },
       default: this.isNullable() ? null : this.resolveDefaultValue(request),
-      type: 'number',
+      type: undefined,
       oneOf: [{ type: 'number' }, { type: 'string' }],
+    };
+  }
+
+  protected payloadSchema(request: AvonRequest): OpenApiSchema {
+    return {
+      ...super.payloadSchema(request),
+      default: this.isNullable() ? null : this.resolveDefaultValue(request),
     };
   }
 
@@ -159,15 +166,12 @@ export default class BelongsTo extends Relation {
       return super.responseSchema(request);
     }
 
-    const fields = new FieldCollection(this.relatableFields(request));
-
     return {
       ...super.responseSchema(request),
       type: 'object',
-      properties: fields.mapWithKeys((field: Field) => [
-        field.attribute,
-        field.schema(request).response,
-      ]) as Record<string, OpenApiSchema>,
+      properties: new FieldCollection(
+        this.relatableFields(request),
+      ).responseSchemas(request),
       default: this.isNullable() ? null : {},
       oneOf: undefined,
     };

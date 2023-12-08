@@ -877,20 +877,18 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       request: AvonRequest,
       fields: FieldCollection,
     ): Record<string, OpenApiSchema> {
-      return new FieldCollection(fields).mapWithKeys((field: Field) => {
-        field.resolve(this.resource ?? this.repository().model());
-        return [field.attribute, field.schema(request).response];
-      }) as unknown as Record<string, OpenApiSchema>;
+      return new FieldCollection(fields)
+        .resolve(this.resource ?? this.repository().model())
+        .responseSchemas(request);
     }
 
     /**
      * Format the given schema for responses.
      */
     public formatPayloadFields(request: AvonRequest, fields: FieldCollection) {
-      return fields.mapWithKeys((field: Field) => {
-        field.resolve(this.resource ?? this.repository().model());
-        return [field.attribute, field.schema(request).payload];
-      }) as unknown as Record<string, OpenApiSchema>;
+      return fields
+        .resolve(this.resource ?? this.repository().model())
+        .payloadSchemas(request);
     }
 
     /**

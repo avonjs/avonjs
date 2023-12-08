@@ -1,8 +1,7 @@
-import collect from 'collect.js';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import Field from './Field';
 import HasManyOrOne from './HasManyOrOne';
 import { OpenApiSchema } from '../contracts';
+import FieldCollection from '../Collections/FieldCollection';
 
 export default class HasOne extends HasManyOrOne {
   /**
@@ -19,9 +18,9 @@ export default class HasOne extends HasManyOrOne {
     return {
       ...super.baseSchema(request),
       type: 'object',
-      properties: collect(this.relatableFields(request)).mapWithKeys(
-        (field: Field) => [field.attribute, field.schema(request)],
-      ) as Record<string, OpenApiSchema>,
+      properties: new FieldCollection(
+        this.relatableFields(request),
+      ).responseSchemas(request),
     };
   }
 }

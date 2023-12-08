@@ -11,6 +11,7 @@ import {
   Attachable,
   Ability,
   FilledCallback,
+  OpenApiSchema,
 } from '../contracts';
 import Relation from './Relation';
 import { guessForeignKey } from './ResourceRelationshipGuesser';
@@ -414,11 +415,49 @@ export default class BelongsToMany extends Relation {
       ...formattedResource,
       ...new FieldCollection(this.pivotFields(request))
         .resolve(resource.pivot)
-        .mapWithKeys((field: Field) => [
-          field.attribute,
-          field.getValue(request),
-        ])
-        .all(),
+        .fieldValues(request),
+    };
+  }
+
+  /**
+   * Get the swagger-ui schema.
+   */
+  protected responseSchema(request: AvonRequest): OpenApiSchema {
+    const fields = new FieldCollection([
+      ...this.relatableFields(request),
+      ...this.pivotFields(request),
+    ]);
+
+    return {
+      ...super.responseSchema(request),
+      type: 'array',
+      default: [fields.fieldValues(request)],
+      items: { type: 'object', properties: fields.responseSchemas(request) },
+    };
+  }
+
+  /**
+   * Get the swagger-ui schema.
+   */
+  protected payloadSchema(request: AvonRequest): OpenApiSchema {
+    return {
+      ...this.baseSchema(request),
+      type: 'array',
+      items: {
+        anyOf: [
+          { type: 'string' },
+          { type: 'number' },
+          {
+            type: 'object',
+            properties: {
+              ...new FieldCollection(this.pivotFields(request)).payloadSchemas(
+                request,
+              ),
+              id: { oneOf: [{ type: 'string' }, { type: 'number' }] },
+            },
+          },
+        ],
+      },
     };
   }
 

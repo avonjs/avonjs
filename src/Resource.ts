@@ -86,11 +86,7 @@ export default abstract class Resource extends ResourceSchema(
       },
       fields: this.indexFields(request, this.resource)
         .withoutUnresolvableFields()
-        .mapWithKeys((field: Field) => [
-          field.attribute,
-          field.getValue(request),
-        ])
-        .all(),
+        .fieldValues(request),
     };
   }
 
@@ -98,9 +94,7 @@ export default abstract class Resource extends ResourceSchema(
    * Prepare the resource for JSON serialization.
    */
   public serializeForAssociation(request: AvonRequest): Record<string, any> {
-    return this.associationFields(request)
-      .mapWithKeys((field: Field) => [field.attribute, field.getValue(request)])
-      .all();
+    return this.associationFields(request).fieldValues(request);
   }
 
   /**
@@ -119,10 +113,7 @@ export default abstract class Resource extends ResourceSchema(
       },
       fields: this.detailFields(request, this.resource)
         .withoutUnresolvableFields()
-        .mapWithKeys((field: Field) => [
-          field.attribute,
-          field.getValue(request),
-        ]),
+        .fieldValues(request),
     };
   }
 
@@ -142,10 +133,7 @@ export default abstract class Resource extends ResourceSchema(
       },
       fields: this.reviewFields(request, this.resource)
         .withoutUnresolvableFields()
-        .mapWithKeys((field: Field) => [
-          field.attribute,
-          field.getValue(request),
-        ]),
+        .fieldValues(request),
     };
   }
 
