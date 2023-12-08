@@ -393,7 +393,7 @@ new Fields.Text('name').filterable((request, repository, value) => {
 ## Field Types
 
 - [Array Field](#array-field)
-- [Boolean](#boolean-field)
+- [Binary](#binary-field)
 - [DateTime](#datetime-field)
 - [Email Field](#email-field)
 - [ID Field](#id-field)
@@ -411,15 +411,15 @@ import { Fields } from '@avonjs/avonjs';
 new Fields.Array('tags')
 ```
 
-### Boolean Field
+### Binary Field
 
-The `Boolean` field may be used to represent a boolean / "tiny integer" column in your database. For example, assuming your database has a boolean column named `active`, you may attach a `Boolean` field to your resource like so:
+The `Binary` field may be used to represent a boolean / "tiny integer" column in your database. For example, assuming your database has a boolean column named `active`, you may attach a `Binary` field to your resource like so:
 
 ```
 import { Fields } from '@avonjs/avonjs';
 
 
-new Fields.Boolean('active').rules(Joi.required()).nullable(false)
+new Fields.Binary('active').rules(Joi.required()).nullable(false)
 ```
 
 ### DateTime
@@ -509,13 +509,13 @@ new Fields.DateTime('publish_at').nullable().nullValues((value) => ['', undefine
 The `filterable` method allows you to enable convenient, automatic filtering functionality for a given field on resources.
 
 ```
-new Fields.Boolean('active').filterable()
+new Fields.Binary('active').filterable()
 ```
 
 The `filterable` method also accepts a callback as an argument. This callback will receive the filter query, which you may then customize in order to filter the resource results to your liking:
 
 ```
-new Fields.Boolean('active').filterable((request, repository, value) => {
+new Fields.Binary('active').filterable((request, repository, value) => {
     repository.where({
         key: 'active',
         operator: Operator.eq,
@@ -783,7 +783,7 @@ public authorizable(): boolean {
 Sometimes you may want to prevent updating certain fields by a group of users. You may easily accomplish this by chaining the `canSee` method onto your field definition. The `canSee` method accepts a function which should return `true` or `false`. The function will receive the incoming HTTP request:
 
 ```
-new Fields.Boolean('active').canSee((request) => false)
+new Fields.Binary('active').canSee((request) => false)
 ```
 
 # Repositories

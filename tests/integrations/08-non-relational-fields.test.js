@@ -57,7 +57,7 @@ class Post extends Resource {
         type: 'object',
         properties: { id: { type: 'integer' }, comment: { type: 'integer' } },
       }),
-      new Fields.Boolean('active'),
+      new Fields.Binary('active'),
       new Fields.Email('author'),
       new Fields.ID(),
       new Fields.Json('meta', [new Fields.Text('title')]),

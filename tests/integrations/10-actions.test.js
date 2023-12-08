@@ -186,7 +186,7 @@ class Store extends Resource {
     return [
       new Fields.ID(),
       new Fields.Text('name'),
-      new Fields.Boolean('active').default(() => false),
+      new Fields.Binary('active').default(() => false),
     ];
   }
 

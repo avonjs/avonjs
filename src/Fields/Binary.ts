@@ -13,7 +13,7 @@ import Field from './Field';
 import TextFilter from './Filters/TextFilter';
 import { Repository } from '../Repositories';
 
-export default class extends Field {
+export default class Binary extends Field {
   /**
    * The callback to be used for the field's default value.
    */

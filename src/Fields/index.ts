@@ -1,7 +1,7 @@
 import Array from './Array';
 import BelongsTo from './BelongsTo';
 import BelongsToMany from './BelongsToMany';
-import Boolean from './Boolean';
+import Binary from './Binary';
 import DateTime from './DateTime';
 import Email from './Email';
 import HasMany from './HasMany';
@@ -16,7 +16,7 @@ export {
   Array,
   BelongsTo,
   BelongsToMany,
-  Boolean,
+  Binary,
   DateTime,
   Email,
   HasMany,
