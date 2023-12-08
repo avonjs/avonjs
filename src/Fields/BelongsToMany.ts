@@ -107,7 +107,7 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
   ): Joi.ExternalValidationFunction {
     return async (value, helpers) => {
-      if (this.isNullable() && value.length === 0) {
+      if (this.isNullable() && (!Array.isArray(value) || value.length === 0)) {
         return;
       }
 

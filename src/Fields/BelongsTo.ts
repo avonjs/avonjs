@@ -109,6 +109,10 @@ export default class BelongsTo extends Relation {
           return;
         }
 
+        if (value === undefined) {
+          return helpers.error('any.required');
+        }
+
         if ((await this.getRelatedResource(request, value)) === undefined) {
           return helpers.error('any.invalid', {
             message: 'Resource not found',
@@ -141,7 +145,7 @@ export default class BelongsTo extends Relation {
         ...super.baseSchema(request),
         items: undefined,
       },
-      default: null,
+      default: this.isNullable() ? null : this.resolveDefaultValue(request),
       type: 'number',
       oneOf: [{ type: 'number' }, { type: 'string' }],
     };
