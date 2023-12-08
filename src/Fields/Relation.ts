@@ -1,5 +1,4 @@
 import collect from 'collect.js';
-import { OpenAPIV3 } from 'openapi-types';
 import Avon from '../Avon';
 import FieldCollection from '../Collections/FieldCollection';
 import { RuntimeException } from '../Exceptions';
@@ -12,6 +11,7 @@ import {
   DisplayFieldCallback,
   Model,
   TrashedStatus,
+  OpenApiSchema,
 } from '../contracts';
 import Field from './Field';
 import RelatableFilter from './Filters/RelatableFilter';
@@ -275,30 +275,23 @@ export default abstract class Relation extends Field {
   /**
    * Get the swagger-ui schema.
    */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  protected baseSchema(request: AvonRequest): OpenApiSchema {
     const fields = new FieldCollection(this.relatableFields(request));
     return {
-      ...super.schema(request),
+      ...super.baseSchema(request),
       type: 'array',
-      default: [
-        fields
-          .mapWithKeys((field: Field) => [
-            field.attribute,
-            field.getValue(request),
-          ])
-          .all(),
-      ],
+      default: fields
+        .mapWithKeys((field: Field) => [
+          field.attribute,
+          field.getValue(request),
+        ])
+        .all(),
       items: {
         type: 'object',
         properties: fields.mapWithKeys((field: Field) => [
           field.attribute,
           field.schema(request),
-        ]) as Record<
-          string,
-          OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject
-        >,
+        ]) as Record<string, OpenApiSchema>,
       },
     };
   }

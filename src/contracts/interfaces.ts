@@ -1,6 +1,6 @@
 import { OpenAPIV3 } from 'openapi-types';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { Payload } from './types';
+import { OpenApiFieldSchema, OpenApiSchema, Payload } from './types';
 import { Action } from '../Actions';
 import { UUID } from 'crypto';
 
@@ -20,9 +20,13 @@ export interface HasSchema {
   /**
    * Get the swagger-ui schema.
    */
-  schema: (
-    request: AvonRequest,
-  ) => OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject;
+  schema: (request: AvonRequest) => OpenApiSchema;
+}
+export interface FieldSchema {
+  /**
+   * Get the swagger-ui schema.
+   */
+  schema: (request: AvonRequest) => OpenApiFieldSchema;
 }
 
 export interface Model {

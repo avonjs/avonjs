@@ -2,7 +2,13 @@ import Joi from 'joi';
 import { OpenAPIV3 } from 'openapi-types';
 import FieldCollection from '../Collections/FieldCollection';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { ResolveCallback, Rules, Model, FilledCallback } from '../contracts';
+import {
+  ResolveCallback,
+  Rules,
+  Model,
+  FilledCallback,
+  OpenApiSchema,
+} from '../contracts';
 import Field from './Field';
 
 export default class Json extends Field {
@@ -121,17 +127,14 @@ export default class Json extends Field {
   /**
    * Get the swagger-ui schema.
    */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
-    const properties = this.fields.mapWithKeys<
-      Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>
-    >((field: Field) => [field.attribute, field.schema(request)]);
-
+  protected baseSchema(request: AvonRequest): OpenApiSchema {
     return {
-      ...super.schema(request),
+      ...super.baseSchema(request),
       type: 'object',
-      properties: properties.all() as Record<string, any>,
+      properties: this.fields.mapWithKeys((field: Field) => [
+        field.attribute,
+        field.schema(request),
+      ]) as Record<string, any>,
     };
   }
 }

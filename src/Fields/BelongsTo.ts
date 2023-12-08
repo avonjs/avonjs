@@ -1,8 +1,14 @@
 import Joi from 'joi';
-import { OpenAPIV3 } from 'openapi-types';
 import FieldCollection from '../Collections/FieldCollection';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { Ability, FilledCallback, Model, Operator, Rules } from '../contracts';
+import {
+  Ability,
+  FilledCallback,
+  Model,
+  OpenApiSchema,
+  Operator,
+  Rules,
+} from '../contracts';
 import Field from './Field';
 import Relation from './Relation';
 
@@ -127,28 +133,39 @@ export default class BelongsTo extends Relation {
   }
 
   /**
+   * Get the base swagger-ui schema.
+   */
+  protected baseSchema(request: AvonRequest): OpenApiSchema {
+    return {
+      ...{
+        ...super.baseSchema(request),
+        items: undefined,
+      },
+      default: null,
+      type: 'number',
+      oneOf: [{ type: 'number' }, { type: 'string' }],
+    };
+  }
+
+  /**
    * Get the swagger-ui schema.
    */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
-    const schema = super.schema(request) as OpenAPIV3.SchemaObject;
-
-    if (this.isLoaded()) {
-      const fields = new FieldCollection(this.relatableFields(request));
-      schema.type = 'object';
-      schema.properties = fields.mapWithKeys((field: Field) => [
-        field.attribute,
-        field.schema(request),
-      ]) as Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>;
-      schema.default = fields.mapWithKeys((field: Field) => [
-        field.attribute,
-        field.getValue(request),
-      ]) as Record<string, any>;
-    } else {
-      schema.type = 'string';
+  protected responseSchema(request: AvonRequest): OpenApiSchema {
+    if (!this.isLoaded()) {
+      return super.responseSchema(request);
     }
 
-    return schema;
+    const fields = new FieldCollection(this.relatableFields(request));
+
+    return {
+      ...super.responseSchema(request),
+      type: 'object',
+      properties: fields.mapWithKeys((field: Field) => [
+        field.attribute,
+        field.schema(request).response,
+      ]) as Record<string, OpenApiSchema>,
+      default: this.isNullable() ? null : {},
+      oneOf: undefined,
+    };
   }
 }

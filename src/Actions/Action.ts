@@ -1,5 +1,4 @@
 import Joi, { AnySchema } from 'joi';
-import { OpenAPIV3 } from 'openapi-types';
 import FieldCollection from '../Collections/FieldCollection';
 import ValidationException from '../Exceptions/ValidationException';
 import { Field } from '../Fields';
@@ -13,6 +12,7 @@ import {
   Model,
   SerializedAction,
   BulkActionResult,
+  OpenApiSchema,
 } from '../contracts';
 import { AvonResponse, SuccessfulResponse } from '../Http/Responses';
 import Avon from '../Avon';
@@ -257,9 +257,7 @@ export default abstract class Action
   /**
    * Get the swagger-ui schema.
    */
-  public schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  public schema(request: AvonRequest): OpenApiSchema {
     return {
       type: 'object',
       properties: {

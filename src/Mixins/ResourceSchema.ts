@@ -8,8 +8,15 @@ import Relation from '../Fields/Relation';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Ordering } from '../Orderings';
-import { AbstractMixable, TrashedStatus } from '../contracts';
+import {
+  AbstractMixable,
+  Model,
+  OpenApiSchema,
+  TrashedStatus,
+} from '../contracts';
 import { slugify } from '../helpers';
+import { Fluent } from '../Models';
+import { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class ResourceSchema extends Parent {
@@ -136,27 +143,37 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                                     description:
                                       'Determines user authorized to delete the resource',
                                   },
-                                  authorizedToForceDelete: {
-                                    type: 'boolean',
-                                    default: true,
-                                    description:
-                                      'Determines user authorized to force-delete the resource',
-                                  },
-                                  authorizedToRestore: {
-                                    type: 'boolean',
-                                    default: true,
-                                    description:
-                                      'Determines user authorized to restore the resource',
-                                  },
+                                  ...(this.softDeletes()
+                                    ? {
+                                        authorizedToForceDelete: {
+                                          type: 'boolean',
+                                          default: true,
+                                          description:
+                                            'Determines user authorized to force-delete the resource',
+                                        },
+                                        authorizedToRestore: {
+                                          type: 'boolean',
+                                          default: true,
+                                          description:
+                                            'Determines user authorized to restore the resource',
+                                        },
+                                        authorizedToReview: {
+                                          type: 'boolean',
+                                          default: true,
+                                          description:
+                                            'Determines user authorized to review soft deleted the resource',
+                                        },
+                                      }
+                                    : {}),
                                 },
                               },
                               fields: {
                                 type: 'object',
-                                properties: this.formatSchemas(
+                                properties: this.formatResponseFields(
                                   request,
-                                  this.availableFields(request)
-                                    .filterForIndex(request, this.resource)
-                                    .all(),
+                                  new FieldCollection(
+                                    this.fieldsForIndex(request),
+                                  ).filterForIndex(request, this.resource),
                                 ),
                               },
                             },
@@ -327,11 +344,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       request: AvonRequest,
     ): OpenAPIV3.PathItemObject | undefined {
       if (this.availableForCreation) {
-        const fields = collect<Field>(this.fieldsForCreate(request)).filter(
-          (field: Field) => {
-            return field.isShownOnCreation(request) && field.fillable();
-          },
-        );
+        const fields = new FieldCollection(this.fieldsForCreate(request))
+          .withoutUnfillableFields()
+          .onlyCreationFields(request);
 
         return {
           post: {
@@ -347,13 +362,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                       .filter((field) => field.isRequiredForCreation(request))
                       .map((field) => field.attribute)
                       .all(),
-                    properties: fields
-                      .mapWithKeys((field: Field) => {
-                        field.resolve(this.resource);
-
-                        return [field.attribute, field.schema(request)];
-                      })
-                      .all() as Record<string, any>,
+                    properties: this.formatPayloadFields(request, fields),
                   },
                 },
               },
@@ -364,9 +373,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
               ...this.validationResponses(),
               201: {
                 description: `Get detail of stored ${this.label()}`,
-                content: {
-                  ...this.singleResourceContent(request),
-                },
+                content: this.singleResourceContent(request),
               },
             },
           },
@@ -392,9 +399,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
               ...this.errorsResponses(),
               200: {
                 description: `Get detail of ${this.label()} for given id`,
-                content: {
-                  ...this.singleResourceContent(request),
-                },
+                content: this.singleResourceContent(request),
               },
             },
           },
@@ -437,9 +442,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       request: AvonRequest,
     ): OpenAPIV3.PathItemObject | undefined {
       if (this.availableForUpdate) {
-        const fields = collect<Field>(this.fieldsForCreate(request)).filter(
-          (field: Field) => field.isShownOnCreation(request),
-        );
+        const fields = new FieldCollection(
+          this.fieldsForUpdate(request),
+        ).onlyCreationFields(request);
 
         return {
           put: {
@@ -453,16 +458,10 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                   schema: {
                     type: 'object',
                     required: fields
-                      .filter((field) => field.isRequiredForCreation(request))
+                      .filter((field) => field.isRequiredForUpdate(request))
                       .map((field) => field.attribute)
                       .all(),
-                    properties: fields
-                      .mapWithKeys((field: Field) => {
-                        field.resolve(this.resource);
-
-                        return [field.attribute, field.schema(request)];
-                      })
-                      .all() as Record<string, any>,
+                    properties: this.formatPayloadFields(request, fields),
                   },
                 },
               },
@@ -473,9 +472,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
               ...this.validationResponses(),
               200: {
                 description: `Get detail of updated ${this.label()}`,
-                content: {
-                  ...this.singleResourceContent(request),
-                },
+                content: this.singleResourceContent(request),
               },
             },
           },
@@ -561,7 +558,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
 
       return actions
         .mapWithKeys((action: Action): [string, OpenAPIV3.PathItemObject] => {
-          const fields = action.fields(request);
+          const fields = new FieldCollection(action.fields(request));
 
           return [
             `${paths.index}/actions/${action.uriKey()}`,
@@ -591,29 +588,24 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                     },
                   },
                 ],
-                requestBody:
-                  fields.length === 0
-                    ? undefined
-                    : {
-                        content: {
-                          'application/json': {
-                            schema: {
-                              type: 'object',
-                              required: fields.map((field) => field.attribute),
-                              properties: collect(fields)
-                                .mapWithKeys((field: Field) => {
-                                  field.resolve(this.resource);
-
-                                  return [
-                                    field.attribute,
-                                    field.schema(request),
-                                  ];
-                                })
-                                .all() as Record<string, any>,
-                            },
+                requestBody: fields.isEmpty()
+                  ? undefined
+                  : {
+                      content: {
+                        'application/json': {
+                          schema: {
+                            type: 'object',
+                            required: fields
+                              .map((field) => field.attribute)
+                              .all(),
+                            properties: this.formatPayloadFields(
+                              request,
+                              fields,
+                            ),
                           },
                         },
                       },
+                    },
                 responses: {
                   ...this.authorizationResponses(),
                   ...this.errorsResponses(),
@@ -680,12 +672,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                               type: 'array',
                               items: {
                                 type: 'object',
-                                properties: relatable.formatSchemas(
+                                properties: relatable.formatResponseFields(
                                   request,
-                                  relatable
-                                    .availableFields(request)
-                                    .filterForIndex(request, relatable.resource)
-                                    .all(),
+                                  new FieldCollection(
+                                    relatable.fieldsForIndex(request),
+                                  ).filterForIndex(request, relatable.resource),
                                 ),
                               },
                             },
@@ -761,21 +752,15 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                         description:
                           'Determines user authorized to force-delete the resource',
                       },
-                      authorizedToRestore: {
-                        type: 'boolean',
-                        default: true,
-                        description:
-                          'Determines user authorized to restore the resource',
-                      },
                     },
                   },
                   fields: {
                     type: 'object',
-                    properties: this.formatSchemas(
+                    properties: this.formatResponseFields(
                       request,
-                      this.availableFields(request)
-                        .filterForDetail(request, this.resource)
-                        .all(),
+                      new FieldCollection(
+                        this.fieldsForDetail(request),
+                      ).filterForDetail(request, this.resource),
                     ),
                   },
                 },
@@ -822,11 +807,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                   },
                   fields: {
                     type: 'object',
-                    properties: this.formatSchemas(
+                    properties: this.formatResponseFields(
                       request,
-                      this.availableFields(request)
-                        .filterForReview(request, this.resource)
-                        .all(),
+                      new FieldCollection(
+                        this.fieldsForReview(request),
+                      ).filterForReview(request, this.resource),
                     ),
                   },
                 },
@@ -853,9 +838,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           required: true,
           description: 'The resource primary key',
           example: 1,
-          schema: {
-            oneOf: [{ type: 'number' }, { type: 'string' }],
-          },
+          schema: { oneOf: [{ type: 'number' }, { type: 'string' }] },
         },
       ];
     }
@@ -890,16 +873,24 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Format the given schema for responses.
      */
-    public formatSchemas(
+    public formatResponseFields(
       request: AvonRequest,
-      fields: Field[],
-    ): Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject> {
-      return new FieldCollection(fields)
-        .mapWithKeys((field: Field) => [field.attribute, field.schema(request)])
-        .all() as unknown as Record<
-        string,
-        OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject
-      >;
+      fields: FieldCollection,
+    ): Record<string, OpenApiSchema> {
+      return new FieldCollection(fields).mapWithKeys((field: Field) => {
+        field.resolve(this.resource ?? this.repository().model());
+        return [field.attribute, field.schema(request).response];
+      }) as unknown as Record<string, OpenApiSchema>;
+    }
+
+    /**
+     * Format the given schema for responses.
+     */
+    public formatPayloadFields(request: AvonRequest, fields: FieldCollection) {
+      return fields.mapWithKeys((field: Field) => {
+        field.resolve(this.resource ?? this.repository().model());
+        return [field.attribute, field.schema(request).payload];
+      }) as unknown as Record<string, OpenApiSchema>;
     }
 
     /**
@@ -953,9 +944,14 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     abstract availableFieldsOnIndexOrDetail(
       request: AvonRequest,
     ): FieldCollection;
-    abstract softDeletes(): boolean;
-    abstract fieldsForCreate(request: AvonRequest): FieldCollection;
+    abstract fieldsForIndex(request: AvonRequest): Field[];
+    abstract fieldsForDetail(request: AvonRequest): Field[];
+    abstract fieldsForReview(request: AvonRequest): Field[];
+    abstract fieldsForCreate(request: AvonRequest): Field[];
+    abstract fieldsForUpdate(request: AvonRequest): Field[];
     abstract resolveActions(request: AvonRequest): Action[];
+    abstract softDeletes(): boolean;
+    public abstract repository(): Repository<Model>;
   }
 
   return ResourceSchema;

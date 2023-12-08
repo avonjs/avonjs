@@ -2,6 +2,7 @@ import { AnySchema } from 'joi';
 import { Direction, Operator } from './constants';
 import { Fluent } from '../Models';
 import { Model } from './interfaces';
+import { OpenAPIV3 } from 'openapi-types';
 
 export type SerializedAction = {
   uriKey: string;
@@ -54,3 +55,10 @@ export type Payload = Record<string, unknown>;
 export type BulkActionResult = Array<{ resource: Model; previous: Model }>;
 
 export type Attachable = { id: string | number; [key: string]: any };
+
+export type OpenApiSchema = OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject;
+
+export type OpenApiFieldSchema = {
+  response: OpenApiSchema;
+  payload: OpenApiSchema;
+};

@@ -36,7 +36,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public creationFields(request: AvonRequest): FieldCollection {
       return this.availableFields(request)
         .authorized(request)
-        .onlyCreateFields(request)
+        .onlyCreationFields(request)
         .resolve(this.resource);
     }
 

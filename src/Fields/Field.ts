@@ -10,7 +10,7 @@ import Presentable from '../Mixins/Presentable';
 import Ordering from './Orderings/Ordering';
 import {
   ParameterSerializable,
-  HasSchema,
+  FieldSchema,
   FillCallback,
   ResolveCallback,
   Model,
@@ -24,6 +24,8 @@ import {
   ResourceEvaluatorCallback,
   EvaluatorCallback,
   FilledCallback,
+  OpenApiFieldSchema,
+  OpenApiSchema,
 } from '../contracts';
 import TextFilter from './Filters/TextFilter';
 import { Repository } from '../Repositories';
@@ -32,7 +34,7 @@ export default abstract class Field
   extends Nullable(
     Filterable(Orderable(Presentable(AuthorizedToSee(class {})))),
   )
-  implements HasSchema, ParameterSerializable
+  implements FieldSchema, ParameterSerializable
 {
   /**
    * The attribute / column name of the field.
@@ -511,15 +513,37 @@ export default abstract class Field
   /**
    * Get the swagger-ui schema.
    */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  schema(request: AvonRequest): OpenApiFieldSchema {
+    return {
+      payload: this.payloadSchema(request),
+      response: this.responseSchema(request),
+    };
+  }
+
+  /**
+   * Get the swagger-ui schema.
+   */
+  protected payloadSchema(request: AvonRequest): OpenApiSchema {
+    return this.baseSchema(request);
+  }
+
+  /**
+   * Get the swagger-ui schema.
+   */
+  protected responseSchema(request: AvonRequest): OpenApiSchema {
+    return this.baseSchema(request);
+  }
+
+  /**
+   * Get the base swagger-ui schema.
+   */
+  protected baseSchema(request: AvonRequest): OpenApiSchema {
     return {
       type: 'string',
       nullable: this.isNullable(),
       description: this.helpText,
-      title: this.name,
-      default: this.getValue(request),
+      title: this.name ?? this.attribute,
+      default: this.resolveDefaultValue(request),
     };
   }
 
@@ -533,7 +557,7 @@ export default abstract class Field
       {
         name: this.attribute,
         in: 'body',
-        schema: this.schema(request),
+        schema: this.schema(request).payload,
       },
     ];
   }

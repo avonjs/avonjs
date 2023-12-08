@@ -1,8 +1,8 @@
 import collect from 'collect.js';
-import { OpenAPIV3 } from 'openapi-types';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import Field from './Field';
 import HasManyOrOne from './HasManyOrOne';
+import { OpenApiSchema } from '../contracts';
 
 export default class HasOne extends HasManyOrOne {
   /**
@@ -15,15 +15,13 @@ export default class HasOne extends HasManyOrOne {
   /**
    * Get the swagger-ui schema.
    */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  protected baseSchema(request: AvonRequest): OpenApiSchema {
     return {
-      ...super.schema(request),
+      ...super.baseSchema(request),
       type: 'object',
       properties: collect(this.relatableFields(request)).mapWithKeys(
         (field: Field) => [field.attribute, field.schema(request)],
-      ) as Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>,
+      ) as Record<string, OpenApiSchema>,
     };
   }
 }

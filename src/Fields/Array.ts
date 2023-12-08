@@ -2,7 +2,7 @@ import collect from 'collect.js';
 import Joi, { AnySchema } from 'joi';
 import { OpenAPIV3 } from 'openapi-types';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { FilledCallback, Model } from '../contracts';
+import { FilledCallback, Model, OpenApiSchema } from '../contracts';
 import Field from './Field';
 
 export default class Array extends Field {
@@ -90,11 +90,9 @@ export default class Array extends Field {
   }
 
   /**
-   * Get the swagger-ui schema.
+   * Get the base swagger-ui schema.
    */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  protected baseSchema(request: AvonRequest): OpenApiSchema {
     return {
       ...super.schema(request),
       type: 'array',

@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import { OpenAPIV3 } from 'openapi-types';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
 
@@ -78,18 +77,6 @@ export default class Text extends Field {
         operator: Operator.like,
         value,
       });
-    };
-  }
-
-  /**
-   * Get the swagger-ui schema.
-   */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
-    return {
-      ...super.schema(request),
-      type: 'string',
     };
   }
 }

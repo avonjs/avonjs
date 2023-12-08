@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import { OpenAPIV3 } from 'openapi-types';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
 
@@ -7,6 +6,7 @@ import {
   DefaultCallback,
   FilterableCallback,
   Model,
+  OpenApiSchema,
   Operator,
 } from '../contracts';
 import Field from './Field';
@@ -94,11 +94,9 @@ export default class Integer extends Field {
   /**
    * Get the swagger-ui schema.
    */
-  schema(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  protected baseSchema(request: AvonRequest): OpenApiSchema {
     return {
-      ...super.schema(request),
+      ...super.baseSchema(request),
       type: 'integer',
     };
   }

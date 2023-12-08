@@ -1,6 +1,5 @@
 import Joi from 'joi';
 import moment from 'moment';
-import { OpenAPIV3 } from 'openapi-types';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
 
@@ -98,19 +97,5 @@ export default class DateTime extends Field {
     this.dateFormat = dateFormat;
 
     return this;
-  }
-
-  /**
-   * Get the swagger-ui schema.
-   */
-  schemas(
-    request: AvonRequest,
-  ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
-    return {
-      type: 'string',
-      nullable: this.isNullable(),
-      default: this.resolveDefaultValue(request),
-      format: 'date',
-    };
   }
 }

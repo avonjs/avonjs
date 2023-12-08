@@ -48,7 +48,7 @@ export default class ResourceStoreController extends Controller {
     await Promise.all(
       resource
         .detailFields(request, resource.resource)
-        .withOnlyRelatableFields()
+        .onlyLoadedRelatableFields()
         .map((field) => field.resolveRelatables(request, [resource.resource])),
     );
 

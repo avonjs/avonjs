@@ -12,7 +12,7 @@ export default class Avon {
   /**
    * Indicates application current version.
    */
-  protected static VERSION = '1.0.0';
+  protected static VERSION = '1.1.0';
 
   /**
    * Array of available resources.
@@ -164,7 +164,7 @@ export default class Avon {
         //   email: 'support@example.com',
         // },
         // license: {},
-        version: '1.0.1',
+        version: Avon.version(),
       },
       components: {
         responses: {

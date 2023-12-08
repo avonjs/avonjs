@@ -1,5 +1,4 @@
-import collect, { Collection } from 'collect.js';
-import Joi, { object } from 'joi';
+import Joi from 'joi';
 import Avon from '../Avon';
 import { RuntimeException } from '../Exceptions';
 import AvonRequest from '../Http/Requests/AvonRequest';

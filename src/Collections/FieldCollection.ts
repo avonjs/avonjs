@@ -41,7 +41,7 @@ export default class FieldCollection<
   /**
    * Remove non-creation fields from the collection.
    */
-  public onlyCreateFields(request: AvonRequest): FieldCollection<TItem> {
+  public onlyCreationFields(request: AvonRequest): FieldCollection<TItem> {
     return new FieldCollection<TItem>(
       this.filter((field) => field.isShownOnCreation(request)),
     );
@@ -114,13 +114,22 @@ export default class FieldCollection<
   }
 
   /**
-   * Reject if the field supports Relatable Field.
+   * Reject if the field not supports Relatable Field.
    */
   public withOnlyRelatableFields(): FieldCollection<Relation> {
     return new FieldCollection<Relation>(
-      this.filter(
-        (field) => field instanceof Relation && field.isLoaded(),
-      ).values(),
+      this.filter((field) => field instanceof Relation).values(),
+    );
+  }
+
+  /**
+   * Reject if the field not supports Relatable Field and not eager loaded.
+   */
+  public onlyLoadedRelatableFields(): FieldCollection<Relation> {
+    return new FieldCollection<Relation>(
+      this.withOnlyRelatableFields()
+        .filter((field) => field.isLoaded())
+        .values(),
     );
   }
 
