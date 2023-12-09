@@ -29,7 +29,7 @@ export default abstract class Ordering
   public abstract apply(
     request: AvonRequest,
     repository: Repository<Model>,
-    direction: any,
+    direction: Direction,
   ): any;
 
   /**

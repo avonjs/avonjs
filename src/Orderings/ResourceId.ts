@@ -11,11 +11,11 @@ export default class PrimaryKey extends Ordering {
   public apply(
     request: AvonRequest,
     repository: Repository<Model>,
-    value: any,
+    direction: Direction,
   ): any {
-    repository.order({
+    return repository.order({
       key: request.model().getKeyName(),
-      direction: Direction.ASC === value ? value : Direction.DESC,
+      direction: Direction.ASC === direction ? direction : Direction.DESC,
     });
   }
 }
