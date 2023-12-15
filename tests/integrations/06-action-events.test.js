@@ -4,151 +4,24 @@ const request = require('supertest');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 
-const { Repositories, Resource, Fields, SoftDeletes } = require('../../dist');
+const {
+  Repositories,
+  Resource,
+  Fields,
+  SoftDeletes,
+  FillsActionEvents,
+} = require('../../dist');
 const { join } = require('path');
 const { Operator } = require('../../dist/contracts');
 const { Fluent } = require('../../dist/Models');
-const { default: collect } = require('collect.js');
-const { randomUUID } = require('crypto');
 const filepath = join(__dirname, 'events.json');
 
-class ActionEvent extends Repositories.FileRepository {
+class ActionEvent extends FillsActionEvents(Repositories.FileRepository) {
   filepath() {
     return filepath;
   }
   searchableColumns() {
     return [];
-  }
-
-  /**
-   * makeIdentifier
-   */
-  makeIdentifier() {
-    return new Date().toISOString().substring(0, 10) + ':' + String(Date.now());
-  }
-
-  /**
-   * Store multiple model's into the storage.
-   */
-  async insert(models) {
-    // ensure log file exists
-    return Promise.all(
-      models.map(async (model) => {
-        return this.store(
-          model.setAttribute(model.getKeyName(), this.makeIdentifier()),
-        );
-      }),
-    );
-  }
-
-  /**
-   * Fill event model for successful resource store.
-   */
-  forResourceStore(params) {
-    return new Fluent({
-      ...this.defaultAttributes(params),
-      name: 'Create',
-      changes: params.resource.all(),
-    });
-  }
-
-  /**
-   * Fill event model for successful resource update.
-   */
-  forResourceUpdate(params) {
-    return new Fluent({
-      ...this.defaultAttributes(params),
-      name: 'Update',
-      changes: collect(params.resource.all())
-        .diffAssoc(collect(params.previous.all()))
-        .all(),
-      original: params.previous.all(),
-    });
-  }
-
-  /**
-   * Fill event model for successful resource destroy.
-   */
-  forResourceDelete(params) {
-    return new Fluent({
-      ...this.defaultAttributes(params),
-      name: 'Delete',
-      changes: {},
-      original: params.resource.all(),
-    });
-  }
-
-  /**
-   * Fill event model for successful resource restore.
-   */
-  forResourceRestore(params) {
-    return new Fluent({
-      ...this.defaultAttributes(params),
-      name: 'Restore',
-      changes: {},
-    });
-  }
-
-  /**
-   * Fill event model for successful action ran.
-   */
-  forActionRan(params) {
-    return new Fluent({
-      ...this.defaultAttributes(params),
-      batch_id: params.batchId ?? randomUUID(),
-      name: params.action.name(),
-      original: params.previous.all(),
-      changes: collect(params.resource.all())
-        .diffAssoc(collect(params.previous.all()))
-        .all(),
-    });
-  }
-
-  /**
-   * Get the default attributes for creating a new action event.
-   */
-  defaultAttributes(params) {
-    return {
-      payload: params.payload ?? {},
-      resource_name: params.resourceName,
-      resource_id: params.resource.getKey(),
-      model_type: params.resource.constructor.name,
-      model_id: params.resource.getKey(),
-      changes: {},
-      original: {},
-      status: 'finished',
-      user_id: params.userId,
-      batch_id: params.batchId ?? randomUUID(),
-    };
-  }
-
-  /**
-   * Delete resource events for ever.
-   */
-  async flush(resourceName, key) {
-    const events = await this.scopeResource(resourceName, key).all();
-
-    await Promise.all(events.map((event) => this.delete(event.getKey())));
-
-    return events;
-  }
-
-  /**
-   * Limit query to the given resource.
-   */
-  scopeResource(resourceName, key) {
-    return this.where([
-      {
-        key: 'resource_id',
-        value: key,
-        operator: Operator.eq,
-      },
-      {
-        key: 'resource_name',
-        value: resourceName,
-        operator: Operator.eq,
-      },
-    ]);
   }
 }
 

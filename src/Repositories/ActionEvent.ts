@@ -57,11 +57,4 @@ export default class ActionEvent
         return true;
     }
   }
-
-  /**
-   * Get key name of the item.
-   */
-  searchable(): Searchable[] {
-    return [];
-  }
 }
