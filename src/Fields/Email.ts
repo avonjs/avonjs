@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import Text from './Text';
+import { ResolveCallback } from '../contracts';
 
 export default class Email extends Text {
   /**
@@ -16,4 +17,8 @@ export default class Email extends Text {
    * The validation rules callback for updates.
    */
   protected updateRulesSchema = Joi.string().email();
+
+  constructor(attribute?: string, resolveCallback?: ResolveCallback) {
+    super(attribute ?? 'email', resolveCallback);
+  }
 }
