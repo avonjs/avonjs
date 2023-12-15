@@ -9,7 +9,6 @@ import {
   Operator,
   Rules,
 } from '../contracts';
-import Field from './Field';
 import Relation from './Relation';
 
 export default class BelongsTo extends Relation {
@@ -163,7 +162,7 @@ export default class BelongsTo extends Relation {
    */
   protected responseSchema(request: AvonRequest): OpenApiSchema {
     if (!this.isLoaded()) {
-      return super.responseSchema(request);
+      return this.baseSchema(request);
     }
 
     return {
@@ -172,7 +171,7 @@ export default class BelongsTo extends Relation {
       properties: new FieldCollection(
         this.relatableFields(request),
       ).responseSchemas(request),
-      default: this.isNullable() ? null : {},
+      default: undefined,
       oneOf: undefined,
     };
   }
