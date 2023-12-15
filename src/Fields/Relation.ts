@@ -79,10 +79,7 @@ export default abstract class Relation extends Field {
    * Indicates fields uses to display in relation request.
    */
   protected relatableFields: DisplayFieldCallback = (request: AvonRequest) => {
-    return this.relatedResource
-      .indexFields(request, this.relatedResource.resource)
-      .withoutRelatableFields()
-      .all();
+    return this.relatedResource.associationFields(request).all();
   };
 
   /**
@@ -291,7 +288,7 @@ export default abstract class Relation extends Field {
   }
 
   protected responseSchema(request: AvonRequest): OpenApiSchema {
-    const fields = new FieldCollection(this.relatableFields(request));
+    const fields = this.schemaFields(request);
     return {
       ...super.responseSchema(request),
       type: 'array',
@@ -301,12 +298,21 @@ export default abstract class Relation extends Field {
   }
 
   protected payloadSchema(request: AvonRequest): OpenApiSchema {
-    const fields = new FieldCollection(this.relatableFields(request));
+    const fields = this.schemaFields(request);
     return {
       ...super.payloadSchema(request),
       type: 'array',
       default: fields.fieldValues(request),
       items: { type: 'object', properties: fields.payloadSchemas(request) },
     };
+  }
+
+  protected schemaFields(request: AvonRequest): FieldCollection {
+    return new FieldCollection(
+      this.relatedResource.fieldsForAssociation(request),
+    )
+      .filterForAssociation(request)
+      .withoutUnresolvableFields()
+      .withoutRelatableFields();
   }
 }

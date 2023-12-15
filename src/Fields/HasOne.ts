@@ -19,7 +19,7 @@ export default class HasOne extends HasManyOrOne {
       ...super.baseSchema(request),
       type: 'object',
       properties: new FieldCollection(
-        this.relatableFields(request),
+        this.schemaFields(request),
       ).responseSchemas(request),
     };
   }

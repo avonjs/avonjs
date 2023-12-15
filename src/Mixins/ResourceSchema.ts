@@ -651,8 +651,31 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
 
                 operationId: field.attribute,
                 parameters: [
+                  {
+                    name: 'page',
+                    in: 'query',
+                    description: 'The pagination page',
+                    example: 1,
+                    default: 1,
+                    schema: {
+                      type: 'integer',
+                      minimum: 1,
+                      nullable: true,
+                    },
+                  },
+                  {
+                    name: 'perPage',
+                    in: 'query',
+                    description: 'Number of items per page',
+                    example: relatable.relatableSearchResults,
+                    default: relatable.relatableSearchResults,
+                    schema: {
+                      type: 'number',
+                      nullable: true,
+                      enum: [relatable.relatableSearchResults],
+                    },
+                  },
                   ...relatable.searchParameters(request),
-                  ...relatable.paginationParameters(request),
                   ...relatable.softDeleteParameters(request),
                 ],
 
@@ -675,8 +698,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                                 properties: relatable.formatResponseFields(
                                   request,
                                   new FieldCollection(
-                                    relatable.fieldsForIndex(request),
-                                  ).filterForIndex(request, relatable.resource),
+                                    relatable.fieldsForAssociation(request),
+                                  )
+                                    .filterForAssociation(request)
+                                    .withoutUnresolvableFields()
+                                    .withoutRelatableFields(),
                                 ),
                               },
                             },

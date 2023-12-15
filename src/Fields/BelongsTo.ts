@@ -169,9 +169,9 @@ export default class BelongsTo extends Relation {
       ...super.responseSchema(request),
       type: 'object',
       properties: new FieldCollection(
-        this.relatableFields(request),
+        this.schemaFields(request),
       ).responseSchemas(request),
-      default: undefined,
+      default: null,
       oneOf: undefined,
     };
   }

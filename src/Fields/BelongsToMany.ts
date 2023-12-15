@@ -424,7 +424,7 @@ export default class BelongsToMany extends Relation {
    */
   protected responseSchema(request: AvonRequest): OpenApiSchema {
     const fields = new FieldCollection([
-      ...this.relatableFields(request),
+      ...this.schemaFields(request),
       ...this.pivotFields(request),
     ]);
 
