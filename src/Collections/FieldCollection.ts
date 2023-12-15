@@ -96,6 +96,15 @@ export default class FieldCollection<
   }
 
   /**
+   * Filter fields for showing on review.
+   */
+  public filterForAssociation(request: AvonRequest): FieldCollection<TItem> {
+    return new FieldCollection<TItem>(
+      this.filter((field) => field.isShownOnAssociation(request)).values(),
+    );
+  }
+
+  /**
    * Reject if the field supports Filterable Field.
    */
   public withOnlyFilterableFields(): FieldCollection<Field> {

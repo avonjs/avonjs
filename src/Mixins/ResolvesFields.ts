@@ -67,7 +67,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public associationFields(request: AvonRequest): FieldCollection {
       return this.resolveFields(request)
-        .filterForIndex(request, this.resource)
+        .filterForAssociation(request)
         .withoutUnresolvableFields()
         .withoutRelatableFields();
     }
@@ -113,8 +113,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Get the fields for the given request.
      */
-    public resolveFields(request: AvonRequest): FieldCollection {
-      return this.availableFields(request).resolve(this.resource);
+    public resolveFields(
+      request: AvonRequest,
+      resource?: Model,
+    ): FieldCollection {
+      return this.availableFields(request).resolve(resource ?? this.resource);
     }
 
     /**

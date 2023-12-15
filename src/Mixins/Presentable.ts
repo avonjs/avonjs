@@ -39,6 +39,12 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public showOnUpdateCallback: ResourceEvaluatorCallback = approveCallback();
 
     /**
+     * Callback that indicates if the attribute should be shown on the association api.
+     */
+    public showOnAssociationCallback: ResourceEvaluatorCallback =
+      approveCallback();
+
+    /**
      * Specify that the attribute should be hidden from the index api.
      */
     public hideFromIndex(
@@ -67,6 +73,17 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       callback: ResourceEvaluatorCallback | boolean = true,
     ): this {
       this.showOnReviewCallback = reverseEvaluatorCallback(callback);
+
+      return this;
+    }
+
+    /**
+     * Specify that the attribute should be hidden from the association api.
+     */
+    public hideFromAssociation(
+      callback: ResourceEvaluatorCallback | boolean = true,
+    ): this {
+      this.showOnAssociationCallback = reverseEvaluatorCallback(callback);
 
       return this;
     }
@@ -127,6 +144,17 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     }
 
     /**
+     * Specify that the attribute should be hidden from the association api.
+     */
+    public showOnAssociation(
+      callback: ResourceEvaluatorCallback | boolean = true,
+    ): this {
+      this.showOnAssociationCallback = makeEvaluatorCallback(callback);
+
+      return this;
+    }
+
+    /**
      * Specify that the attribute should be hidden from the creation api.
      */
     public showOnCreating(callback: EvaluatorCallback | boolean = true): this {
@@ -175,6 +203,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     }
 
     /**
+     * Determine if the field is to be shown on the review api.
+     */
+    public isShownOnAssociation(request: AvonRequest): boolean {
+      return this.showOnAssociationCallback(request);
+    }
+
+    /**
      * Check for showing when creating.
      */
     public isShownOnCreation(request: AvonRequest): boolean {
@@ -188,6 +223,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       this.showOnIndex(true);
       this.showOnDetail(false);
       this.showOnReview(false);
+      this.showOnAssociation(false);
       this.showOnCreating(false);
       this.showOnUpdating(false);
 
@@ -201,6 +237,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       this.showOnIndex(false);
       this.showOnDetail(true);
       this.showOnReview(false);
+      this.showOnAssociation(false);
       this.showOnCreating(false);
       this.showOnUpdating(false);
 
@@ -214,6 +251,21 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       this.showOnIndex(false);
       this.showOnDetail(false);
       this.showOnReview(true);
+      this.showOnAssociation(false);
+      this.showOnCreating(false);
+      this.showOnUpdating(false);
+
+      return this;
+    }
+
+    /**
+     * Specify that the attribute should only be shown on the association api.
+     */
+    public onlyOnAssociation(): this {
+      this.showOnIndex(false);
+      this.showOnDetail(false);
+      this.showOnReview(false);
+      this.showOnAssociation(true);
       this.showOnCreating(false);
       this.showOnUpdating(false);
 
@@ -227,6 +279,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       this.showOnIndex(false);
       this.showOnDetail(false);
       this.showOnReview(false);
+      this.showOnAssociation(false);
       this.showOnCreating(true);
       this.showOnUpdating(true);
 
@@ -240,6 +293,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       this.showOnIndex(true);
       this.showOnDetail(true);
       this.showOnReview(true);
+      this.showOnAssociation(true);
       this.showOnCreating(false);
       this.showOnUpdating(false);
 

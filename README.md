@@ -278,15 +278,21 @@ The following methods may be used to show / hide fields based on the display con
 - `showOnIndex`
 - `showOnDetail`
 - `showOnReview`
+- `showOnAssociation`
 - `showOnCreating`
 - `showOnUpdating`
+
 - `hideFromIndex`
 - `hideFromDetail`
 - `hideFromReview`
+- `hideFromAssociation`
 - `hideWhenCreating`
 - `hideWhenUpdating`
+
 - `onlyOnIndex`
 - `onlyOnDetail`
+- `onlyOnReview`
+- `onlyOnAssociation`
 - `onlyOnForms`
 - `exceptOnForms`
 
