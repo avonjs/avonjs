@@ -1,6 +1,6 @@
 import { Action } from '../Actions';
 import FieldCollection from '../Collections/FieldCollection';
-import { Field, Text } from '../Fields';
+import { Field, Json, Text } from '../Fields';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Ordering } from '../Orderings';
@@ -22,9 +22,9 @@ export default class ActionEvent extends Resource {
       new Text('model_id').filterable().orderable(),
       new Text('resource_name').filterable().orderable(),
       new Text('resource_id').filterable().orderable(),
-      new Text('payload').resolveUsing((value) => JSON.stringify(value)),
-      new Text('changes').resolveUsing((value) => JSON.stringify(value)),
-      new Text('original').resolveUsing((value) => JSON.stringify(value)),
+      new Json('payload').resolveUsing((value) => JSON.stringify(value)),
+      new Json('changes').resolveUsing((value) => JSON.stringify(value)),
+      new Json('original').resolveUsing((value) => JSON.stringify(value)),
     ];
   }
 
