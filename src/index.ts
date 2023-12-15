@@ -1,5 +1,6 @@
 import Avon from './Avon';
 import SoftDeletes from './Mixins/SoftDeletes';
+import FillsActionEvents from './Mixins/FillsActionEvents';
 import AvonRequest from './Http/Requests/AvonRequest';
 import Resource from './Resource';
 import * as Fields from './Fields';
@@ -11,6 +12,7 @@ import * as Repositories from './Repositories';
 import * as Responses from './Http/Responses';
 import * as Contracts from './contracts';
 import * as Helpers from './helpers';
+import * as Resources from './Resources';
 
 export {
   Avon as default,
@@ -19,6 +21,7 @@ export {
   Resource,
   AvonRequest,
   SoftDeletes,
+  FillsActionEvents,
   Filters,
   Actions,
   Models,
@@ -27,4 +30,5 @@ export {
   Contracts,
   Repositories,
   Helpers,
+  Resources,
 };
