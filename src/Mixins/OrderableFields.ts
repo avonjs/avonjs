@@ -21,7 +21,7 @@ export default <T extends AbstractMixable<Ordering>>(Parent: T) => {
      */
     public async apply(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
       direction: Direction,
     ): Promise<any> {
       if (
@@ -33,7 +33,7 @@ export default <T extends AbstractMixable<Ordering>>(Parent: T) => {
 
       return this.field.applyOrdering(
         request,
-        repository,
+        queryBuilder,
         Direction.ASC === direction ? Direction.ASC : Direction.DESC,
       );
     }

@@ -17,7 +17,7 @@ export default <T extends AbstractMixable<Filter>>(Parent: T) => {
      */
     public async apply(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
       value: any,
     ): Promise<any> {
       if (this.isValidNullValue(value)) {
@@ -26,7 +26,7 @@ export default <T extends AbstractMixable<Filter>>(Parent: T) => {
 
       return this.field.applyFilter(
         request,
-        repository,
+        queryBuilder,
         this.parseValue(value),
       );
     }

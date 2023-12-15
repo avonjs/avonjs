@@ -20,10 +20,14 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public async applyFilter(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
       value: any,
     ): Promise<any> {
-      await this.filterableCallback?.apply(this, [request, repository, value]);
+      await this.filterableCallback?.apply(this, [
+        request,
+        queryBuilder,
+        value,
+      ]);
     }
 
     /**
@@ -51,10 +55,10 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public defaultFilterableCallback(): FilterableCallback {
       return (
         request: AvonRequest,
-        repository: Repository<Model>,
+        queryBuilder: Repository<Model>,
         value: any,
       ) => {
-        repository.where({
+        queryBuilder.where({
           key: this.filterableAttribute(request),
           operator: Operator.eq,
           value,

@@ -20,10 +20,10 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public applyOrdering(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
       value: any,
     ): any {
-      this.orderableCallback?.apply(this, [request, repository, value]);
+      this.orderableCallback?.apply(this, [request, queryBuilder, value]);
     }
 
     /**
@@ -51,10 +51,10 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public defaultOrderingCallback(): OrderingCallback {
       return (
         request: AvonRequest,
-        repository: Repository<Model>,
+        queryBuilder: Repository<Model>,
         value: any,
       ) => {
-        repository.where({
+        queryBuilder.where({
           key: this.orderableAttribute(request),
           operator: Operator.eq,
           value,

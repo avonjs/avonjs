@@ -38,19 +38,26 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       filters: MatchesQueryParameters<Filter> = [],
       orderings: MatchesQueryParameters<Ordering> = [],
     ): Promise<Repository<Model>> {
-      const repository = this.repository();
+      const queryBuilder = this.queryBuilder(request);
 
-      await this.applyFilters(request, repository, filters);
-      await this.applyOrderings(request, repository, orderings);
+      await this.applyFilters(request, queryBuilder, filters);
+      await this.applyOrderings(request, queryBuilder, orderings);
 
-      return repository;
+      return queryBuilder;
+    }
+
+    /**
+     * Get query builder.
+     */
+    public queryBuilder(request: AvonRequest): Repository<Model> {
+      return this.repository();
     }
 
     /**
      * Apply the soft-delete into given query.
      */
     public applySoftDeleteConstraint(
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
       withTrashed: TrashedStatus,
     ): Repository<Model> {
       const callback = {
@@ -60,10 +67,10 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       }[withTrashed];
 
       if (this.softDeletes() !== true) {
-        return repository;
+        return queryBuilder;
       }
       // @ts-ignore
-      return repository[callback]();
+      return queryBuilder[callback]();
     }
 
     /**
@@ -71,15 +78,15 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public async applyFilters(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
       filters: MatchesQueryParameters<Filter>,
     ): Promise<Repository<Model>> {
       await Promise.all(
         filters.map(({ handler, value }) => {
-          return handler.apply(request, repository, value);
+          return handler.apply(request, queryBuilder, value);
         }),
       );
-      return repository;
+      return queryBuilder;
     }
 
     /**
@@ -87,19 +94,19 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public async applyOrderings(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
       orderings: MatchesQueryParameters<Ordering> = [],
     ): Promise<Repository<Model>> {
       await Promise.all(
         orderings.map(({ handler, value }) => {
           return handler.apply(
             request,
-            repository,
+            queryBuilder,
             value === Direction.DESC ? Direction.DESC : Direction.ASC,
           );
         }),
       );
-      return repository;
+      return queryBuilder;
     }
 
     /**
@@ -109,9 +116,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public relatableQuery(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
     ): Repository<Model> {
-      return repository;
+      return queryBuilder;
     }
 
     /**
@@ -119,9 +126,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public indexQuery(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
     ): Repository<Model> {
-      return repository;
+      return queryBuilder;
     }
 
     /**
@@ -129,9 +136,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public detailQuery(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
     ): Repository<Model> {
-      return repository;
+      return queryBuilder;
     }
 
     /**
@@ -139,9 +146,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public reviewQuery(
       request: AvonRequest,
-      repository: Repository<Model>,
+      queryBuilder: Repository<Model>,
     ): Repository<Model> {
-      return repository;
+      return queryBuilder;
     }
 
     /**
