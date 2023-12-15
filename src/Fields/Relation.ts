@@ -79,7 +79,13 @@ export default abstract class Relation extends Field {
    * Indicates fields uses to display in relation request.
    */
   protected relatableFields: DisplayFieldCallback = (request: AvonRequest) => {
-    return this.relatedResource.associationFields(request).all();
+    return new FieldCollection(
+      this.relatedResource.fieldsForAssociation(request),
+    )
+      .filterForAssociation(request)
+      .withoutUnresolvableFields()
+      .withoutRelatableFields()
+      .all();
   };
 
   /**
@@ -308,11 +314,6 @@ export default abstract class Relation extends Field {
   }
 
   protected schemaFields(request: AvonRequest): FieldCollection {
-    return new FieldCollection(
-      this.relatedResource.fieldsForAssociation(request),
-    )
-      .filterForAssociation(request)
-      .withoutUnresolvableFields()
-      .withoutRelatableFields();
+    return new FieldCollection(this.relatableFields(request));
   }
 }
