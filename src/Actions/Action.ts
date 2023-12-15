@@ -13,6 +13,7 @@ import {
   SerializedAction,
   BulkActionResult,
   OpenApiSchema,
+  SeeCallback,
 } from '../contracts';
 import { AvonResponse, SuccessfulResponse } from '../Http/Responses';
 import Avon from '../Avon';
@@ -195,6 +196,13 @@ export default abstract class Action
     this.runCallback = callback;
 
     return this;
+  }
+
+  /**
+   * Set the callback to be run to authorize viewing the filter or action.
+   */
+  public canSee(callback: SeeCallback): this {
+    return super.canSee(callback);
   }
 
   /**
