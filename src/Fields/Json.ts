@@ -18,7 +18,7 @@ export default class Json extends Field {
 
   constructor(
     attribute: string,
-    fields: Field[],
+    fields: Field[] = [],
     resolveCallback?: ResolveCallback,
   ) {
     super(attribute, resolveCallback);
