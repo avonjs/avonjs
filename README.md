@@ -37,7 +37,9 @@
 **Repositories**
 
 - [Defining Repositories](#defining-repositories)
+- [Preset Repositories](#preset-repositories)
 - [Defining Models](#defining-models)
+- [Soft Deletes](#soft-deletes)
 
 **Filters**
 
@@ -58,6 +60,12 @@
 - [Registering Actions](#registering-actions)
 - [Authorization Actions](#authorization-actions)
 - [Standalone Actions](#standalone-actions)
+
+**Activity Log**
+
+- [Action Events](#action-events)
+- [Custom Action Event](#custom-action-event)
+- [Action Event Actor](#action-event-actor)
 
 **Error Handling**
 
@@ -869,7 +877,110 @@ export class MyRepository extends Repositories.Repository {
 }
 ```
 
-Each repository have to return data as a model that should extend the base `Model` like so:
+Each repository have to return data as a model which you [learn](#defining-models) later.
+
+## Preset Repositories
+
+Avon by default, ships with a variety of repositories:
+
+- [Collection Repository](#collection-repository)
+- [File Repository](#file-repository)
+- [Knex Repository](#knex-repository)
+
+### Collection Repository
+
+The collection repository holds records under the memory RAM so it will lose data after operations or application restarts. this repository is good when you want to serve an array of data as an API. you could create a collection repository like so:
+
+```
+//@ts-check
+const { Repositories } = require('@avonjs/avonjs');
+
+class Categories extends Repositories.CollectionRepository {
+  searchableColumns() {
+    return [];
+  }
+};
+```
+
+### File Repository
+
+The file repository is a type of collection repository with a bit of change. as the collection repository stores data on the memory, the File repository, holds data in the JSON file. to create a file repository you have to create a class like the below and define the store file path.
+
+```
+//@ts-check
+const { Repositories } = require('@avonjs/avonjs');
+const { dirname, join } = require('path');
+
+class Categories extends Repositories.FileRepository {
+  filepath() {
+    return join(dirname(__dirname), 'storage', 'categories.json');
+  }
+  searchableColumns() {
+    return [];
+  }
+};
+```
+
+### Knex Repository
+
+The Knex repository stores data on the database and uses [knex.js](https://knexjs.org/) package to maintain data. you could use it like so:
+
+```
+//@ts-check
+const { Repositories } = require('@avonjs/avonjs');
+
+class Categories extends Repositories.KnexRepository {
+  /**
+   * Get the knex connection.
+   */
+  public abstract connection(): Knex;
+};
+```
+
+## Defining Models
+
+Each model is a class which implements `Model` interface:
+
+```
+import { Contracts } from '@avonjs/avonjs';
+
+export default class Fluent implements Contracts.Model {
+    //
+}
+```
+
+By default we have a `Fluent` model that is so simple an you could use as your model or base model if you want!
+
+```
+import { Models } from '@avonjs/avonjs';
+
+export default class MyModel extends Models.Fluent {
+    //
+}
+```
+
+## Soft Deletes
+
+In addition to actually removing records from your repository, Avon can also "soft delete" records. When records are soft deleted, they are not actually removed from your database. Instead, a `deleted_at` attribute is set on the model indicating the date and time at which the model was "deleted". To enable soft deletes for a repository, extend the base repository by `SoftDeletes` mixins provided by Avon:
+
+```
+//@ts-check
+const { Repositories, SoftDeletes } = require('@avonjs/avonjs');
+const { dirname, join } = require('path');
+
+module.exports = class Categories extends (
+  SoftDeletes(Repositories.FileRepository)
+) {
+  filepath() {
+    return join(dirname(__dirname), 'storage', 'categories.json');
+  }
+  searchableColumns() {
+    return [];
+  }
+};
+```
+
+Soft deletes could apply to all type of repositories and also extends your API by three additional APIs.
 
 # Filters
 
@@ -1160,6 +1271,52 @@ actions(request){
         new Publish().canRun(request => false)
     ];
 }
+```
+
+# Activity Log
+
+## Action Events
+
+It is often useful to view a log of the actions that have been run against a particular resource. Thankfully, Avon stores any actions that manipulate records. but by default, we store the logs on the memory, so data will be lost after restarts or any memory cleanups. to prevent losing data, you could define your custom repository for action events per each resource:
+
+```
+//@ts-check
+const { Resource } = require('@avonjs/avonjs');
+const Activities = require('../repositories/Activities');
+
+abstract class BaseResource extends Resource {
+  actionRepository() {
+    return new Activities();
+  }
+}
+```
+
+### Custom Action Event
+
+All action events repository should implements `ActionEventRepository` interface on the typescript. Fortunately, Avon has a mixin to help you make custom action event repositories without any trouble. To define your custom action event repository you could use `FillsActionEvents` mixin to extends your repository like so:
+
+```
+//@ts-check
+const { Repositories, FillsActionEvents } = require('@avonjs/avonjs');
+const { dirname, join } = require('path');
+
+class Activities extends FillsActionEvents(Repositories.FileRepository) {
+  filepath() {
+    return join(dirname(__dirname), 'storage', 'activities.json');
+  }
+  searchableColumns() {
+    return [];
+  }
+};
+
+```
+
+### Action Event Actor
+
+Since Avon doesn't know about logged-in users, to know who did an activity on the resources, you could register users to Avon after logging in:
+
+```
+Avon.resolveUserUsing((request) => request.getRequest().user);
 ```
 
 # Error Handling
