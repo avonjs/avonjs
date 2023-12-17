@@ -28,6 +28,7 @@ import AssociableController from '../Http/Controllers/AssociableController';
 import AssociableRequest from '../Http/Requests/AssociableRequest';
 import Avon from '../Avon';
 import AvonRequest from '../Http/Requests/AvonRequest';
+import { send } from '../helpers';
 
 const controllers: Record<
   string,
@@ -110,20 +111,10 @@ export default class Dispatcher {
       const request = controllers[controller].request(req);
 
       controllerInstance[method as keyof Controller](request)
-        .then((response: AvonResponse) => {
-          res
-            .status(response.getStatusCode())
-            .set(response.getHeaders())
-            .send(response.content());
-        })
+        .then((response: AvonResponse) => send(res, response))
         .catch((error: Error) => {
           if (error instanceof ResponsableException) {
-            const response = error.toResponse(request);
-
-            res
-              .status(response.getStatusCode())
-              .set(response.getHeaders())
-              .send(response.content());
+            send(res, error.toResponse());
           } else {
             Avon.handleError(error);
             res

@@ -7,6 +7,8 @@ import { readdirSync, statSync } from 'fs';
 import Resource from './Resource';
 import AvonRequest from './Http/Requests/AvonRequest';
 import { ErrorHandler, Model, UserResolver } from './contracts';
+import { Params, expressjwt } from 'express-jwt';
+import { handleAuthenticationError } from './helpers';
 
 export default class Avon {
   /**
@@ -28,6 +30,37 @@ export default class Avon {
    * The error handler callback.
    */
   protected static resolveUser: UserResolver = () => undefined;
+
+  /**
+   * Extended swagger paths.
+   */
+  protected static paths: OpenAPIV3.PathsObject = {};
+
+  /**
+   * Indicates JWT params.
+   */
+  protected static jwt: Params = {
+    secret: 'Avon',
+    algorithms: ['HS256'],
+  };
+
+  /**
+   * List of routes without authorization.
+   */
+  protected static excepts = ['/api/schema'];
+
+  /**
+   * Extended swagger info.
+   */
+  protected static info: OpenAPIV3.InfoObject = {
+    version: Avon.version(),
+    title: 'My Application API',
+    description: 'Another Avonjs Application',
+    contact: {
+      name: 'Ismail Zare',
+      email: 'zarehesmaiel@gmail.com',
+    },
+  };
 
   /**
    * Get the Avon version.
@@ -64,7 +97,13 @@ export default class Avon {
   /**
    * Register API routes.
    */
-  public static routes(router: Router): Router {
+  public static routes(router: Router, withAuthentication = false): Router {
+    if (withAuthentication) {
+      router
+        .use(expressjwt(Avon.jwt).unless({ path: Avon.excepts }))
+        .use(handleAuthenticationError);
+    }
+
     const routes = new RouteRegistrar(router);
 
     routes.register();
@@ -103,14 +142,14 @@ export default class Avon {
    * Get the user.
    */
   public static user(request: AvonRequest): Model | undefined {
-    return this.resolveUser(request);
+    return Avon.resolveUser(request);
   }
 
   /**
    * Get the user id.
    */
   public static userId(request: AvonRequest): string | number | undefined {
-    return this.resolveUser(request)?.getKey();
+    return Avon.resolveUser(request)?.getKey();
   }
 
   /**
@@ -148,25 +187,25 @@ export default class Avon {
   public static schema(request: AvonRequest): OpenAPIV3.Document {
     return {
       openapi: '3.0.0',
-      paths: Avon.resourceCollection().reduce((paths, resource) => {
-        return {
-          ...paths,
-          ...resource.schema(request),
-        };
-      }, {}),
-      info: {
-        title: 'My Application API',
-        // description: 'This is a sample server for a pet store.',
-        // termsOfService: 'https://example.com/terms/',
-        // contact: {
-        //   name: 'API Support',
-        //   url: 'https://www.example.com/support',
-        //   email: 'support@example.com',
-        // },
-        // license: {},
-        version: Avon.version(),
-      },
+      security: [{ BearerAuth: [] }],
+      paths: Avon.resourceCollection().reduce(
+        (paths, resource) => {
+          return {
+            ...paths,
+            ...resource.schema(request),
+          };
+        },
+        { ...Avon.paths },
+      ),
+      info: Avon.info,
       components: {
+        securitySchemes: {
+          BearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
         responses: {
           Forbidden: {
             description: 'This action is unauthorized.',
@@ -181,6 +220,30 @@ export default class Avon {
                       default: 'This action is unauthorized.',
                     },
                     name: { type: 'string', default: 'Forbidden' },
+                    meta: {
+                      type: 'object',
+                      properties: {
+                        stack: { type: 'object' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          Unauthenticated: {
+            description: 'The user is unauthenticated.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    code: { type: 'number', default: 401 },
+                    message: {
+                      type: 'string',
+                      default: 'The user is unauthenticated.',
+                    },
+                    name: { type: 'string', default: 'Unauthenticated' },
                     meta: {
                       type: 'object',
                       properties: {
@@ -273,5 +336,41 @@ export default class Avon {
         },
       },
     };
+  }
+
+  /**
+   * Extend swagger paths.
+   */
+  public static extend(paths: OpenAPIV3.PathsObject) {
+    Avon.paths = paths;
+
+    return Avon;
+  }
+
+  /**
+   * Extend swagger paths.
+   */
+  public static describe(info: OpenAPIV3.InfoObject) {
+    Avon.info = { ...Avon.info, ...info };
+
+    return Avon;
+  }
+
+  /**
+   * Set the JWT options.
+   */
+  public static auth(jwt: Params) {
+    Avon.jwt = { ...Avon.jwt, ...jwt };
+
+    return Avon;
+  }
+
+  /**
+   * Set the JWT options.
+   */
+  public static except(path: string) {
+    Avon.excepts.push(path);
+
+    return Avon;
   }
 }

@@ -3,7 +3,6 @@ import Response from '../Http/Responses/AvonResponse';
 import { collect } from 'collect.js';
 import ErrorResponse from '../Http/Responses/ErrorResponse';
 import { ValidationError, ValidationErrorItem } from 'joi';
-import AvonRequest from '../Http/Requests/AvonRequest';
 
 export default class ValidationException extends ResponsableException {
   constructor(protected errors: ValidationError) {
@@ -27,7 +26,7 @@ export default class ValidationException extends ResponsableException {
   /**
    * Create an HTTP response that represents the object.
    */
-  public toResponse(request: AvonRequest): Response {
+  public toResponse(): Response {
     return new ErrorResponse(
       this.getCode(),
       this.getName(),

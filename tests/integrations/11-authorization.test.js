@@ -95,13 +95,35 @@ beforeAll(() => {
   Avon.resources([resource, new Other()]);
 
   app.use('/api', Avon.routes(express.Router()));
+  app.use('/unauthenticated/api', Avon.routes(express.Router(), true));
+});
+
+describe('Unauthenticated requests', () => {
+  test('Could restrict get unauthenticated api', () => {
+    return request(app)
+      .get(`/unauthenticated/api`)
+      .expect(401)
+      .then(({ body: { code, name } }) => {
+        expect(code).toBe(401);
+        expect(name).toBe('Unauthenticated');
+      });
+  });
+
+  test('Could restrict post unauthenticated api', () => {
+    return request(app)
+      .post(`/unauthenticated/api`)
+      .expect(401)
+      .then(({ body: { code, name } }) => {
+        expect(code).toBe(401);
+        expect(name).toBe('Unauthenticated');
+      });
+  });
 });
 
 describe('Unauthorized resources api', () => {
   test('Could not "viewAny" unauthorized resources', () => {
     return request(app)
       .get(`/api/resources/${resource.uriKey()}`)
-
       .expect(403)
       .then(({ body: { code, message, name, meta } }) => {
         expect(code).toBe(403);

@@ -1,9 +1,12 @@
+import { NextFunction, Request, Response } from 'express';
 import AvonRequest from './Http/Requests/AvonRequest';
 import {
   EvaluatorCallback,
   ResourceEvaluatorCallback,
   Model,
 } from './contracts';
+import { AvonResponse } from './Http/Responses';
+import AuthenticationException from './Exceptions/AuthenticationException';
 
 /**
  * Convert given string in to slugify version.
@@ -47,4 +50,30 @@ export const reverseEvaluatorCallback = (
  */
 export const isNullish = (value: any) => {
   return ['', undefined, NaN, null].includes(value);
+};
+
+/**
+ * Send Avon response by node response service.
+ */
+export const send = (res: Response, response: AvonResponse) => {
+  res
+    .status(response.getStatusCode())
+    .set(response.getHeaders())
+    .send(response.content());
+};
+
+/**
+ * Handle JWT authentication error.
+ */
+export const handleAuthenticationError = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (err.name === 'UnauthorizedError') {
+    send(res, new AuthenticationException(err).toResponse());
+  } else {
+    next(err);
+  }
 };

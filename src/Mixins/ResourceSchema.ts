@@ -922,9 +922,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public authorizationResponses(): OpenAPIV3.ResponsesObject {
       return {
-        // 401: {
-        //   $ref: '#/components/responses/Unauthorized',
-        // },
+        401: {
+          $ref: '#/components/responses/Unauthenticated',
+        },
         403: {
           $ref: '#/components/responses/Forbidden',
         },

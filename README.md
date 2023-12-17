@@ -3,6 +3,7 @@
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Initialize](#initialize)
+- [Authentication](#authentication)
 
 **Resources**
 
@@ -102,13 +103,25 @@ import express from 'express';
 
 const app = express();
 
-// register Avon router
+// register Avon router without authentication
 app.use('/api', Avon.routes(express.Router()));
+
+// or register Avon router with authentication
+app.use('/api', Avon.routes(express.Router(), true));
 
 app.listen(3000, () => {
   console.log('running')
 })
 
+```
+
+## Authentication
+
+Avon ships by JWT authentication approach but it's disabled by default. to enable authentication you have to pass the `true` value as a second argument of the "routes" method:
+
+```
+// register Avon router
+app.use('/api', Avon.routes(express.Router(), true));
 ```
 
 # Resources
