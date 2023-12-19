@@ -47,7 +47,7 @@ export default class Avon {
   /**
    * List of routes without authorization.
    */
-  protected static excepts = ['/api/schema'];
+  protected static excepts: Array<string | RegExp> = [/.*\/schema/];
 
   /**
    * Extended swagger info.
@@ -368,7 +368,7 @@ export default class Avon {
   /**
    * Set the JWT options.
    */
-  public static except(path: string) {
+  public static except(path: string | RegExp) {
     Avon.excepts.push(path);
 
     return Avon;
