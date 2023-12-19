@@ -48,11 +48,6 @@ export default class Avon {
   protected static errorHandler: ErrorHandler = (error) => console.log(error);
 
   /**
-   * The error handler callback.
-   */
-  protected static resolveUser: UserResolver = () => undefined;
-
-  /**
    * Extended swagger paths.
    */
   protected static paths: OpenAPIV3.PathsObject = {};
