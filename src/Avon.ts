@@ -1,14 +1,35 @@
 import collect, { Collection } from 'collect.js';
 import { OpenAPIV3 } from 'openapi-types';
 import RouteRegistrar from './Route/RouteRegistrar';
-import { Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { extname, join } from 'path';
 import { readdirSync, statSync } from 'fs';
 import Resource from './Resource';
 import AvonRequest from './Http/Requests/AvonRequest';
-import { ErrorHandler, Model, UserResolver } from './contracts';
+import {
+  AttemptCallback,
+  Auth,
+  ErrorHandler,
+  Model,
+  UserResolver,
+} from './contracts';
 import { Params, expressjwt } from 'express-jwt';
-import { handleAuthenticationError } from './helpers';
+import {
+  errorsResponses,
+  handleAuthenticationError,
+  send,
+  validationResponses,
+} from './helpers';
+import FieldCollection from './Collections/FieldCollection';
+import { Email, Field, Text } from './Fields';
+import LoginRequest from './Http/Requests/Auth/LoginRequest';
+import Joi, { AnySchema } from 'joi';
+import ValidationException from './Exceptions/ValidationException';
+import { Fluent } from './Models';
+import { AvonResponse } from './Http/Responses';
+import { NotFoundException } from './Exceptions';
+import LoginResponse from './Http/Responses/Auth/LoginResponse';
+import { sign, SignOptions } from 'jsonwebtoken';
 
 export default class Avon {
   /**
@@ -39,15 +60,33 @@ export default class Avon {
   /**
    * Indicates JWT params.
    */
-  protected static jwt: Params = {
-    secret: 'Avon',
-    algorithms: ['HS256'],
-  };
+  protected static jwtSignOptions: SignOptions = {};
 
   /**
    * List of routes without authorization.
    */
-  protected static excepts: Array<string | RegExp> = [/.*\/schema/];
+  protected static excepts: Array<string | RegExp> = [
+    /.*\/schema/,
+    /.*\/login/,
+  ];
+
+  /**
+   * The login attempt callback.
+   */
+  protected static attemptCallback: AttemptCallback = async () => {};
+
+  /**
+   * Set application secret key.
+   */
+  protected static appKey: string = 'Avon';
+
+  /**
+   * The login attempt callback.
+   */
+  protected static authFields: Field[] = [
+    new Email().default(() => 'zarehesmaiel@gmail.com'),
+    new Text('password').default(() => 'zarehesmaiel@gmail.com'),
+  ];
 
   /**
    * Extended swagger info.
@@ -100,7 +139,8 @@ export default class Avon {
   public static routes(router: Router, withAuthentication = false): Router {
     if (withAuthentication) {
       router
-        .use(expressjwt(Avon.jwt).unless({ path: Avon.excepts }))
+        .post('/login', Avon.login)
+        .use(Avon.expressjwt())
         .use(handleAuthenticationError);
     }
 
@@ -109,6 +149,21 @@ export default class Avon {
     routes.register();
 
     return router;
+  }
+
+  public static expressjwt() {
+    return expressjwt({
+      secret: 'Avon',
+      algorithms: [Avon.jwtSignOptions.algorithm ?? 'HS256'],
+      audience: Avon.jwtSignOptions.audience,
+      issuer: Avon.jwtSignOptions.issuer,
+      jwtid: Avon.jwtSignOptions.jwtid,
+      subject: Avon.jwtSignOptions.subject,
+      allowInvalidAsymmetricKeyTypes:
+        Avon.jwtSignOptions.allowInvalidAsymmetricKeyTypes,
+    }).unless({
+      path: Avon.excepts,
+    });
   }
 
   /**
@@ -130,26 +185,11 @@ export default class Avon {
   }
 
   /**
-   * Set callback to resolve user identifier.
-   */
-  public static resolveUserUsing(resolveUser: UserResolver): Avon {
-    Avon.resolveUser = resolveUser;
-
-    return Avon;
-  }
-
-  /**
-   * Get the user.
-   */
-  public static user(request: AvonRequest): Model | undefined {
-    return Avon.resolveUser(request);
-  }
-
-  /**
    * Get the user id.
    */
   public static userId(request: AvonRequest): string | number | undefined {
-    return Avon.resolveUser(request)?.getKey();
+    //@ts-ignore
+    return (request.getRequest().auth as Auth)?.id;
   }
 
   /**
@@ -182,6 +222,129 @@ export default class Avon {
   }
 
   /**
+   * Set login fields.
+   */
+  public static credentials(authFields: Field[]) {
+    Avon.authFields = authFields;
+
+    return Avon;
+  }
+
+  /**
+   * Get login fields.
+   */
+  public static fieldsForLogin() {
+    return new FieldCollection(Avon.authFields);
+  }
+
+  /**
+   * Set JWT secret.
+   */
+  public static key(appKey: string) {
+    Avon.appKey = appKey;
+
+    return Avon;
+  }
+
+  /**
+   * Extend swagger paths.
+   */
+  public static extend(paths: OpenAPIV3.PathsObject) {
+    Avon.paths = paths;
+
+    return Avon;
+  }
+
+  /**
+   * Extend swagger paths.
+   */
+  public static describe(info: OpenAPIV3.InfoObject) {
+    Avon.info = { ...Avon.info, ...info };
+
+    return Avon;
+  }
+
+  /**
+   * Set the JWT sign options.
+   */
+  public static signOptions(signOptions: SignOptions) {
+    Avon.jwtSignOptions = { ...Avon.jwtSignOptions, ...signOptions };
+
+    return Avon;
+  }
+
+  /**
+   * Set the JWT options.
+   */
+  public static except(path: string | RegExp) {
+    Avon.excepts.push(path);
+
+    return Avon;
+  }
+
+  /**
+   * Set attempt callback.
+   */
+  public static attemptUsing(attemptCallback: AttemptCallback) {
+    Avon.attemptCallback = attemptCallback;
+
+    return Avon;
+  }
+
+  /**
+   * Handle login request.
+   */
+  public static async login(req: Request, res: Response) {
+    const request = new LoginRequest(req);
+    const payload = new Fluent();
+    // validate credentials
+    await Avon.performValidation(request)
+      .then(() => {
+        // resolve credentials
+        Avon.fieldsForLogin().each((field) => field.fill(request, payload));
+        // attempt login
+        Avon.attempt(payload.all())
+          .then((response) => send(res, response))
+          .catch((error) => {
+            res
+              .status(500)
+              .send({ message: error?.message, name: 'InternalServerError' });
+          });
+      })
+      .catch((error) => {
+        send(res, new ValidationException(error).toResponse());
+      });
+  }
+
+  /**
+   * Perform login request validation.
+   */
+  public static async performValidation(request: LoginRequest) {
+    await Joi.object(
+      Avon.fieldsForLogin()
+        .map((field) => field.getRules(request))
+        .flatMap((rules) => Object.keys(rules).map((key) => [key, rules[key]]))
+        .mapWithKeys<AnySchema>((rules: [string, AnySchema]) => rules)
+        .all(),
+    ).validateAsync(request.all(), { abortEarly: false });
+  }
+
+  /**
+   * Set attempt callback.
+   */
+  public static async attempt(
+    payload: Record<string, unknown>,
+  ): Promise<AvonResponse> {
+    const user = await Avon.attemptCallback(payload);
+
+    NotFoundException.unless(user);
+
+    return new LoginResponse({
+      token: sign(user, Avon.appKey, Avon.jwtSignOptions),
+    });
+  }
+
+  /**
    * Get the schema for open API.
    */
   public static schema(request: AvonRequest): OpenAPIV3.Document {
@@ -195,7 +358,7 @@ export default class Avon {
             ...resource.schema(request),
           };
         },
-        { ...Avon.paths },
+        { ...Avon.paths, ...Avon.loginSchema(request) },
       ),
       info: Avon.info,
       components: {
@@ -339,38 +502,53 @@ export default class Avon {
   }
 
   /**
-   * Extend swagger paths.
+   * Get the login swagger schema.
    */
-  public static extend(paths: OpenAPIV3.PathsObject) {
-    Avon.paths = paths;
+  public static loginSchema(request: AvonRequest): OpenAPIV3.PathsObject {
+    const fields = Avon.fieldsForLogin();
 
-    return Avon;
-  }
-
-  /**
-   * Extend swagger paths.
-   */
-  public static describe(info: OpenAPIV3.InfoObject) {
-    Avon.info = { ...Avon.info, ...info };
-
-    return Avon;
-  }
-
-  /**
-   * Set the JWT options.
-   */
-  public static auth(jwt: Params) {
-    Avon.jwt = { ...Avon.jwt, ...jwt };
-
-    return Avon;
-  }
-
-  /**
-   * Set the JWT options.
-   */
-  public static except(path: string | RegExp) {
-    Avon.excepts.push(path);
-
-    return Avon;
+    return {
+      [`${request.getRequest().baseUrl}/login`]: {
+        post: {
+          tags: ['auth'],
+          description: `Login to get JWT token`,
+          operationId: 'attempt',
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: fields.map((field) => field.attribute).all(),
+                  properties: fields.payloadSchemas(request),
+                },
+              },
+            },
+          },
+          responses: {
+            ...errorsResponses(),
+            ...validationResponses(),
+            200: {
+              description: `Get JWT token`,
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      data: {
+                        type: 'object',
+                        properties: {
+                          token: { type: 'string' },
+                          meta: { type: 'object' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
   }
 }

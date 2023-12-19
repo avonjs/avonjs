@@ -7,6 +7,7 @@ import {
 } from './contracts';
 import { AvonResponse } from './Http/Responses';
 import AuthenticationException from './Exceptions/AuthenticationException';
+import { OpenAPIV3 } from 'openapi-types';
 
 /**
  * Convert given string in to slugify version.
@@ -76,4 +77,46 @@ export const handleAuthenticationError = (
   } else {
     next(err);
   }
+};
+
+/**
+ * Get authorization responses schema.
+ */
+export const authorizationResponses = (): OpenAPIV3.ResponsesObject => {
+  return {
+    401: {
+      $ref: '#/components/responses/Unauthenticated',
+    },
+    403: {
+      $ref: '#/components/responses/Forbidden',
+    },
+  };
+};
+
+/**
+ * Get erros responses schema.
+ */
+export const errorsResponses = (): OpenAPIV3.ResponsesObject => {
+  return {
+    404: {
+      $ref: '#/components/responses/NotFound',
+    },
+    500: {
+      $ref: '#/components/responses/InternalServerError',
+    },
+  };
+};
+
+/**
+ * Get validation responses schema.
+ */
+export const validationResponses = (): OpenAPIV3.ResponsesObject => {
+  return {
+    // 400: {
+    //   $ref: '#/components/responses/BadRequest',
+    // },
+    422: {
+      $ref: '#/components/responses/UnprocessableContent',
+    },
+  };
 };

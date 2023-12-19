@@ -61,8 +61,6 @@ beforeAll(() => {
   // configure Avon
   Avon.resources([resource]);
 
-  Avon.resolveUserUsing(() => new Fluent({ id: 1 }));
-
   app.use('/api', Avon.routes(express.Router()));
 });
 // create storage
@@ -96,7 +94,6 @@ describe('action event logs', () => {
         ]);
 
         expect(actionEvent).not.toBeUndefined();
-        expect(actionEvent.getAttribute('user_id')).toEqual(1);
         expect(actionEvent.getAttribute('payload')).toEqual({ name });
         expect(actionEvent.getAttribute('original')).toEqual({});
         expect(actionEvent.getAttribute('changes')).toEqual({
@@ -132,7 +129,6 @@ describe('action event logs', () => {
           },
         ]);
         expect(actionEvent).not.toBeUndefined();
-        expect(actionEvent.getAttribute('user_id')).toEqual(1);
         expect(actionEvent.getAttribute('payload')).toEqual({ name });
         expect(actionEvent.getAttribute('original')).toEqual({
           id: 1,
@@ -165,7 +161,6 @@ describe('action event logs', () => {
           },
         ]);
         expect(actionEvent).not.toBeUndefined();
-        expect(actionEvent.getAttribute('user_id')).toEqual(1);
         expect(actionEvent.getAttribute('payload')).toEqual({});
         expect(actionEvent.getAttribute('original')).toEqual({
           id: 1,
@@ -198,7 +193,6 @@ describe('action event logs', () => {
           },
         ]);
         expect(actionEvent).not.toBeUndefined();
-        expect(actionEvent.getAttribute('user_id')).toEqual(1);
         expect(actionEvent.getAttribute('payload')).toEqual({});
         expect(actionEvent.getAttribute('original')).toEqual({});
         expect(actionEvent.getAttribute('changes')).toEqual({});

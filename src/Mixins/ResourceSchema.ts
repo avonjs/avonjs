@@ -14,7 +14,12 @@ import {
   OpenApiSchema,
   TrashedStatus,
 } from '../contracts';
-import { slugify } from '../helpers';
+import {
+  authorizationResponses,
+  errorsResponses,
+  slugify,
+  validationResponses,
+} from '../helpers';
 import { Fluent } from '../Models';
 import { Repository } from '../Repositories';
 
@@ -921,42 +926,21 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      * name
      */
     public authorizationResponses(): OpenAPIV3.ResponsesObject {
-      return {
-        401: {
-          $ref: '#/components/responses/Unauthenticated',
-        },
-        403: {
-          $ref: '#/components/responses/Forbidden',
-        },
-      };
+      return authorizationResponses();
     }
 
     /**
      * name
      */
     public errorsResponses(): OpenAPIV3.ResponsesObject {
-      return {
-        404: {
-          $ref: '#/components/responses/NotFound',
-        },
-        500: {
-          $ref: '#/components/responses/InternalServerError',
-        },
-      };
+      return errorsResponses();
     }
 
     /**
      * name
      */
     public validationResponses(): OpenAPIV3.ResponsesObject {
-      return {
-        // 400: {
-        //   $ref: '#/components/responses/BadRequest',
-        // },
-        422: {
-          $ref: '#/components/responses/UnprocessableContent',
-        },
-      };
+      return validationResponses();
     }
 
     abstract uriKey(): string;

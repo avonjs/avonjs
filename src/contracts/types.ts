@@ -3,6 +3,7 @@ import { Direction, Operator } from './constants';
 import { Fluent } from '../Models';
 import { Model } from './interfaces';
 import { OpenAPIV3 } from 'openapi-types';
+import { Params } from 'express-jwt';
 
 export type SerializedAction = {
   uriKey: string;
@@ -62,3 +63,5 @@ export type OpenApiFieldSchema = {
   response: OpenApiSchema;
   payload: OpenApiSchema;
 };
+
+export type JwVerifyOptions = Params & { secret: string };

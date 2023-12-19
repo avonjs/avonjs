@@ -4,6 +4,9 @@
 - [Installation](#installation)
 - [Initialize](#initialize)
 - [Authentication](#authentication)
+  - [Login](#login)
+  - [Credentials](#credentials)
+  - [JWT Options](#jwt-options)
 
 **Resources**
 
@@ -122,6 +125,49 @@ Avon ships by JWT authentication approach but it's disabled by default. to enabl
 ```
 // register Avon router
 app.use('/api', Avon.routes(express.Router(), true));
+```
+
+we are using the [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) to generate tokens.
+
+### Login
+
+After enabling the JWT authentication you users need to login to get JWT token and access to API's. for this Avon has the `attemptUsing` method to handle users login:
+
+```
+Avon.attemptUsing(async (payload) => {
+  const user = await new Users().first([
+    {
+      key: 'email',
+      operator: Operator.eq,
+      value: payload.email,
+    },
+  ]);
+
+  if (user) {
+    return { id: user.getKey() };
+  }
+});
+```
+
+you could return an arbitrary object containing the user identifier key as an `id` attribute.
+
+### Credentials
+
+Also, you are free to customize login credentials by the `credentials` method in the Avon class like so:
+
+```
+Avon.credentials([new Fields.Email().default(() => 'zarehesmaiel@gmail.com')]);
+
+```
+
+The `credentials` method accepts an array of Avon fields as a parameter.
+
+### JWT Options
+
+Avon `signOptions` method allows you to customize JWT token generation config. the following expires JWT after '30 second':
+
+```
+Avon.signOptions({ expiresIn: '30s' });
 ```
 
 # Resources
@@ -1322,14 +1368,6 @@ class Activities extends FillsActionEvents(Repositories.FileRepository) {
   }
 };
 
-```
-
-### Action Event Actor
-
-Since Avon doesn't know about logged-in users, to know who did an activity on the resources, you could register users to Avon after logging in:
-
-```
-Avon.resolveUserUsing((request) => request.getRequest().user);
 ```
 
 # Error Handling

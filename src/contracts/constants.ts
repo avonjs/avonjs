@@ -39,6 +39,7 @@ export enum RequestTypes {
   ResourceForceDeleteRequest = 'ResourceForceDeleteRequest',
   ResourceRestoreRequest = 'ResourceRestoreRequest',
   ActionRequest = 'ActionRequest',
+  LoginRequest = 'LoginRequest',
   AssociableRequest = 'AssociableRequest',
   SchemaRequest = 'SchemaRequest',
 }

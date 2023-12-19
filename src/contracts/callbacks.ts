@@ -1,4 +1,5 @@
 import Field from '../Fields/Field';
+import ActionRequest from '../Http/Requests/ActionRequest';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Repository } from '../Repositories';
 import { Model } from './interfaces';
@@ -67,3 +68,11 @@ export type RelatableQueryCallback = (
   request: AvonRequest,
   repository: Repository<Model>,
 ) => Repository<Model>;
+
+export type Auth = {
+  id: string | number;
+};
+
+export type AttemptCallback = (
+  payload: Record<string, unknown>,
+) => Promise<Auth | null | undefined | void>;
