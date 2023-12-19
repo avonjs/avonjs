@@ -171,6 +171,12 @@ Avon `signOptions` method allows you to customize JWT token generation config. t
 Avon.signOptions({ expiresIn: '30s' });
 ```
 
+Alos to changing the JWT secret key the `appKey` could help you:
+
+```
+Avon.appKey('AvonSecret')
+```
+
 ### Excluding
 
 If you need to exclude some routes from authentication the `except` method could help you:
