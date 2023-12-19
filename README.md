@@ -6,7 +6,8 @@
 - [Authentication](#authentication)
   - [Login](#login)
   - [Credentials](#credentials)
-  - [JWT Options](#jwt-options)
+  - [Options](#options)
+  - [Excluding](#excluding)
 
 **Resources**
 
@@ -162,13 +163,23 @@ Avon.credentials([new Fields.Email().default(() => 'zarehesmaiel@gmail.com')]);
 
 The `credentials` method accepts an array of Avon fields as a parameter.
 
-### JWT Options
+### Options
 
 Avon `signOptions` method allows you to customize JWT token generation config. the following expires JWT after '30 second':
 
 ```
 Avon.signOptions({ expiresIn: '30s' });
 ```
+
+### Excluding
+
+If you need to exclude some routes from authentication the `except` method could help you:
+
+```
+Avon.except('/api/resources/pages').except(/.*\/actions\/register-users/)
+```
+
+You are free to use `string` or `regex` to exclude paths. we are using the [express-unless](https://www.npmjs.com/package/express-unless) to handling this situation.
 
 # Resources
 
