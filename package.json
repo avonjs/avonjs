@@ -18,6 +18,9 @@
     "test": "jest --runInBand",
     "test:debug": "jest --runInBand --verbose"
   },
+  "bin": {
+    "avonjs": "./dist/cli.js"
+  },
   "keywords": [
     "express",
     "avon",
@@ -54,6 +57,7 @@
   },
   "dependencies": {
     "collect.js": "^4.36.1",
+    "commander": "^11.1.0",
     "express-jwt": "^8.4.1",
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
