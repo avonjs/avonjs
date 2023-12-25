@@ -1,0 +1,29 @@
+//@ts-check
+const { Filters } = require('@avonjs/avonjs');
+
+module.exports = class __NAME__ extends Filters.Filter {
+  /**
+   * Apply the filter into the given repository.
+   *
+   * @param {import('@avonjs/avonjs').AvonRequest} request
+   * @param {import('@avonjs/avonjs').Repositories.Repository} repository
+   * @param {unknown} value
+   * @returns {any}
+   */
+  apply(request, repository, value) {
+    // modify repository
+  }
+
+  /**
+   * Get the swagger-ui schema.
+   *
+   * @param {import('@avonjs/avonjs').AvonRequest} request
+   * @returns {import('@avonjs/avonjs').Contracts.OpenApiSchema}
+   */
+  schema(request) {
+    return {
+      type: 'string',
+      nullable: this.isNullable(),
+    };
+  }
+};
