@@ -1,0 +1,25 @@
+//@ts-check
+import { Filters } from '@avonjs/avonjs';
+
+export default class __NAME__ extends Filters.Select {
+  /**
+   * Apply the filter into the given repository.
+   *
+   * @param {import('@avonjs/avonjs').AvonRequest} request
+   * @param {import('@avonjs/avonjs').Repositories.Repository} repository
+   * @param {unknown} value
+   * @returns {any}
+   */
+  apply(request, repository, value) {
+    // modify repository
+  }
+
+  /**
+   * Get the possible filtering values.
+   *
+   * @returns {any[]}
+   */
+  options() {
+    return [];
+  }
+}

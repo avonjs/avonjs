@@ -1,0 +1,25 @@
+//@ts-check
+import { AvonRequest, Contracts, Filters, Repositories } from '@avonjs/avonjs';
+
+export default class __NAME__ extends Filters.Filter {
+  /**
+   * Apply the filter into the given repository.
+   */
+  apply(
+    request: AvonRequest,
+    repository: Repositories.Repository,
+    value: any,
+  ): any {
+    // modify repository
+  }
+
+  /**
+   * Get the swagger-ui schema.
+   */
+  schema(request: AvonRequest): Contracts.OpenApiSchema {
+    return {
+      type: 'string',
+      nullable: this.isNullable(),
+    };
+  }
+}

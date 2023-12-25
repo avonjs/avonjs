@@ -1,0 +1,15 @@
+//@ts-check
+import { AvonRequest, Filters, Repositories } from '@avonjs/avonjs';
+
+export default class __NAME__ extends Filters.Range {
+  /**
+   * Apply the filter into the given repository.
+   */
+  apply(
+    request: AvonRequest,
+    repository: Repositories.Repository,
+    value: any,
+  ): any {
+    // modify repository
+  }
+}
