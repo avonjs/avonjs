@@ -5,6 +5,7 @@ import AvonRequest from './Http/Requests/AvonRequest';
 import Resource from './Resource';
 import * as Fields from './Fields';
 import * as Filters from './Filters';
+import * as Orderings from './Orderings';
 import * as Actions from './Actions';
 import * as Models from './Models';
 import * as Exceptions from './Exceptions';
@@ -24,6 +25,7 @@ export {
   SoftDeletes,
   FillsActionEvents,
   Filters,
+  Orderings,
   Actions,
   Models,
   Exceptions,

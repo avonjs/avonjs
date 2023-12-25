@@ -81,6 +81,12 @@ export const ensureFilterDirectoryExists = (directory?: string): void => {
   );
 };
 
+export const ensureOrderingDirectoryExists = (directory?: string): void => {
+  ensureDirectoryExists(
+    join(process.cwd(), directory ?? basePath(), 'orderings'),
+  );
+};
+
 export const exists = (path: string, directory?: string): boolean => {
   return existsSync(join(process.cwd(), directory ?? basePath(), path));
 };

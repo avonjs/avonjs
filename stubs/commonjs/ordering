@@ -1,0 +1,16 @@
+//@ts-check
+const { Orderings } = require('@avonjs/avonjs');
+
+module.exports = class __NAME__ extends Orderings.Ordering {
+  /**
+   * Apply the filter into the given repository.
+   *
+   * @param {import('@avonjs/avonjs').AvonRequest} request
+   * @param {import('@avonjs/avonjs').Repositories.Repository} repository
+   * @param {import('@avonjs/avonjs').Constants.Direction} direction
+   * @returns {any}
+   */
+  apply(request, repository, direction) {
+    // modify repository
+  }
+};

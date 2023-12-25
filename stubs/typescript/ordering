@@ -1,0 +1,20 @@
+//@ts-check
+import {
+  AvonRequest,
+  Constants,
+  Repositories,
+  Orderings,
+} from '@avonjs/avonjs';
+
+export default class __NAME__ extends Orderings.Ordering {
+  /**
+   * Apply the filter into the given repository.
+   */
+  apply(
+    request: AvonRequest,
+    repository: Repositories.Repository,
+    direction: Constants.Direction,
+  ): any {
+    // modify repository
+  }
+}

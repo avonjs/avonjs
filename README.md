@@ -1009,7 +1009,6 @@ Each `SelectFilter` should have the `options` method that defines the "values" t
 import { Filters } from '@avonjs/avonjs';
 
 export class FilterByRoles extends Filters.Select {
-    \**
     * Apply the filter into the given repository.
     */
     apply(request, repository, value) {
@@ -1074,45 +1073,41 @@ Avon orderings are simple classes that allow you to order your Avon index querie
 
 - _Before creating your own orderings, you may want to check out [orderable fields](#orderable-fields). orderable fields can solve the ordering needs of most Avon installations without the need to write custom code._
 
-To create a ordering you have to create a javascript class that extends the Avon `Ordering` class like so:
+To create a ordering you have to use `make:ordering` Avon command like so:
+
+```bash
+avonjs make:ordering OrderByFullName
+```
+By default, Avon will place newly generated orderings in the `avonjs/orderings` directory. Each "ordering" is a class that extended the base class orderings and contains an `apply` method to modifying underlying repository query:
 
 ```
-
 // Orderings/OrderByFullName.js
-
 import { Orderings } from '@avonjs/avonjs';
 
 export class OrderByFullName extends Orderings.Ordering {
-/\*\*
-_ Apply the ordering into the given repository.
-_/
-apply(request, repository, direction) {
-// modify query
+    /**
+    * Apply the ordering into the given repository.
+    */
+    apply(request, repository, direction) {
+        // modify query
+    }
 }
-}
-
 ```
-
-Each ordering is a class that extended the base class orderings and contains an `apply` method to customize the index query.
 
 ## Registering Orderings
 
 Once you have defined a ordering, you are ready to attach it to a resource. Each resource created by Avon contains a `orderings` method. To attach a ordering to a resource, you should simply add it to the array of orderings returned by this method:
 
 ```
-
-/\*\*
-
-- Get the orderings available on the entity.
-  \*/
-  public orderings(request: AvonRequest): Ordering[] {
+/**
+* Get the orderings available on the entity.
+*/
+public orderings(request: AvonRequest): Ordering[] {
   return [
-  new OrderByFullName(),
+    new OrderByFullName(),
   ];
-  }
-
+}
 ```
-
 After attaching a ordering to the resource, the ordering will appear in the swagger-ui index API.
 
 ## Authorization Orderings
@@ -1120,9 +1115,7 @@ After attaching a ordering to the resource, the ordering will appear in the swag
 If you need to limit the user to run orderings, the `canSee` method gives a `function` that receive the current request that should return `true` or `false` to determine user can use the ordering or not. if an restricted ordering appear in the request, the Avon will ignore it:
 
 ```
-
 new OrderingByHits().canSee((request) => false)
-
 ```
 
 # Actions
