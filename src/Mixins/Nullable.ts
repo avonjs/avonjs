@@ -1,4 +1,4 @@
-import { AbstractMixable, NullableCallback } from '../contracts';
+import { AbstractMixable, NullableCallback } from '../Contracts';
 import { isNullish } from '../helpers';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {

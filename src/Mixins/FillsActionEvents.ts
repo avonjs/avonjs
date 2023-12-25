@@ -10,7 +10,7 @@ import {
   ResourceActionEventForAction,
   ResourceStoreActionEvent,
   ResourceUpdateActionEvent,
-} from '../contracts';
+} from '../Contracts';
 
 export default <T extends AbstractMixable<Repository>>(Parent: T) => {
   abstract class FillsActionEvents extends Parent {

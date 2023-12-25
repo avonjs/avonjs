@@ -2,7 +2,7 @@ import Avon from '../Avon';
 import { RuntimeException } from '../Exceptions';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import Resource from '../Resource';
-import { Model } from '../contracts';
+import { Model } from '../Contracts';
 import HasManyOrOne from './HasManyOrOne';
 import { guessRelation } from './ResourceRelationshipGuesser';
 

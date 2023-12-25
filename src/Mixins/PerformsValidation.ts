@@ -2,7 +2,7 @@ import collect from 'collect.js';
 import Joi, { AnySchema } from 'joi';
 import ValidationException from '../Exceptions/ValidationException';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { AbstractMixable, Rules } from '../contracts';
+import { AbstractMixable, Rules } from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class PerformsValidation extends Parent {

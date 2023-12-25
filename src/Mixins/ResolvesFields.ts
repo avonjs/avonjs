@@ -1,7 +1,7 @@
 import FieldCollection from '../Collections/FieldCollection';
 import { Field } from '../Fields';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { AbstractMixable, Model } from '../contracts';
+import { AbstractMixable, Model } from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class ResolvesFields extends Parent {

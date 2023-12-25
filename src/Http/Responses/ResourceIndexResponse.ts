@@ -1,4 +1,4 @@
-import { IndexSerializedResource } from '../../contracts';
+import { IndexSerializedResource } from '../../Contracts';
 import AvonResponse from './AvonResponse';
 
 export default class ResourceIndexResponse extends AvonResponse {

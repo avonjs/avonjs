@@ -9,7 +9,7 @@ import {
   SeeCallback,
   Model,
   OpenApiSchema,
-} from '../contracts';
+} from '../Contracts';
 import { Repository } from '../Repositories';
 
 export default abstract class Ordering

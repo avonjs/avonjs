@@ -1,5 +1,5 @@
 import Avon from '../../Avon';
-import { Ability } from '../../contracts';
+import { Ability } from '../../Contracts';
 import ResourceRestoreRequest from '../Requests/ResourceRestoreRequest';
 import { AvonResponse, EmptyResponse } from '../Responses';
 import Controller from './Controller';

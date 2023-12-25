@@ -7,7 +7,7 @@ import {
   Direction,
   Operator,
   Searchable,
-} from '../contracts';
+} from '../Contracts';
 import Repository from './Repository';
 import { isRegExp } from 'util/types';
 

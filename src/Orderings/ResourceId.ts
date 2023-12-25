@@ -1,7 +1,7 @@
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Repository } from '../Repositories';
 
-import { Direction, Model } from '../contracts';
+import { Direction, Model } from '../Contracts';
 import Ordering from './Ordering';
 
 export default class PrimaryKey extends Ordering {

@@ -1,6 +1,6 @@
 import AvonRequest from '../Http/Requests/AvonRequest';
 import Filter from './Filter';
-import { OpenApiSchema } from '../contracts';
+import { OpenApiSchema } from '../Contracts';
 
 export default abstract class SelectFilter extends Filter {
   /**

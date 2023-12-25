@@ -1,5 +1,5 @@
 import Nullable from '../../Mixins/Nullable';
-import { NullableCallback } from '../../contracts';
+import { NullableCallback } from '../../Contracts';
 
 export default abstract class QueryParameter extends Nullable(class {}) {
   /**

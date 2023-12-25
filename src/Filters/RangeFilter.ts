@@ -1,7 +1,7 @@
 import { OpenAPIV3 } from 'openapi-types';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import Filter from './Filter';
-import { OpenApiSchema } from '../contracts';
+import { OpenApiSchema } from '../Contracts';
 
 export default abstract class RangeFilter extends Filter {
   /**

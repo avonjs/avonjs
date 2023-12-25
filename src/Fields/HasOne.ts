@@ -1,6 +1,6 @@
 import AvonRequest from '../Http/Requests/AvonRequest';
 import HasManyOrOne from './HasManyOrOne';
-import { OpenApiSchema } from '../contracts';
+import { OpenApiSchema } from '../Contracts';
 import FieldCollection from '../Collections/FieldCollection';
 
 export default class HasOne extends HasManyOrOne {

@@ -1,6 +1,6 @@
 import { Filter } from '../../Filters';
 import { Ordering } from '../../Orderings';
-import { RequestTypes, MatchesQueryParameters } from '../../contracts';
+import { RequestTypes, MatchesQueryParameters } from '../../Contracts';
 import ResourceIndexRequest from './ResourceIndexRequest';
 
 export default class AssociableRequest extends ResourceIndexRequest {

@@ -2,7 +2,7 @@ import { Field } from '../Fields';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Repository } from '../Repositories';
-import { AbstractMixable, Model } from '../contracts';
+import { AbstractMixable, Model } from '../Contracts';
 
 export default <T extends AbstractMixable<Filter>>(Parent: T) => {
   abstract class FilterableFields extends Parent {

@@ -1,4 +1,4 @@
-import { Model } from '../contracts';
+import { Model } from '../Contracts';
 
 export default class Fluent implements Model {
   constructor(protected attributes: Record<any, any> = {}) {

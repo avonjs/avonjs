@@ -7,7 +7,7 @@ import {
   Model,
   MatchesQueryParameters,
   TrashedStatus,
-} from '../../contracts';
+} from '../../Contracts';
 import AvonRequest from './AvonRequest';
 import QueryParser from './QueryParser';
 

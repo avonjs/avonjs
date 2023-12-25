@@ -1,6 +1,6 @@
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Repository } from '../Repositories';
-import { Model } from '../contracts';
+import { Model } from '../Contracts';
 
 import Filter from './Filter';
 

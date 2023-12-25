@@ -2,7 +2,7 @@ import { Collection } from 'collect.js';
 import { Field } from '../Fields';
 import Relation from '../Fields/Relation';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { Model, OpenApiSchema } from '../contracts';
+import { Model, OpenApiSchema } from '../Contracts';
 
 export default class FieldCollection<
   TItem extends Field = Field,

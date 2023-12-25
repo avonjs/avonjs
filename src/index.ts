@@ -10,10 +10,10 @@ import * as Models from './Models';
 import * as Exceptions from './Exceptions';
 import * as Repositories from './Repositories';
 import * as Responses from './Http/Responses';
-import * as Contracts from './contracts';
+import * as Contracts from './Contracts';
 import * as Helpers from './helpers';
 import * as Resources from './Resources';
-import * as Constants from './contracts/constants';
+import * as Constants from './Contracts/constants';
 
 export {
   Avon as default,

@@ -26,7 +26,7 @@ import {
   FilledCallback,
   OpenApiFieldSchema,
   OpenApiSchema,
-} from '../contracts';
+} from '../Contracts';
 import TextFilter from './Filters/TextFilter';
 import { Repository } from '../Repositories';
 

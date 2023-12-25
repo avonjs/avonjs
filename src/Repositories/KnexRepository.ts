@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 import { plural, singular } from 'pluralize';
 import { Fluent } from '../Models';
-import { Model, SearchCollection, Where, Direction } from '../contracts';
+import { Model, SearchCollection, Where, Direction } from '../Contracts';
 import { slugify } from '../helpers';
 import Repository from './Repository';
 

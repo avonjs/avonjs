@@ -7,7 +7,7 @@ import {
   FilterableCallback,
   Model,
   Operator,
-} from '../contracts';
+} from '../Contracts';
 import Field from './Field';
 import TextFilter from './Filters/TextFilter';
 import { Repository } from '../Repositories';

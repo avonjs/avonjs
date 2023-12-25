@@ -8,7 +8,7 @@ import {
   TrashedStatus,
   Direction,
   Model,
-} from '../contracts';
+} from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class PerformQueries extends Parent {

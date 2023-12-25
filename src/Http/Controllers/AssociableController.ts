@@ -1,6 +1,6 @@
 import FieldNotFoundException from '../../Exceptions/FieldNotFoundException';
 import Resource from '../../Resource';
-import { SearchCollection, Model, Ability } from '../../contracts';
+import { SearchCollection, Model, Ability } from '../../Contracts';
 import AssociableRequest from '../Requests/AssociableRequest';
 import { AvonResponse } from '../Responses';
 import ResourceAssociationResponse from '../Responses/ResourceAssociationResponse';

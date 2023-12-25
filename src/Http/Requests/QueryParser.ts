@@ -1,5 +1,5 @@
 import { ParsedUrlQuery } from 'querystring';
-import { MatchesQueryParameters } from '../../contracts';
+import { MatchesQueryParameters } from '../../Contracts';
 import QueryParameter from './QueryParameter';
 
 export default class QueryParser<T extends QueryParameter> {

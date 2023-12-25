@@ -1,4 +1,4 @@
-import { RequestTypes } from '../../contracts';
+import { RequestTypes } from '../../Contracts';
 import ResourceSoftDeleteRequest from './ResourceSoftDeleteRequest';
 
 export default class ResourceReviewRequest extends ResourceSoftDeleteRequest {

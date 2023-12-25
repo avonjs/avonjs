@@ -1,4 +1,4 @@
-import { Ability } from '../../contracts';
+import { Ability } from '../../Contracts';
 import ResourceForceDeleteRequest from '../Requests/ResourceForceDeleteRequest';
 import { AvonResponse, EmptyResponse } from '../Responses';
 import Controller from './Controller';

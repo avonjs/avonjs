@@ -1,6 +1,6 @@
 import { Action } from '../Actions';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { AbstractMixable } from '../contracts';
+import { AbstractMixable } from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class ResolvesActions extends Parent {

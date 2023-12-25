@@ -3,7 +3,7 @@ import {
   ResourceEvaluatorCallback,
   EvaluatorCallback,
   Model,
-} from '../contracts';
+} from '../Contracts';
 import {
   approveCallback,
   reverseEvaluatorCallback,

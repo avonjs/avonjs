@@ -5,7 +5,7 @@ import {
   Model,
   CallbackStack,
   FilledCallback,
-} from '../contracts';
+} from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class FillsFields extends Parent {

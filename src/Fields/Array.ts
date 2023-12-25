@@ -2,7 +2,7 @@ import collect from 'collect.js';
 import Joi, { AnySchema } from 'joi';
 import { OpenAPIV3 } from 'openapi-types';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { FilledCallback, Model, OpenApiSchema } from '../contracts';
+import { FilledCallback, Model, OpenApiSchema } from '../Contracts';
 import Field from './Field';
 
 export default class Array extends Field {

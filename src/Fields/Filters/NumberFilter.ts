@@ -1,4 +1,4 @@
-import { NullableCallback } from '../../contracts';
+import { NullableCallback } from '../../Contracts';
 import FilterableFields from '../../Mixins/FilterableFields';
 import { RangeFilter } from '../../Filters';
 import Field from '../Field';

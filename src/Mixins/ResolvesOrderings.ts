@@ -1,4 +1,4 @@
-import { AbstractMixable } from '../contracts';
+import { AbstractMixable } from '../Contracts';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Ordering } from '../Orderings';
 

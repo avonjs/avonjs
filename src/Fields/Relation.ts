@@ -14,7 +14,7 @@ import {
   OpenApiSchema,
   FilterableCallback,
   Operator,
-} from '../contracts';
+} from '../Contracts';
 import Field from './Field';
 import RelatableFilter from './Filters/RelatableFilter';
 import { guessRelation } from './ResourceRelationshipGuesser';

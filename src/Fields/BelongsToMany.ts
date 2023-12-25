@@ -12,7 +12,7 @@ import {
   Ability,
   FilledCallback,
   OpenApiSchema,
-} from '../contracts';
+} from '../Contracts';
 import Relation from './Relation';
 import { guessForeignKey } from './ResourceRelationshipGuesser';
 import FieldCollection from '../Collections/FieldCollection';

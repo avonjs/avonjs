@@ -6,7 +6,7 @@ import {
   OrderingCallback,
   Model,
   Operator,
-} from '../contracts';
+} from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class Orderable extends Parent {

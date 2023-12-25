@@ -6,7 +6,7 @@ import {
   Where,
   Operator,
   SoftDeletes as SoftDeletesContract,
-} from '../contracts';
+} from '../Contracts';
 import Repository from '../Repositories/Repository';
 
 export default <

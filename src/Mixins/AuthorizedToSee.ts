@@ -1,4 +1,4 @@
-import { AbstractMixable, SeeCallback } from '../contracts';
+import { AbstractMixable, SeeCallback } from '../Contracts';
 import AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {

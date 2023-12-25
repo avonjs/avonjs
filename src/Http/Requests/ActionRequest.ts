@@ -1,6 +1,6 @@
 import { Action } from '../../Actions';
 import ActionNotFoundException from '../../Exceptions/ActionNotFoundException';
-import { RequestTypes, Model } from '../../contracts';
+import { RequestTypes, Model } from '../../Contracts';
 import AvonRequest from './AvonRequest';
 
 export default class ActionRequest extends AvonRequest {

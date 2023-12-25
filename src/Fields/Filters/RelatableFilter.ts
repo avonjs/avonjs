@@ -1,5 +1,5 @@
 import collect from 'collect.js';
-import { NullableCallback, OpenApiSchema } from '../../contracts';
+import { NullableCallback, OpenApiSchema } from '../../Contracts';
 import FilterableFields from '../../Mixins/FilterableFields';
 import { Filter } from '../../Filters';
 import AvonRequest from '../../Http/Requests/AvonRequest';

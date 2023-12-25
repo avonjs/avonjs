@@ -1,4 +1,4 @@
-import { Ability } from '../../contracts';
+import { Ability } from '../../Contracts';
 import ResourceIndexRequest from '../Requests/ResourceIndexRequest';
 import { AvonResponse } from '../Responses';
 import ResourceIndexResponse from '../Responses/ResourceIndexResponse';

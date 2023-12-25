@@ -17,7 +17,7 @@ import {
   Ability,
   DetailSerializedResource,
   ReviewSerializedResource,
-} from './contracts';
+} from './Contracts';
 import { slugify } from './helpers';
 import RecordsResourceEvents from './Mixins/RecordsResourceEvents';
 import { Action } from './Actions';

@@ -4,7 +4,7 @@ import {
   EvaluatorCallback,
   ResourceEvaluatorCallback,
   Model,
-} from './contracts';
+} from './Contracts';
 import { AvonResponse } from './Http/Responses';
 import AuthenticationException from './Exceptions/AuthenticationException';
 import { OpenAPIV3 } from 'openapi-types';

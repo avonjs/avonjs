@@ -14,7 +14,7 @@ import {
   BulkActionResult,
   OpenApiSchema,
   SeeCallback,
-} from '../contracts';
+} from '../Contracts';
 import { AvonResponse, SuccessfulResponse } from '../Http/Responses';
 import Avon from '../Avon';
 

@@ -1,7 +1,7 @@
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Repository } from '../Repositories';
 
-import { FilterableCallback, Model, Operator } from '../contracts';
+import { FilterableCallback, Model, Operator } from '../Contracts';
 import Relation from './Relation';
 import { guessForeignKey } from './ResourceRelationshipGuesser';
 

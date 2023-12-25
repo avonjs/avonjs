@@ -1,4 +1,4 @@
-import { Model, Where, Order, Operator, SearchCollection } from '../contracts';
+import { Model, Where, Order, Operator, SearchCollection } from '../Contracts';
 
 export default abstract class Repository<TModel extends Model = Model> {
   /**

@@ -1,5 +1,5 @@
 import ModelNotFoundException from '../../Exceptions/ModelNotFoundException';
-import { Ability } from '../../contracts';
+import { Ability } from '../../Contracts';
 import ResourceDetailRequest from '../Requests/ResourceDetailRequest';
 import { AvonResponse } from '../Responses';
 import ResourceDetailResponse from '../Responses/ResourceDetailResponse';

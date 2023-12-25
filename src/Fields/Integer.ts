@@ -8,7 +8,7 @@ import {
   Model,
   OpenApiSchema,
   Operator,
-} from '../contracts';
+} from '../Contracts';
 import Field from './Field';
 import NumberFilter from './Filters/NumberFilter';
 import { Repository } from '../Repositories';

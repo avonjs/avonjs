@@ -13,7 +13,7 @@ import {
   Model,
   OpenApiSchema,
   TrashedStatus,
-} from '../contracts';
+} from '../Contracts';
 import {
   authorizationResponses,
   errorsResponses,

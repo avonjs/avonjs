@@ -5,7 +5,7 @@ import {
   Operator,
   Searchable,
   ActionEventRepository,
-} from '../contracts';
+} from '../Contracts';
 import CollectionRepository from './CollectionRepository';
 import FillsActionEvents from '../Mixins/FillsActionEvents';
 

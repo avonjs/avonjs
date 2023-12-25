@@ -12,7 +12,7 @@ import {
   ErrorHandler,
   Model,
   UserResolver,
-} from './contracts';
+} from './Contracts';
 import { Params, expressjwt } from 'express-jwt';
 import {
   errorsResponses,

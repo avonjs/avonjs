@@ -7,7 +7,7 @@ import {
   Model,
   FilledCallback,
   OpenApiSchema,
-} from '../contracts';
+} from '../Contracts';
 import Field from './Field';
 
 export default class Json extends Field {

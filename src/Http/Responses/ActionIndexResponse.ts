@@ -1,4 +1,4 @@
-import { SerializedAction } from '../../contracts';
+import { SerializedAction } from '../../Contracts';
 import AvonResponse from './AvonResponse';
 
 export default class ActionIndexResponse extends AvonResponse {

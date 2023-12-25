@@ -6,7 +6,7 @@ import {
   FilterableCallback,
   Model,
   Operator,
-} from '../contracts';
+} from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class Filterable extends Parent {

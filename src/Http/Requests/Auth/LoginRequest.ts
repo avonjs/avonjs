@@ -1,4 +1,4 @@
-import { RequestTypes } from '../../../contracts';
+import { RequestTypes } from '../../../Contracts';
 import AvonRequest from '../AvonRequest';
 
 export default class LoginRequest extends AvonRequest {

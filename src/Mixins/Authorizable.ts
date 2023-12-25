@@ -1,6 +1,6 @@
 import { ForbiddenException } from '../Exceptions';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { AbstractMixable, Ability, Model } from '../contracts';
+import { AbstractMixable, Ability, Model } from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class Authorizable extends Parent {

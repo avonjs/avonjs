@@ -3,7 +3,7 @@ import ModelNotFoundException from '../../Exceptions/ModelNotFoundException';
 import ResourceNotFoundException from '../../Exceptions/ResourceNotFoundException';
 import { Repository } from '../../Repositories';
 import Resource from '../../Resource';
-import { RequestTypes, Model, TrashedStatus } from '../../contracts';
+import { RequestTypes, Model, TrashedStatus } from '../../Contracts';
 import FormRequest from './FormRequest';
 
 export default abstract class AvonRequest extends FormRequest {

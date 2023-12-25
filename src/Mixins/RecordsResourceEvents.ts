@@ -6,7 +6,7 @@ import {
   Searchable,
   BulkActionResult,
   ActionEventRepository,
-} from '../contracts';
+} from '../Contracts';
 import { ActionEvent, Repository } from '../Repositories';
 import { Action } from '../Actions';
 import { Fluent } from '../Models';

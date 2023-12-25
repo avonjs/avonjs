@@ -8,7 +8,7 @@ import {
   OpenApiSchema,
   Operator,
   Rules,
-} from '../contracts';
+} from '../Contracts';
 import Relation from './Relation';
 
 export default class BelongsTo extends Relation {

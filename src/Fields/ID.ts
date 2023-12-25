@@ -1,4 +1,4 @@
-import { ResolveCallback } from '../contracts';
+import { ResolveCallback } from '../Contracts';
 import Integer from './Integer';
 
 export default class ID extends Integer {
