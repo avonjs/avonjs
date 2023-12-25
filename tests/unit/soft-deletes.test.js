@@ -5,9 +5,7 @@ const { Operator } = require('../../dist/contracts');
 
 const items = [{ id: 1 }, { id: 2, deleted_at: new Date().toString() }];
 
-class RepositoryWithSoftDeletes extends SoftDeletes(
-  Repositories.CollectionRepository,
-) {
+class RepositoryWithSoftDeletes extends SoftDeletes(Repositories.Collection) {
   searchableColumns() {
     return [];
   }

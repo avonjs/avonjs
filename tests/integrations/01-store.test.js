@@ -4,7 +4,7 @@ const request = require('supertest');
 const bodyParser = require('body-parser');
 
 const { Repositories, Resource, Fields } = require('../../dist');
-const repository = new (class extends Repositories.CollectionRepository {
+const repository = new (class extends Repositories.Collection {
   searchableColumns() {
     return [];
   }

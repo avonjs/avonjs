@@ -6,7 +6,7 @@ const { Repositories, Resource, Fields } = require('../../dist');
 
 class Delete extends Resource {
   repository() {
-    return new (class extends Repositories.CollectionRepository {
+    return new (class extends Repositories.Collection {
       searchableColumns() {
         return [];
       }

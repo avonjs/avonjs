@@ -16,7 +16,7 @@ const { Operator } = require('../../dist/contracts');
 const { Fluent } = require('../../dist/Models');
 const filepath = join(__dirname, 'events.json');
 
-class ActionEvent extends FillsActionEvents(Repositories.FileRepository) {
+class ActionEvent extends FillsActionEvents(Repositories.File) {
   filepath() {
     return filepath;
   }
@@ -27,7 +27,7 @@ class ActionEvent extends FillsActionEvents(Repositories.FileRepository) {
 
 class Post extends Resource {
   repository() {
-    return new (class extends SoftDeletes(Repositories.CollectionRepository) {
+    return new (class extends SoftDeletes(Repositories.Collection) {
       resolveItems() {
         return [
           { id: 1, name: 'Post 1' },

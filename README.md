@@ -942,7 +942,7 @@ const { Repositories, SoftDeletes } = require('@avonjs/avonjs');
 const { dirname, join } = require('path');
 
 module.exports = class Categories extends (
-  SoftDeletes(Repositories.FileRepository)
+  SoftDeletes(Repositories.File)
 ) {
   filepath() {
     return join(dirname(__dirname), 'storage', 'categories.json');
@@ -1287,7 +1287,7 @@ All action events repository should implements `ActionEventRepository` interface
 const { Repositories, FillsActionEvents } = require('@avonjs/avonjs');
 const { dirname, join } = require('path');
 
-class Activities extends FillsActionEvents(Repositories.FileRepository) {
+class Activities extends FillsActionEvents(Repositories.File) {
 filepath() {
 return join(dirname(\_\_dirname), 'storage', 'activities.json');
 }

@@ -11,7 +11,7 @@ const filepath = join(__dirname, 'deletes.json');
 
 class Delete extends Resource {
   repository() {
-    return new (class extends SoftDeletes(Repositories.FileRepository) {
+    return new (class extends SoftDeletes(Repositories.File) {
       filepath() {
         return filepath;
       }

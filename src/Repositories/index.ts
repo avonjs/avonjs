@@ -10,4 +10,7 @@ export {
   FileRepository,
   KnexRepository,
   ActionEvent,
+  CollectionRepository as Collection,
+  FileRepository as File,
+  KnexRepository as Knex,
 };

@@ -41,7 +41,7 @@ const updatePost = {
   name: 'Post 1 updated',
 };
 
-class Repository extends Repositories.FileRepository {
+class Repository extends Repositories.File {
   filepath() {
     return posts;
   }

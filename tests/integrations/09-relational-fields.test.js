@@ -15,7 +15,7 @@ const comments = join(__dirname, 'comments.json');
 const profiles = join(__dirname, 'profiles.json');
 const users = join(__dirname, 'users.json');
 
-class CategoryRepository extends Repositories.FileRepository {
+class CategoryRepository extends Repositories.File {
   filepath() {
     return categories;
   }
@@ -23,7 +23,7 @@ class CategoryRepository extends Repositories.FileRepository {
     return [];
   }
 }
-class PivotRepository extends Repositories.FileRepository {
+class PivotRepository extends Repositories.File {
   filepath() {
     return pivots;
   }
@@ -32,7 +32,7 @@ class PivotRepository extends Repositories.FileRepository {
   }
 }
 
-class PostRepository extends Repositories.FileRepository {
+class PostRepository extends Repositories.File {
   filepath() {
     return posts;
   }
@@ -41,7 +41,7 @@ class PostRepository extends Repositories.FileRepository {
   }
 }
 
-class CommentRepository extends Repositories.FileRepository {
+class CommentRepository extends Repositories.File {
   filepath() {
     return comments;
   }
@@ -50,7 +50,7 @@ class CommentRepository extends Repositories.FileRepository {
   }
 }
 
-class ProfileRepository extends Repositories.FileRepository {
+class ProfileRepository extends Repositories.File {
   filepath() {
     return profiles;
   }
@@ -59,7 +59,7 @@ class ProfileRepository extends Repositories.FileRepository {
   }
 }
 
-class UserRepository extends Repositories.FileRepository {
+class UserRepository extends Repositories.File {
   filepath() {
     return users;
   }

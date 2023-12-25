@@ -11,7 +11,7 @@ const associations = join(__dirname, 'associations.json');
 
 class Parent extends Resource {
   repository() {
-    return new (class extends SoftDeletes(Repositories.FileRepository) {
+    return new (class extends SoftDeletes(Repositories.File) {
       filepath() {
         return parents;
       }
@@ -32,7 +32,7 @@ class Parent extends Resource {
 
 class Association extends Resource {
   repository() {
-    return new (class extends SoftDeletes(Repositories.FileRepository) {
+    return new (class extends SoftDeletes(Repositories.File) {
       filepath() {
         return associations;
       }

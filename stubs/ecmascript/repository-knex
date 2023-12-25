@@ -1,7 +1,7 @@
 //@ts-check
 import { Repositories, SoftDeletes } from '@avonjs/avonjs';
 
-export default class __NAME__ extends SoftDeletes(Repositories.KnexRepository) {
+export default class __NAME__ extends SoftDeletes(Repositories.Knex) {
   /**
    * Get the knex connection.
    *

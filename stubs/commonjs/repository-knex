@@ -2,7 +2,7 @@
 const { Repositories, SoftDeletes } = require('@avonjs/avonjs');
 
 module.exports = class __NAME__ extends (
-  SoftDeletes(Repositories.KnexRepository)
+  SoftDeletes(Repositories.Knex)
 ) {
   /**
    * Get the knex connection.

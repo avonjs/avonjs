@@ -7,7 +7,7 @@ const { Repositories, Resource, Fields, SoftDeletes } = require('../../dist');
 
 class Other extends Resource {
   repository() {
-    return new (class extends Repositories.CollectionRepository {
+    return new (class extends Repositories.Collection {
       resolveItems() {
         return [];
       }
@@ -27,7 +27,7 @@ class Other extends Resource {
 
 class Post extends Resource {
   repository() {
-    return new (class extends SoftDeletes(Repositories.CollectionRepository) {
+    return new (class extends SoftDeletes(Repositories.Collection) {
       resolveItems() {
         return [
           { id: 1 },

@@ -21,7 +21,7 @@ module.exports = class __NAME__ extends Resource {
    * Get the related repository.
    */
   repository() {
-    return new (class extends SoftDeletes(Repositories.CollectionRepository) {
+    return new (class extends SoftDeletes(Repositories.Collection) {
       /**
        * Get list of search columns.
        */

@@ -8,7 +8,7 @@ const items = [
 ];
 class Detail extends Resource {
   repository() {
-    return new (class extends Repositories.CollectionRepository {
+    return new (class extends Repositories.Collection {
       searchableColumns() {
         return [];
       }

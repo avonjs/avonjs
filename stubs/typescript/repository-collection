@@ -2,7 +2,7 @@
 import { Contracts, Repositories, SoftDeletes } from '@avonjs/avonjs';
 
 export default class __NAME__ extends SoftDeletes(
-  Repositories.CollectionRepository,
+  Repositories.Collection,
 ) {
   /**
    * Resolve items from the store path.

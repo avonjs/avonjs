@@ -14,7 +14,7 @@ const { Operator } = require('../../dist/contracts');
 const stores = join(__dirname, 'stores.json');
 const events = join(__dirname, 'events.json');
 
-class ActionEvent extends Repositories.FileRepository {
+class ActionEvent extends Repositories.File {
   filepath() {
     return events;
   }
@@ -154,7 +154,7 @@ class ActionEvent extends Repositories.FileRepository {
   }
 }
 
-class StoreRepository extends Repositories.FileRepository {
+class StoreRepository extends Repositories.File {
   searchableColumns() {
     return [];
   }

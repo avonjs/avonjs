@@ -3,7 +3,7 @@ const { Repositories, SoftDeletes } = require('@avonjs/avonjs');
 const { dirname, join } = require('path');
 
 module.exports = class __NAME__ extends (
-  SoftDeletes(Repositories.FileRepository)
+  SoftDeletes(Repositories.File)
 ) {
   /**
    * Get path of the stored files.
