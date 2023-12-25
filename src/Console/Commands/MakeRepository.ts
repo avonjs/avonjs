@@ -1,5 +1,5 @@
 import { OptionValues } from 'commander';
-import { command, copy, ensureResourceDirectoryExists } from '../helpers';
+import { command, copy, ensureRepositoryDirectoryExists } from '../helpers';
 import { join } from 'path';
 
 export default command('make:repository')
@@ -10,7 +10,7 @@ export default command('make:repository')
   .option('--collection', 'Make a collection repository')
   .option('--soft-deletes', 'Apply soft deletes to the repository')
   .action((name, options) => {
-    ensureResourceDirectoryExists(options.dir);
+    ensureRepositoryDirectoryExists(options.dir);
     // move file
     copy(
       chooseStub(options),
