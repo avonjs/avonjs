@@ -13,6 +13,7 @@ import * as Responses from './Http/Responses';
 import * as Contracts from './contracts';
 import * as Helpers from './helpers';
 import * as Resources from './Resources';
+import * as Constants from './contracts/constants';
 
 export {
   Avon as default,
@@ -28,6 +29,7 @@ export {
   Exceptions,
   Responses,
   Contracts,
+  Constants,
   Repositories,
   Helpers,
   Resources,
