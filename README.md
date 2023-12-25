@@ -916,17 +916,13 @@ avonjs make:repository Posts --knex --soft-deletes
 
 ## Defining Models
 
-Each model is a class which implements `Model` interface:
+Each model is a class which implements `Model` interfaces. you may generate a model like so:
 
-```
-import { Contracts } from '@avonjs/avonjs';
-
-export default class Fluent implements Contracts.Model {
-    //
-}
+```bash
+avonjs make:model Post
 ```
 
-By default we have a `Fluent` model that is so simple an you could use as your model or base model if you want!
+By default Avon ships by a simple `Fluent` model and you could use it as your model or base model if you want!
 
 ```
 import { Models } from '@avonjs/avonjs';

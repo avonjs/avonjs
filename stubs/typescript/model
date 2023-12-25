@@ -1,0 +1,41 @@
+//@ts-check
+import { Contracts } from '@avonjs/avonjs';
+
+export default class __NAME__ implements Contracts.Model {
+  /**
+   * Set value for the given key.
+   */
+  setAttribute(key: string, value: any): this {
+    throw new Error('The "setAttribute" method not implemented yet!');
+  }
+
+  /**
+   * Get value for the given key.
+   */
+  getAttribute(key: string): any {
+    throw new Error('The "getAttribute" method not implemented yet!');
+  }
+
+  /**
+   * Get the model key.
+   */
+  getKey(): string | number {
+    throw new Error('The "getKey" method not implemented yet!');
+  }
+
+  /**
+   * Get primary key name of the model.
+   */
+  getKeyName(): string {
+    throw new Error('The "getKeyName" method not implemented yet!');
+  }
+
+  /**
+   * Get all of the model attributes.
+   *
+   * @returns {Record<string, any>}
+   */
+  all(): Record<string, any> {
+    throw new Error('The "all" method not implemented yet!');
+  }
+}

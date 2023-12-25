@@ -65,6 +65,10 @@ export const ensureResourceDirectoryExists = (directory?: string): void => {
   );
 };
 
+export const ensureModelDirectoryExists = (directory?: string): void => {
+  ensureDirectoryExists(join(process.cwd(), directory ?? basePath(), 'models'));
+};
+
 export const exists = (path: string, directory?: string): boolean => {
   return existsSync(join(process.cwd(), directory ?? basePath(), path));
 };

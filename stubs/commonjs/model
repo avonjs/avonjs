@@ -1,0 +1,52 @@
+//@ts-check
+module.exports = class __NAME__ {
+  /**
+   * Set value for the given key.
+   *
+   * @param {string} key
+   * @param {unknown} value
+   *
+   * @returns {this}
+   */
+  setAttribute(key, value) {
+    throw new Error('The "setAttribute" method not implemented yet!');
+  }
+
+  /**
+   * Get value for the given key.
+   *
+   * @param {string} key
+   *
+   * @returns {unknown}
+   */
+  getAttribute(key) {
+    throw new Error('The "getAttribute" method not implemented yet!');
+  }
+
+  /**
+   * Get the model key.
+   *
+   * @returns {string | number}
+   */
+  getKey() {
+    throw new Error('The "getKey" method not implemented yet!');
+  }
+
+  /**
+   * Get primary key name of the model.
+   *
+   * @returns {string}
+   */
+  getKeyName() {
+    throw new Error('The "getKeyName" method not implemented yet!');
+  }
+
+  /**
+   * Get all of the model attributes.
+   *
+   * @returns {Record<string, any>}
+   */
+  all() {
+    throw new Error('The "all" method not implemented yet!');
+  }
+};
