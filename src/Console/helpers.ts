@@ -1,12 +1,16 @@
-import { Command, OptionValues } from 'commander';
+import { Command, Option, OptionValues } from 'commander';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 
 export const command = (command: string) => {
   return new Command(command)
     .option('-d, --dir <directory>', 'output directory', basePath())
-    .option('-o, --output <output>', 'File output type', moduleType())
-    .option('-f, --force', 'Force to create file');
+    .option('-f, --force', 'Force to create file')
+    .addOption(
+      new Option('-o, --output <output>', 'File output type')
+        .choices(['typescript', 'ecmascript', 'commonjs'])
+        .default(moduleType()),
+    );
 };
 
 const sourceDirectory = () => readPackage().sourceDir;

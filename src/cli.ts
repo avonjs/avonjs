@@ -4,10 +4,7 @@ import { readdirSync, statSync } from 'fs';
 import { extname, join } from 'path';
 import Avon from './Avon';
 
-program
-  .command('version')
-  .description('Get the application version')
-  .action(() => console.log(Avon.version()));
+program.version(Avon.version());
 
 const registerCommandsIn = (directory: string) => {
   const files = readdirSync(directory);
