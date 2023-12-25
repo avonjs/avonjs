@@ -1,0 +1,61 @@
+//@ts-check
+import { Contracts, Models, Repositories, SoftDeletes } from '@avonjs/avonjs';
+
+export default class Another extends SoftDeletes(
+  Repositories.Repository<Contracts.Model>,
+) {
+  /**
+   * Search storage for given query string.
+   */
+  async search(
+    search: string,
+    page?: number,
+    perPage?: number,
+  ): Promise<Contracts.SearchCollection> {
+    throw new Error('The "search" method not implemented yet!');
+  }
+
+  /**
+   * Find all model's for the given conditions.
+   */
+  async all(wheres?: Contracts.Where[]): Promise<Contracts.Model[]> {
+    throw new Error('The "all" method not implemented yet!');
+  }
+
+  /**
+   * Find first model for the given conditions.
+   */
+  async first(
+    wheres?: Contracts.Where[],
+  ): Promise<Contracts.Model | undefined> {
+    throw new Error('The "" method not implemented yet!');
+  }
+
+  /**
+   * Store given model into the storage.
+   */
+  async store(model: Contracts.Model): Promise<Contracts.Model> {
+    throw new Error('The "" method not implemented yet!');
+  }
+
+  /**
+   * Update the given model in storage.
+   */
+  async update(model: Contracts.Model): Promise<Contracts.Model> {
+    throw new Error('The "" method not implemented yet!');
+  }
+
+  /**
+   * Delete model for the given key.
+   */
+  async delete(key: string | number): Promise<void> {
+    throw new Error('The "" method not implemented yet!');
+  }
+
+  /**
+   * Create new instance of model.
+   */
+  model(): Contracts.Model {
+    return new Models.Fluent();
+  }
+}

@@ -1,0 +1,16 @@
+//@ts-check
+import { Repositories, SoftDeletes } from '@avonjs/avonjs';
+import { Knex } from 'knex';
+
+export default class __NAME__ extends SoftDeletes(
+  Repositories.CollectionRepository,
+) {
+  /**
+   * Get the knex connection.
+   */
+  public connection(): Knex {
+    throw new Error(
+      `Missing connection for "${this.constructor.name}" repository`,
+    );
+  }
+}

@@ -1,0 +1,23 @@
+//@ts-check
+import { Repositories, SoftDeletes } from '@avonjs/avonjs';
+import { dirname, join } from 'path';
+
+export default class __NAME__ extends SoftDeletes(Repositories.FileRepository) {
+  /**
+   * Get path of the stored files.
+   *
+   * @returns {string}
+   */
+  filepath() {
+    return join(dirname(__dirname), 'storage', '__NAME__.json');
+  }
+
+  /**
+   * Get key name of the item.
+   *
+   * @returns {import('@avonjs/avonjs').Contracts.Searchable[]}
+   */
+  searchableColumns() {
+    return [];
+  }
+}

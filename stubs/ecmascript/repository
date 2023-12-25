@@ -1,0 +1,81 @@
+//@ts-check
+import { Repositories, Models, SoftDeletes } from '@avonjs/avonjs';
+
+export default class __NAME__ extends SoftDeletes(Repositories.Repository) {
+  /**
+   * Search storage for given query string.
+   *
+   * @param {string} search
+   * @param {number} page
+   * @param {number} perPage
+   *
+   * @returns {Promise<import('@avonjs/avonjs').Contracts.SearchCollection>}
+   */
+  async search(search, page, perPage) {
+    throw new Error('The "search" method not implemented yet!');
+  }
+
+  /**
+   * Find all model's for the given conditions.
+   *
+   * @param {import('@avonjs/avonjs').Contracts.Where[]} wheres
+   *
+   * @returns {Promise<import('@avonjs/avonjs').Contracts.Model[]>}
+   */
+  async all(wheres) {
+    throw new Error('The "all" method not implemented yet!');
+  }
+
+  /**
+   * Find first model for the given conditions.
+   *
+   * @param {import('@avonjs/avonjs').Contracts.Where[]} wheres
+   *
+   * @returns {Promise<import('@avonjs/avonjs').Contracts.Model | undefined>}
+   */
+  async first(wheres) {
+    throw new Error('The "first" method not implemented yet!');
+  }
+
+  /**
+   * Store given model into the storage.
+   *
+   * @param {import('@avonjs/avonjs').Contracts.Model} model
+   *
+   * @returns {Promise<import('@avonjs/avonjs').Contracts.Model>}
+   */
+  async store(model) {
+    throw new Error('The "store" method not implemented yet!');
+  }
+
+  /**
+   * Update the given model in storage.
+   *
+   * @param {import('@avonjs/avonjs').Contracts.Model} model
+   *
+   * @returns {Promise<import('@avonjs/avonjs').Contracts.Model>}
+   */
+  async update(model) {
+    throw new Error('The "update" method not implemented yet!');
+  }
+
+  /**
+   * Delete model for the given key.
+   *
+   * @param {string | number} key
+   *
+   * @returns {Promise<void>}
+   */
+  async delete(key) {
+    throw new Error('The "delete" method not implemented yet!');
+  }
+
+  /**
+   * Create new instance of model.
+   *
+   * @returns {import('@avonjs/avonjs').Contracts.Model}
+   */
+  model() {
+    return new Models.Fluent();
+  }
+}

@@ -850,80 +850,19 @@ new Fields.Binary('active').canSee((request) => false)
 
 ## Defining Repositories
 
-To create a repository you have to create a file that contains class extend Avon `Repository` and put the following in that:
+Repositories in AvonJS provide a structured way to interact with APIs and manage data storage. By default, all repositories are stored in the `repositories` directory. You can generate a repository using the `make:repository` Avon command as follows:
 
-```
-// Repositories/MyRepository.js
-
-import { Repositories } from "avonjs";
-
-export class MyRepository extends Repositories.Repository {
-    /**
-    * Run transaction on the storage.
-    */
-    async transaction (callback) {
-        throw new Error('Method not implemented');
-    }
-
-    /**
-    * Search storage for given query string.
-    */
-    async search(search, page, perPage) {
-        throw new Error('Method not implemented');
-    }
-
-    /**
-    * Find all model's for the given conditions.
-    */
-    async all(wheres) {
-        throw new Error('Method not implemented');
-    }
-
-    /**
-    * Find first model for the given conditions.
-    */
-    async first(wheres) {
-        throw new Error('Method not implemented');
-    }
-
-    /**
-    * Store given model into the storage.
-    */
-    async store(model) {
-        throw new Error('Method not implemented');
-    }
-
-    /**
-    * Update the given model in storage.
-    */
-    async update(model) {
-        throw new Error('Method not implemented');
-    }
-
-    /**
-    * Delete model for the given key.
-    */
-    async delete(key) {
-        throw new Error('Method not implemented');
-    }
-
-    /**
-    * Delete model for the given key.
-    */
-    async forceDelete(key) {
-        throw new Error('Method not implemented');
-    }
-
-    /**
-    * Create new instance of model.
-    */
-    async model() {
-        throw new Error('Method not implemented');
-    }
-}
+```bash
+avonjs make:repository Posts
 ```
 
-Each repository have to return data as a model which you [learn](#defining-models) later.
+or with soft deletes:
+
+```bash
+avonjs make:repository Posts --soft-deletes
+```
+
+Each repository within AvonJS is designed to return data formatted according to a specific model. To define these models, you can refer to the [instructions on defining models](#defining-models) provided later in the documentation.
 
 ## Preset Repositories
 
@@ -937,50 +876,42 @@ Avon by default, ships with a variety of repositories:
 
 The collection repository holds records under the memory RAM so it will lose data after operations or application restarts. this repository is good when you want to serve an array of data as an API. you could create a collection repository like so:
 
+```bash
+avonjs make:repository Posts --collection
 ```
-//@ts-check
-const { Repositories } = require('@avonjs/avonjs');
 
-class Categories extends Repositories.CollectionRepository {
-  searchableColumns() {
-    return [];
-  }
-};
+or with soft deletes:
+
+```bash
+avonjs make:repository Posts --collection --soft-deletes
 ```
 
 ### File Repository
 
 The file repository is a type of collection repository with a bit of change. as the collection repository stores data on the memory, the File repository, holds data in the JSON file. to create a file repository you have to create a class like the below and define the store file path.
 
+```bash
+avonjs make:repository Posts --file
 ```
-//@ts-check
-const { Repositories } = require('@avonjs/avonjs');
-const { dirname, join } = require('path');
 
-class Categories extends Repositories.FileRepository {
-  filepath() {
-    return join(dirname(__dirname), 'storage', 'categories.json');
-  }
-  searchableColumns() {
-    return [];
-  }
-};
+or with soft deletes:
+
+```bash
+avonjs make:repository Posts --file --soft-deletes
 ```
 
 ### Knex Repository
 
 The Knex repository stores data on the database and uses [knex.js](https://knexjs.org/) package to maintain data. you could use it like so:
 
+```bash
+avonjs make:repository Posts --knex
 ```
-//@ts-check
-const { Repositories } = require('@avonjs/avonjs');
 
-class Categories extends Repositories.KnexRepository {
-  /**
-   * Get the knex connection.
-   */
-  public abstract connection(): Knex;
-};
+or with soft deletes:
+
+```bash
+avonjs make:repository Posts --knex --soft-deletes
 ```
 
 ## Defining Models
