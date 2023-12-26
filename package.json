@@ -12,7 +12,8 @@
     "node": ">= 18.0.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "stubs"
   ],
   "scripts": {
     "test": "jest --runInBand",
