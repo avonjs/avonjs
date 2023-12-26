@@ -110,8 +110,12 @@ At first point you have to register the router:
 
 import { Avon } from '@avonjs/avonjs';
 import express from 'express';
+const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const app = express();
+// required middlewares
+app.use(bodyParser.json()).use(cors());
 
 // register Avon router without authentication
 app.use('/api', Avon.routes(express.Router()));
@@ -133,7 +137,7 @@ Avon ships by JWT authentication approach but it's disabled by default. to enabl
 app.use('/api', Avon.routes(express.Router(), true));
 ```
 
-we are using the [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) to generate tokens.
+By default, Avon using the [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) package to generate JWT tokens.
 
 ### Login
 
