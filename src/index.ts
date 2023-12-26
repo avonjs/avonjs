@@ -2,6 +2,7 @@ import Avon from './Avon';
 import SoftDeletes from './Mixins/SoftDeletes';
 import FillsActionEvents from './Mixins/FillsActionEvents';
 import AvonRequest from './Http/Requests/AvonRequest';
+import AvonResponse from './Http/Responses/AvonResponse';
 import Resource from './Resource';
 import * as Fields from './Fields';
 import * as Filters from './Filters';
@@ -22,6 +23,7 @@ export {
   Fields,
   Resource,
   AvonRequest,
+  AvonResponse,
   SoftDeletes,
   FillsActionEvents,
   Filters,

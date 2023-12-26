@@ -1,0 +1,28 @@
+//@ts-check
+import {
+  Actions,
+  AvonRequest,
+  AvonResponse,
+  Contracts,
+  Fields,
+  Models,
+} from '@avonjs/avonjs';
+
+export default class Delete extends Actions.Action {
+  /**
+   * Perform the action on the given models.
+   */
+  protected async handle(
+    fields: Models.Fluent,
+    models: Contracts.Model[],
+  ): Promise<void | AvonResponse> {
+    // perform action
+  }
+
+  /**
+   * Get the fields available on the action.
+   */
+  fields(request: AvonRequest): Fields.Field[] {
+    return [];
+  }
+}

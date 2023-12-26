@@ -1,0 +1,26 @@
+//@ts-check
+const { Actions } = require('@avonjs/avonjs');
+
+module.exports = class __NAME__ extends Actions.Action {
+  /**
+   * Perform the action on the given models.
+   *
+   * @protected
+   * @param {import('@avonjs/avonjs').Models.Fluent} fields
+   * @param {import('@avonjs/avonjs').Contracts.Model[]} models
+   * @returns {Promise<import('@avonjs/avonjs').AvonResponse | void>}
+   */
+  async handle(fields, models) {
+    // perform action
+  }
+
+  /**
+   * Get the fields available on the action.
+   *
+   * @param {import('@avonjs/avonjs').AvonRequest} request
+   * @returns {import('@avonjs/avonjs').Fields.Field[]}
+   */
+  fields(request) {
+    return [];
+  }
+};

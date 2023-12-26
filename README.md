@@ -63,6 +63,7 @@
 
 - [Defining Actions](#defining-actions)
 - [Action Fields](#action-fields)
+- [Action Responses](#action-responses)
 - [Registering Actions](#registering-actions)
 - [Authorization Actions](#authorization-actions)
 - [Standalone Actions](#standalone-actions)
@@ -975,7 +976,7 @@ avonjs make:filter ActivePosts
 
 By default, Avon will place newly generated filters in the `avonjs/filters` directory. Each filter is a class that extended the base class filters and contains an `apply` method to modifying underlying repository query:
 
-````
+```
 // filters/ActivePosts.js
 
 import { Filters, Constants } from '@avonjs/avonjs';
@@ -992,6 +993,7 @@ export class ActivePosts extends Filters.Filter {
         })
     }
 }
+```
 
 ### Select Filter
 
@@ -1078,6 +1080,7 @@ To create a ordering you have to use `make:ordering` Avon command like so:
 ```bash
 avonjs make:ordering OrderByFullName
 ```
+
 By default, Avon will place newly generated orderings in the `avonjs/orderings` directory. Each "ordering" is a class that extended the base class orderings and contains an `apply` method to modifying underlying repository query:
 
 ```
@@ -1108,6 +1111,7 @@ public orderings(request: AvonRequest): Ordering[] {
   ];
 }
 ```
+
 After attaching a ordering to the resource, the ordering will appear in the swagger-ui index API.
 
 ## Authorization Orderings
@@ -1124,21 +1128,10 @@ new OrderingByHits().canSee((request) => false)
 
 Avon actions allow you to perform custom tasks on one or more resource records. For example, you might write an action that sends an email to a user containing account data they have requested. Or, you might write an action to transfer a group of records to another user.
 
-Once an action has been attached to a resource definition, you can see extra API on the swagger-ui. to create an action you have to create a class that extended by the Avon `Action`:
+Once an action has been attached to a resource definition, you can see extra API on the swagger-ui. to create an action you have to use the `make:action` Avon command:
 
-```
-
-import { Actions } from '@avonjs/avonjs';
-
-export class Publish extends Actions.Action {
-/\*\*
-_ Perform the action on the given models.
-_/
-protected async handle(fields: Fluent, models: Model[]): Promise<Response | undefined> {
-//
-}
-}
-
+```bash
+avonjs make:action Publish
 ```
 
 The most important method of an action is the `handle` method. The `handle` method receives the values for any fields attached to the action, as well as a collection of selected models. The `handle` method always receives a Collection of models, even if the action is only being performed against a single model.
@@ -1150,15 +1143,12 @@ Within the `handle` method, you may perform whatever tasks are necessary to comp
 Sometimes you may wish to gather additional information from the user before dispatching an action. For this reason, Avon allows you to attach most of Avon's supported [fields](#fields) directly to an action. To add a field to an action, add the field to the array of fields returned by the action's `fields` method:
 
 ```
-
-/\*\*
-
-- Get the fields available on the action.
-  \*/
-  public fields(request: AvonRequest): Field[] {
-  return [];
-  }
-
+/**
+* Get the fields available on the action.
+*/
+public fields(request: AvonRequest): Field[] {
+    return [];
+}
 ```
 
 ## Action Responses
@@ -1166,34 +1156,20 @@ Sometimes you may wish to gather additional information from the user before dis
 Typically, when an action is executed, a "success" response will create by Avon. However, you are free to return your custom response:
 
 ```
+import { AvonResponse } from "avonjs";
 
-/\*\*
+/**
+*Perform the action on the given models.
+*/
+protected async handle(fields: Fluent, models: Model[]): Promise<AvonResponse | undefined> {
+    // perform action
 
-- Perform the action on the given models.
-  \*/
-  protected async handle(fields: Fluent, models: Model[]): Promise<Response | undefined> {
-  // did some thing
-
-      return new MyResponse();
-
-  }
-
-```
-
-To create a custom response class, you have to create class extended base Avon `Response` class like so:
-
-```
-
-// Actions/Responses/PublishedResponse.js
-
-import { Responses } from "avonjs";
-
-export class PublishedResponse extends Responses.AvonResponse {
-constructor(meta= {}) {
-super(201, {}, { ...meta, type: 'PublishedResponse is my custom response'});
+    return new (class extends AvonResponse {
+        constructor(meta = {}) {
+            super(201, {}, { ...meta, type: 'PublishedResponse is my custom response'});
+        }
+    })();
 }
-}
-
 ```
 
 ## Registering Actions
@@ -1201,17 +1177,14 @@ super(201, {}, { ...meta, type: 'PublishedResponse is my custom response'});
 Once you have defined an action, you are ready to attach it to a resource. Each resource created by Avon contains an `actions` method. To attach an action to a resource, you should simply add it to the array of actions returned by this method:
 
 ```
-
-/\*\*
-
-- Get the actions available on the entity.
-  \*/
-  actions(request){
-  return [
-  new Publish()
-  ];
-  }
-
+/**
+* Get the actions available on the entity.
+*/
+actions(request){
+    return [
+        new Publish()
+    ];
+}
 ```
 
 ## Authorization Actions
@@ -1219,17 +1192,13 @@ Once you have defined an action, you are ready to attach it to a resource. Each 
 If you would like to only expose a given action to certain users, you may invoke the `canSee` method when registering your action. The `canSee` method accepts a function which should return `true` or `false`. The function will receive the incoming HTTP request:
 
 ```
-
 new Publish().canSee(request => false)
-
 ```
 
 Sometimes a user may be able to "run" that an action exists but only against certain resources. you may use the `canRun` method in conjunction with the `canSee` method to have full control over authorization in this scenario. The callback passed to the `canRun` method receives the incoming HTTP request and the resource model:
 
 ```
-
 new Publish().canRun((request, model) => model.getKey() % 2 === 0)
-
 ```
 
 ## Standalone Actions
@@ -1237,17 +1206,14 @@ new Publish().canRun((request, model) => model.getKey() % 2 === 0)
 Typically, actions are executed against resources selected on a resource index or detail API. However, sometimes you may have an action that does not require any resources / models to run. In these situations, you may register the action as a "standalone" action by invoking the `standalone` method when registering the action. These actions always receives an empty collection of models in their `handle` method:
 
 ```
-
-/\*\*
-
-- Get the actions available on the entity.
-  \*/
-  actions(request){
-  return [
-  new Publish().canRun(request => false)
-  ];
-  }
-
+/**
+* Get the actions available on the entity.
+*/
+actions(request){
+    return [
+        new Publish().canRun(request => false)
+    ];
+}
 ```
 
 # Activity Log
@@ -1257,17 +1223,15 @@ Typically, actions are executed against resources selected on a resource index o
 It is often useful to view a log of the actions that have been run against a particular resource. Thankfully, Avon stores any actions that manipulate records. but by default, we store the logs on the memory, so data will be lost after restarts or any memory cleanups. to prevent losing data, you could define your custom repository for action events per each resource:
 
 ```
-
 //@ts-check
 const { Resource } = require('@avonjs/avonjs');
 const Activities = require('../repositories/Activities');
 
 abstract class BaseResource extends Resource {
-actionRepository() {
-return new Activities();
+    actionRepository() {
+        return new Activities();
+    }
 }
-}
-
 ```
 
 ### Custom Action Event
@@ -1275,20 +1239,18 @@ return new Activities();
 All action events repository should implements `ActionEventRepository` interface on the typescript. Fortunately, Avon has a mixin to help you make custom action event repositories without any trouble. To define your custom action event repository you could use `FillsActionEvents` mixin to extends your repository like so:
 
 ```
-
 //@ts-check
 const { Repositories, FillsActionEvents } = require('@avonjs/avonjs');
 const { dirname, join } = require('path');
 
 class Activities extends FillsActionEvents(Repositories.File) {
-filepath() {
-return join(dirname(\_\_dirname), 'storage', 'activities.json');
-}
-searchableColumns() {
-return [];
-}
+    filepath() {
+        return join(dirname(\_\_dirname), 'storage', 'activities.json');
+    }
+    searchableColumns() {
+        return [];
+    }
 };
-
 ```
 
 # Error Handling
@@ -1298,12 +1260,5 @@ return [];
 The `handleErrorUsing` on the Avon allows you to register a custom callback to handle errors:
 
 ```
-
 Avon.handleErrorUsing((error) => console.error(error))
-
 ```
-
-```
-
-```
-````
