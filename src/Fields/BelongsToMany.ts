@@ -442,6 +442,7 @@ export default class BelongsToMany extends Relation {
   protected payloadSchema(request: AvonRequest): OpenApiSchema {
     return {
       ...this.baseSchema(request),
+      description: `use the "associable/${this.attribute}" to retrieve data`,
       type: 'array',
       items: {
         anyOf: [

@@ -154,6 +154,7 @@ export default class BelongsTo extends Relation {
     return {
       ...super.payloadSchema(request),
       default: this.isNullable() ? null : this.resolveDefaultValue(request),
+      description: `use the "associable/${this.attribute}" to retrieve data`,
     };
   }
 
