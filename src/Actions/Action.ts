@@ -81,7 +81,9 @@ export default abstract class Action
   public resolveFields(request: AvonRequest): Fluent {
     const model = new Fluent();
 
-    this.availableFields(request).authorized(request).resolve(model);
+    this.availableFields(request)
+      .authorized(request)
+      .each((field) => field.fillForAction(request, model));
 
     return model;
   }
