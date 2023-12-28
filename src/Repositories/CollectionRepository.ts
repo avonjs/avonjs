@@ -7,30 +7,16 @@ import {
   Direction,
   Operator,
   Searchable,
+  CollectionRecord,
 } from '../Contracts';
 import Repository from './Repository';
 import { isRegExp } from 'util/types';
 
 export default abstract class CollectionRepository extends Repository<Fluent> {
   /**
-   * Collection of the items.
-   */
-  protected collection: Collection<Fluent>;
-
-  /**
-   * Initiate repository instance.
-   */
-  constructor(items: any[] = []) {
-    super();
-    this.collection = new Collection<Fluent>(
-      this.prepareItems(items.concat(this.resolveItems())),
-    );
-  }
-
-  /**
    * Resolve items from the store path.
    */
-  protected resolveItems(): Record<string | number, any> {
+  protected resolveItems(): Array<CollectionRecord> {
     return [];
   }
 
@@ -81,7 +67,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    * Get the collection with applied constraints.
    */
   protected getCollection(): Collection<Fluent> {
-    let collection = new Collection<Fluent>(this.collection).filter((item) => {
+    let collection = this.makeCollection().filter((item) => {
       return this.wheres.every((where) => this.checkAgainstWhere(item, where));
     });
 
@@ -92,6 +78,13 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
     });
 
     return collection;
+  }
+
+  /**
+   * Make collection from entire data.
+   */
+  protected makeCollection(): Collection<Fluent> {
+    return new Collection<Fluent>(this.prepareItems(this.resolveItems()));
   }
 
   /**
@@ -161,8 +154,10 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    * Store given model into the storage.
    */
   async store(model: Fluent): Promise<Fluent> {
-    this.collection = this.collection.push(
-      model.setAttribute(model.getKeyName(), model.getKey() ?? this.newId()),
+    this.resolveItems().push(
+      model
+        .setAttribute(model.getKeyName(), model.getKey() ?? this.newId())
+        .all(),
     );
 
     return model;
@@ -181,9 +176,12 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    * Store given model into the storage.
    */
   async update(model: Fluent): Promise<Fluent> {
-    this.collection = this.collection.map((item) => {
-      return String(item.getKey()) === String(model.getKey()) ? model : item;
-    });
+    const keyName = model.getKeyName();
+    const index = this.resolveItems().indexOf(
+      (item: CollectionRecord) => item[keyName] === model.getKey(),
+    );
+
+    this.resolveItems()[index] = model.all();
 
     return model;
   }
@@ -192,9 +190,12 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    * Delete model for the given key.
    */
   async delete(key: string | number): Promise<void> {
-    this.collection = this.getCollection().filter(
-      (model) => String(model.getKey()) !== String(key),
+    const keyName = this.model().getKeyName();
+    const index = this.resolveItems().indexOf(
+      (item: CollectionRecord) => item[keyName] === key,
     );
+
+    this.resolveItems().splice(index, 1);
   }
 
   /**

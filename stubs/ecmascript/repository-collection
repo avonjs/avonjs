@@ -1,17 +1,20 @@
 //@ts-check
 import { Repositories, SoftDeletes } from '@avonjs/avonjs';
 
-export default class __NAME__ extends SoftDeletes(
-  Repositories.Collection,
-) {
+/**
+ * @type {import('@avonjs/avonjs').Contracts.Searchable.CollectionRecord[]}
+ */
+const items = [];
+
+export default class __NAME__ extends SoftDeletes(Repositories.Collection) {
   /**
    * Resolve items from the store path.
    *
-   * @returns {Record<string | number, any>}
+   * @returns {import('@avonjs/avonjs').Contracts.Searchable.CollectionRecord[]}
    * @protected
    */
   resolveItems() {
-    return [];
+    return items;
   }
 
   /**
