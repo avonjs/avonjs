@@ -6,13 +6,7 @@ import { extname, join } from 'path';
 import { readdirSync, statSync } from 'fs';
 import Resource from './Resource';
 import AvonRequest from './Http/Requests/AvonRequest';
-import {
-  AttemptCallback,
-  Auth,
-  ErrorHandler,
-  Model,
-  UserResolver,
-} from './Contracts';
+import { AttemptCallback, Auth, ErrorHandler } from './Contracts';
 import { Params, expressjwt } from 'express-jwt';
 import {
   errorsResponses,
@@ -35,7 +29,7 @@ export default class Avon {
   /**
    * Indicates application current version.
    */
-  protected static VERSION = '1.2.0';
+  protected static VERSION = '1.2.4';
 
   /**
    * Array of available resources.
