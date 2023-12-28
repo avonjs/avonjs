@@ -200,10 +200,11 @@ describe('action event logs', () => {
   });
 
   test('Could flush logs for deleted resources', async () => {
-    await await new ActionEvent().store(
+    await new ActionEvent().store(
       new ActionEvent().forResourceStore({
-        resource: new Fluent({ id: 100, name: 'Post 100' }),
+        resource: new Fluent({ id: 2, name: 'Post 2' }),
         resourceName: resource.resourceName(),
+        payload: {},
       }),
     );
 
@@ -215,7 +216,7 @@ describe('action event logs', () => {
           {
             key: 'resource_id',
             operator: Operator.eq,
-            value: 100,
+            value: 2,
           },
           {
             key: 'resource_name',
