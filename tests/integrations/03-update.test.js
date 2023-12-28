@@ -61,8 +61,12 @@ describe('PUT resources api', () => {
       .expect('Content-Type', /json/)
       .expect(200)
       .then(async ({ body: { code, data } }) => {
+        const item = (await repository.all())[0];
         expect(code).toBe(200);
-        expect(data.fields).toEqual((await repository.all())[0].all());
+        expect(data.fields).toEqual({
+          ...item.all(),
+          name,
+        });
         expect(data.authorization).toEqual({
           authorizedToUpdate: true,
           authorizedToDelete: true,
