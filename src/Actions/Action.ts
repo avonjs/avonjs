@@ -14,9 +14,11 @@ import {
   BulkActionResult,
   OpenApiSchema,
   SeeCallback,
+  Rules,
 } from '../Contracts';
 import { AvonResponse, SuccessfulResponse } from '../Http/Responses';
 import Avon from '../Avon';
+import collect from 'collect.js';
 
 export default abstract class Action
   extends AuthorizedToSee(class {})
@@ -153,12 +155,22 @@ export default abstract class Action
   public rules(request: AvonRequest): AnySchema[] {
     return this.formatRules(
       request,
-      this.availableFields(request)
-        .mapWithKeys<AnySchema>((field: Field) => {
-          return field.getCreationRules(request);
-        })
-        .all(),
+      this.prepareRulesForValidator(
+        this.availableFields(request)
+          .flatMap((field) => field.getCreationRules(request))
+          .all(),
+      ),
     );
+  }
+
+  /**
+   * Prepare given rules for validator.
+   */
+  public prepareRulesForValidator(rules: Rules[]): AnySchema[] {
+    return collect(rules)
+      .flatMap((rules) => Object.keys(rules).map((key) => [key, rules[key]]))
+      .mapWithKeys<AnySchema>((rules: [string, AnySchema]) => rules)
+      .all();
   }
 
   /**
