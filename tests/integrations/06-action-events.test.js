@@ -12,7 +12,7 @@ const {
   FillsActionEvents,
 } = require('../../dist');
 const { join } = require('path');
-const { Operator } = require('../../dist/contracts');
+const { Operator } = require('../../dist/Contracts');
 const { Fluent } = require('../../dist/Models');
 const filepath = join(__dirname, 'events.json');
 

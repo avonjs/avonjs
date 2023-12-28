@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const { Repositories, Resource, Fields, SoftDeletes } = require('../../dist');
 const { join } = require('path');
-const { TrashedStatus } = require('../../dist/contracts');
+const { TrashedStatus } = require('../../dist/Contracts');
 
 const filepath = join(__dirname, 'deletes.json');
 

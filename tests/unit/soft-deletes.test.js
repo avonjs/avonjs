@@ -1,7 +1,7 @@
 //@ts-check
 
 const { Repositories, SoftDeletes } = require('../../dist');
-const { Operator } = require('../../dist/contracts');
+const { Operator } = require('../../dist/Contracts');
 
 const items = [{ id: 1 }, { id: 2, deleted_at: new Date().toString() }];
 

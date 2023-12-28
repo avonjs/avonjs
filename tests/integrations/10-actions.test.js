@@ -9,7 +9,7 @@ const { join } = require('path');
 const { default: collect } = require('collect.js');
 const { randomUUID } = require('crypto');
 const { Fluent } = require('../../dist/Models');
-const { Operator } = require('../../dist/contracts');
+const { Operator } = require('../../dist/Contracts');
 
 const stores = join(__dirname, 'stores.json');
 const events = join(__dirname, 'events.json');
