@@ -89,17 +89,25 @@ Avon has a few requirements you should be aware of before installing:
 
 ## Installation
 
+The following command install Avon application:
+
 via npm:
 
-    npm install @avonjs/avonjs -g --save
+    npm install @avonjs/avonjs
 
 via yarn:
 
-    yarn install @avonjs/avonjs -g --save
+    yarn install @avonjs/avonjs
 
-**ATTENTION**
+To develop fat in Avon you have to install the Avon [CLI](https://www.npmjs.com/package/@avonjs/cli):
 
-Since Avon ships with an internal cli written by [commander](https://www.npmjs.com/package/commander), always use `-g --save` on the installation command to enable Avon cli commands.
+via npm:
+
+    npm install @avonjs/cli -g
+
+via yarn:
+
+    yarn install @avonjs/cli -g
 
 ## Initialize
 
