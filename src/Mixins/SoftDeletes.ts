@@ -1,4 +1,3 @@
-import collect from 'collect.js';
 import ModelNotFoundException from '../Exceptions/ModelNotFoundException';
 import {
   Model,
@@ -113,7 +112,7 @@ export default <
     public scopeSoftDelete(): Where {
       return {
         key: this.getDeletedAtKey(),
-        value: [null, undefined],
+        value: this.getSoftDeleteValues(),
         operator: Operator.in,
       };
     }
@@ -124,7 +123,7 @@ export default <
     public scopeTrashedRecords(): Where {
       return {
         key: this.getDeletedAtKey(),
-        value: [null, undefined],
+        value: this.getSoftDeleteValues(),
         operator: Operator.notIn,
       };
     }
@@ -141,6 +140,13 @@ export default <
      */
     public getDeletedAtValue(): string {
       return new Date().toDateString();
+    }
+
+    /**
+     * Get value for soft delete records.
+     */
+    public getSoftDeleteValues(): unknown[] {
+      return [null];
     }
   }
 

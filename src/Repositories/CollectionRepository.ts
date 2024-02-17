@@ -97,10 +97,15 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
         const values = Array.isArray(where.value) ? where.value : [where.value];
 
         return collect(values).contains((value: any) => {
+          // compare numbers
           if (Number(value) === item.getAttribute(where.key)) {
             return true;
           }
-
+          // to handle soft deletes
+          if (value === null) {
+            return [value, undefined].includes(item.getAttribute(where.key));
+          }
+          // compare others
           return item.getAttribute(where.key) === value;
         });
       case Operator.lte:
