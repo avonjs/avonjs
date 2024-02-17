@@ -1,11 +1,24 @@
 import { Knex } from 'knex';
 import { plural, singular } from 'pluralize';
 import { Fluent } from '../Models';
-import { Model, SearchCollection, Where, Direction } from '../Contracts';
+import {
+  Model,
+  SearchCollection,
+  Where,
+  Direction,
+  Operator,
+} from '../Contracts';
 import { slugify } from '../helpers';
 import Repository from './Repository';
 
 export default abstract class KnexRepository extends Repository<Model> {
+  /**
+   * Run transaction on the storage.
+   */
+  public async transaction<T>(callback: () => Promise<T>): Promise<T> {
+    return this.connection().transaction(callback);
+  }
+
   /**
    * Search storage for given query string.
    */
@@ -109,7 +122,13 @@ export default abstract class KnexRepository extends Repository<Model> {
    */
   protected applyWheres(query: Knex.QueryBuilder): Knex.QueryBuilder {
     this.wheres.forEach(({ key, operator, value }) => {
-      query.where(key, operator, value);
+      if (![null, undefined].includes(value)) {
+        query.where(key, operator, value);
+      } else if ([Operator.eq, Operator.in].includes(operator)) {
+        query.whereNull(key);
+      } else {
+        query.whereNotNull(key);
+      }
     });
 
     return query;
