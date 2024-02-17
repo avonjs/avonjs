@@ -112,8 +112,8 @@ export default <
     public scopeSoftDelete(): Where {
       return {
         key: this.getDeletedAtKey(),
-        value: this.getSoftDeleteValues(),
-        operator: Operator.in,
+        value: this.getSoftDeleteValue(),
+        operator: Operator.eq,
       };
     }
 
@@ -123,8 +123,8 @@ export default <
     public scopeTrashedRecords(): Where {
       return {
         key: this.getDeletedAtKey(),
-        value: this.getSoftDeleteValues(),
-        operator: Operator.notIn,
+        value: this.getSoftDeleteValue(),
+        operator: Operator.not,
       };
     }
 
@@ -145,8 +145,8 @@ export default <
     /**
      * Get value for soft delete records.
      */
-    public getSoftDeleteValues(): unknown[] {
-      return [null];
+    public getSoftDeleteValue(): unknown {
+      return null;
     }
   }
 
