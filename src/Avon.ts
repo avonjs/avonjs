@@ -37,6 +37,11 @@ export default class Avon {
   protected static resourceInstances: Resource[] = [];
 
   /**
+   * Map of available resources.
+   */
+  protected static resourceMap: Record<string, Resource> = {};
+
+  /**
    * The error handler callback.
    */
   protected static errorHandler: ErrorHandler = (error) => console.log(error);
@@ -109,10 +114,14 @@ export default class Avon {
   /**
    * Find resource for given uriKey.
    */
-  public static resourceForKey(key?: string): Resource | undefined {
-    return Avon.resourceCollection().first(
-      (resource: Resource) => resource.uriKey() === key,
-    );
+  public static resourceForKey(key: string): Resource | undefined {
+    if (Avon.resourceMap[key] === undefined) {
+      Avon.resourceMap[key] = Avon.resourceCollection().first(
+        (resource: Resource) => resource.uriKey() === key,
+      );
+    }
+
+    return Avon.resourceMap[key];
   }
 
   /**
