@@ -89,20 +89,28 @@ export default abstract class KnexRepository extends Repository<Model> {
    * Get new query with wheres and orders.
    */
   public makeQuery(): Knex.QueryBuilder {
-    const query = this.query();
+    return this.applyWheres(this.query().orderBy(this.prepareOrdersForQuery()));
+  }
 
-    this.wheres.forEach((where) => {
-      query.where(where.key, where.operator, where.value);
+  /**
+   * Prepare raw orders for query.
+   */
+  protected prepareOrdersForQuery() {
+    return this.orders.map((order) => {
+      return {
+        column: order.key,
+        order: order.direction === Direction.DESC ? 'desc' : 'asc',
+      };
     });
+  }
 
-    query.orderBy(
-      this.orders.map((order) => {
-        return {
-          column: order.key,
-          order: order.direction === Direction.DESC ? 'desc' : 'asc',
-        };
-      }),
-    );
+  /**
+   * Apply wheres to the query.
+   */
+  protected applyWheres(query: Knex.QueryBuilder): Knex.QueryBuilder {
+    this.wheres.forEach(({ key, operator, value }) => {
+      query.where(key, operator, value);
+    });
 
     return query;
   }
