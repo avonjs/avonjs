@@ -14,13 +14,13 @@ export default class ResourceUpdateController extends Controller {
   ): Promise<AvonResponse> {
     const resource = await request.findResourceOrFail();
     const previous = request.newModel({ ...resource.resource.all() });
-    const repository = request.repository();
 
     await resource.authorizeTo(request, Ability.update);
     await resource.validateForUpdate(request);
 
-    const newResource = await repository.transaction<typeof resource>(
-      async () => {
+    const newResource = await request
+      .repository()
+      .transaction<typeof resource>(async (repository, transaction) => {
         const [model, callbacks] = request
           .resource()
           .fillForUpdate<typeof resource.resource>(request, resource.resource);
@@ -29,13 +29,14 @@ export default class ResourceUpdateController extends Controller {
 
         await newResource.beforeUpdate(request);
 
-        await request.repository().update(model);
+        await repository.update(model);
 
         // Attention:
         // Here we have to run the "callbacks" in order
         // To avoid update/insert at the same time
         // Using "Promise.all" here will give the wrong result in some scenarios
-        for (const callback of callbacks) await callback(request, model);
+        for (const callback of callbacks)
+          await callback(request, model, transaction);
 
         await newResource.afterUpdate(request);
 
@@ -46,8 +47,7 @@ export default class ResourceUpdateController extends Controller {
         );
 
         return newResource;
-      },
-    );
+      });
 
     await Promise.all(
       resource

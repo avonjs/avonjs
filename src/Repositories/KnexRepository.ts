@@ -7,16 +7,65 @@ import {
   Where,
   Direction,
   Operator,
+  TransactionCallback,
 } from '../Contracts';
 import { slugify } from '../helpers';
 import Repository from './Repository';
 
 export default abstract class KnexRepository extends Repository<Model> {
   /**
+   * The transaction instance.
+   */
+  protected _transaction?: Knex.Transaction;
+
+  /**
    * Run transaction on the storage.
    */
-  public async transaction<T>(callback: () => Promise<T>): Promise<T> {
-    return this.connection().transaction(callback);
+  public async transaction<T>(
+    callback: TransactionCallback<T, this, Knex.Transaction>,
+  ): Promise<T> {
+    const trx = await this.prepareTransaction();
+
+    try {
+      // Execute the callback within the transaction
+      const result = await callback(this, trx);
+
+      // Commit the transaction
+      await trx.commit();
+
+      return result;
+    } catch (error) {
+      // Rollback the transaction if an error occurs
+      await trx.rollback();
+      throw error;
+    }
+  }
+
+  /**
+   * Start new transaction.
+   */
+  protected async prepareTransaction() {
+    const trx = await this.connection().transaction();
+
+    this.setTransaction(trx);
+
+    return trx;
+  }
+
+  /**
+   * Set the transaction instance.
+   */
+  public setTransaction(transaction: Knex.Transaction) {
+    this._transaction = transaction;
+
+    return this;
+  }
+
+  /**
+   * Get the transaction instance.
+   */
+  public getTransaction(): Knex.Transaction | undefined {
+    return this._transaction;
   }
 
   /**
@@ -82,13 +131,13 @@ export default abstract class KnexRepository extends Repository<Model> {
    * Store given model into the storage.
    */
   async update(model: Fluent): Promise<Fluent> {
-    const data = model.all();
-
+    const data = { ...model.all() };
+    // remove primary key
     delete data[model.getKeyName()];
-
+    // update storage
     await this.query().where(model.getKeyName(), model.getKey()).update(data);
 
-    return Promise.resolve(model);
+    return model;
   }
 
   /**
@@ -138,7 +187,9 @@ export default abstract class KnexRepository extends Repository<Model> {
    * Get the base query.
    */
   protected query(): Knex.QueryBuilder {
-    return this.connection().table(this.tableName()).debug(this.debug());
+    const query = this.connection().table(this.tableName()).debug(this.debug());
+
+    return this._transaction ? query.transacting(this._transaction) : query;
   }
 
   /**

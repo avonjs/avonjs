@@ -13,37 +13,42 @@ export default class ResourceStoreController extends Controller {
     request: ResourceCreateOrAttachRequest,
   ): Promise<AvonResponse> {
     const resourceClass = request.resource();
-    const repository = request.repository();
     const resourceModel = request.model();
 
     await resourceClass.authorizeTo(request, Ability.create);
     await resourceClass.validateForCreation(request);
 
-    const resource = await repository.transaction<typeof resourceClass>(
-      async () => {
-        const [model, callbacks] = request
+    const resource = await request
+      .repository()
+      .transaction<typeof resourceClass>(async (repository, transaction) => {
+        const [data, callbacks] = request
           .resource()
           .fillForCreation<typeof resourceModel>(request, resourceModel);
 
-        const resource = request.newResource(model);
+        const resource = request.newResource(data);
 
         await resource.beforeCreate(request);
 
-        await request.repository().store(model);
+        const model = await repository.store(data);
 
         // Attention:
         // Here we have to run the "callbacks" in order
         // To avoid update/insert at the same time
         // Using "Promise.all" here will give the wrong result in some scenarios
-        for (const callback of callbacks) await callback(request, model);
+        for (const callback of callbacks)
+          await callback(request, model, transaction);
 
-        await resource.afterCreate(request);
+        const newResource = request.newResource(model);
 
-        await resource.recordCreationEvent(request.all(), Avon.userId(request));
+        await newResource.afterCreate(request);
 
-        return resource;
-      },
-    );
+        await newResource.recordCreationEvent(
+          request.all(),
+          Avon.userId(request),
+        );
+
+        return newResource;
+      });
 
     await Promise.all(
       resource

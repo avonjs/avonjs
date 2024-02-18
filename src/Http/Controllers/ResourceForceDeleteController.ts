@@ -11,26 +11,27 @@ export default class ResourceForceDeleteController extends Controller {
     request: ResourceForceDeleteRequest,
   ): Promise<AvonResponse> {
     const resource = await request.findResourceOrFail();
-    const repository = request.repository();
 
     await resource.authorizeTo(request, Ability.forceDelete);
 
-    await repository.transaction<void>(async () => {
-      // handle prunable fields
-      // await Promise.all(
-      //   resource
-      //     .prunableFields(request, false)
-      //     .map((field) => field.forRequest(request)),
-      // );
+    await request
+      .repository()
+      .transaction<void>(async (repository, transaction) => {
+        // handle prunable fields
+        // await Promise.all(
+        //   resource
+        //     .prunableFields(request, false)
+        //     .map((field) => field.forRequest(request)),
+        // );
 
-      await resource.beforeForceDelete(request);
+        await resource.beforeForceDelete(request);
 
-      await repository.forceDelete(resource.resource.getKey());
+        await repository.forceDelete(resource.resource.getKey());
 
-      await resource.afterForceDelete(request);
+        await resource.afterForceDelete(request);
 
-      await resource.flushActionEvents();
-    });
+        await resource.flushActionEvents();
+      });
 
     return new EmptyResponse();
   }

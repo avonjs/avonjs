@@ -1,4 +1,11 @@
-import { Model, Where, Order, Operator, SearchCollection } from '../Contracts';
+import {
+  Model,
+  Where,
+  Order,
+  Operator,
+  SearchCollection,
+  TransactionCallback,
+} from '../Contracts';
 
 export default abstract class Repository<TModel extends Model = Model> {
   /**
@@ -14,8 +21,10 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Run transaction on the storage.
    */
-  public async transaction<T>(callback: () => Promise<T>): Promise<T> {
-    return Promise.resolve(callback());
+  public async transaction<T>(
+    callback: TransactionCallback<T, this>,
+  ): Promise<T> {
+    return Promise.resolve(callback(this));
   }
 
   /**

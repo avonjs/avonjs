@@ -10,31 +10,32 @@ export default class ResourceDeleteController extends Controller {
    */
   public async __invoke(request: ResourceDeleteRequest): Promise<AvonResponse> {
     const resource = await request.findResourceOrFail();
-    const repository = request.repository();
     const model = await request.findModelOrFail();
 
     await resource.authorizeTo(request, Ability.delete);
 
-    await repository.transaction<any>(async () => {
-      // handle prunable fields
-      // await Promise.all(
-      //   resource
-      //     .prunableFields(request, false)
-      //     .map((field) => field.forRequest(request)),
-      // );
+    await request
+      .repository()
+      .transaction<any>(async (repository, transaction) => {
+        // handle prunable fields
+        // await Promise.all(
+        //   resource
+        //     .prunableFields(request, false)
+        //     .map((field) => field.forRequest(request)),
+        // );
 
-      await resource.beforeDelete(request);
+        await resource.beforeDelete(request);
 
-      await request.repository().delete(model.getKey());
+        await repository.delete(model.getKey());
 
-      await resource.afterDelete(request);
+        await resource.afterDelete(request);
 
-      if (resource.softDeletes()) {
-        await resource.recordDeletionEvent(Avon.userId(request));
-      } else {
-        await resource.flushActionEvents();
-      }
-    });
+        if (resource.softDeletes()) {
+          await resource.recordDeletionEvent(Avon.userId(request));
+        } else {
+          await resource.flushActionEvents();
+        }
+      });
 
     return new EmptyResponse();
   }

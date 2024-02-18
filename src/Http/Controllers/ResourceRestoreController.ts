@@ -11,7 +11,6 @@ export default class ResourceRestoreController extends Controller {
   public async __invoke(
     request: ResourceRestoreRequest,
   ): Promise<AvonResponse> {
-    const repository = request.repository();
     const resource = request.newResource(
       await request
         .resource()
@@ -21,15 +20,17 @@ export default class ResourceRestoreController extends Controller {
 
     await resource.authorizeTo(request, Ability.restore);
 
-    await repository.transaction<any>(async () => {
-      await resource.beforeRestore(request);
+    await request
+      .repository()
+      .transaction<any>(async (repository, transaction) => {
+        await resource.beforeRestore(request);
 
-      await request.repository().restore(request.route('resourceId') as string);
+        await repository.restore(request.route('resourceId') as string);
 
-      await resource.afterRestore(request);
+        await resource.afterRestore(request);
 
-      await resource.recordRestoreEvent(Avon.userId(request));
-    });
+        await resource.recordRestoreEvent(Avon.userId(request));
+      });
 
     return new EmptyResponse();
   }

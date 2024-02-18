@@ -15,6 +15,7 @@ export type SeeCallback = (request: AvonRequest) => boolean;
 export type FilledCallback = <TModel extends Model>(
   request: AvonRequest,
   model: TModel,
+  transaction?: any,
 ) => any;
 
 export type CallbackStack = [Model, Array<FilledCallback>];
@@ -76,3 +77,9 @@ export type Auth = {
 export type AttemptCallback = (
   payload: Record<string, unknown>,
 ) => Promise<Auth | null | undefined | void>;
+
+export type TransactionCallback<
+  V extends unknown,
+  R extends Repository,
+  T extends any = any,
+> = (repository: R, transacting?: T) => Promise<V>;
