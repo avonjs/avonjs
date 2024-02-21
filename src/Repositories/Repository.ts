@@ -85,7 +85,7 @@ export default abstract class Repository<TModel extends Model = Model> {
    * Find model for the given key.
    */
   async find(key: string | number): Promise<TModel | undefined> {
-    return await this.whereKey(key).first();
+    return this.whereKey(key).first();
   }
 
   /**
@@ -108,6 +108,15 @@ export default abstract class Repository<TModel extends Model = Model> {
       value: keys,
       operator: Operator.in,
     });
+  }
+
+  /**
+   * Fill data into model.
+   */
+  public fillModel(result: Record<string, any>): TModel {
+    const Constructor = this.model().constructor.prototype.constructor;
+
+    return new Constructor(result);
   }
 
   /**

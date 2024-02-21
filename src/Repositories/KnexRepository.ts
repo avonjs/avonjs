@@ -12,7 +12,9 @@ import {
 import { slugify } from '../helpers';
 import Repository from './Repository';
 
-export default abstract class KnexRepository extends Repository<Model> {
+export default abstract class KnexRepository<
+  TModel extends Model = Fluent,
+> extends Repository<TModel> {
   /**
    * The transaction instance.
    */
@@ -88,7 +90,7 @@ export default abstract class KnexRepository extends Repository<Model> {
 
     return {
       ...count,
-      items: data.map((client: any) => new Fluent(client)),
+      items: data.map((item: Record<string, any>) => this.fillModel(item)),
     };
   }
 
@@ -105,32 +107,32 @@ export default abstract class KnexRepository extends Repository<Model> {
   /**
    * Find all model's for the given conditions.
    */
-  async all(wheres: Where[] = []): Promise<Fluent[]> {
+  async all(wheres: Where[] = []): Promise<TModel[]> {
     const data = await this.where(wheres).makeQuery().select('*');
 
-    return data.map((item: any) => new Fluent(item));
-  }
-
-  /**
-   * Store given model into the storage.
-   */
-  async store(model: Fluent): Promise<Fluent> {
-    const insertedIds = await this.query().insert(model.all());
-
-    return this.whereKey(insertedIds[0]).first();
+    return data.map((item: Record<string, any>) => this.fillModel(item));
   }
 
   /**
    * Find first model for the given conditions.
    */
-  async first(wheres: Where[] = []): Promise<Fluent> {
-    return new Fluent(await this.where(wheres).makeQuery().first());
+  async first(wheres: Where[] = []): Promise<TModel | undefined> {
+    return this.parseResult(await this.where(wheres).makeQuery().first());
   }
 
   /**
    * Store given model into the storage.
    */
-  async update(model: Fluent): Promise<Fluent> {
+  async store(model: TModel): Promise<TModel> {
+    const insertedIds = await this.query().insert(model.all());
+
+    return this.find(insertedIds[0]) as unknown as TModel;
+  }
+
+  /**
+   * Store given model into the storage.
+   */
+  async update(model: TModel): Promise<TModel> {
     const data = { ...model.all() };
     // remove primary key
     delete data[model.getKeyName()];
@@ -200,10 +202,17 @@ export default abstract class KnexRepository extends Repository<Model> {
   }
 
   /**
+   * Parse the query result.
+   */
+  public parseResult(result?: TModel): TModel | undefined {
+    return result ? this.fillModel(result) : result;
+  }
+
+  /**
    * Create new instance of model.
    */
-  model(): Model {
-    return new Fluent();
+  model(): TModel {
+    return new Fluent() as unknown as TModel;
   }
 
   /**
