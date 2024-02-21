@@ -67,3 +67,5 @@ export type OpenApiFieldSchema = {
 export type JwVerifyOptions = Params & { secret: string };
 
 export type CollectionRecord = Record<string, any>;
+
+export type EnumValues = unknown[];

@@ -24,6 +24,7 @@ const testPosts = [
       title: 'META: post 1',
     },
     name: 'Post 1',
+    type: 'comment',
   },
 ];
 const updatePost = {
@@ -39,6 +40,7 @@ const updatePost = {
     title: 'META: post 1 updated',
   },
   name: 'Post 1 updated',
+  type: 'reply',
 };
 
 class Repository extends Repositories.File {
@@ -62,6 +64,7 @@ class Post extends Resource {
       new Fields.ID(),
       new Fields.Json('meta', [new Fields.Text('title')]),
       new Fields.Text('name'),
+      new Fields.Enum('type', ['comment', 'reply']),
     ];
   }
   repository() {
