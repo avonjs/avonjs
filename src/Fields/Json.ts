@@ -119,6 +119,9 @@ export default class Json extends Field {
     return false;
   }
 
+  /**
+   * Get the swagger-ui schema.
+   */
   protected responseSchema(request: AvonRequest): OpenApiSchema {
     return {
       ...super.responseSchema(request),
@@ -127,6 +130,9 @@ export default class Json extends Field {
     };
   }
 
+  /**
+   * Get the swagger-ui schema.
+   */
   protected payloadSchema(request: AvonRequest): OpenApiSchema {
     return {
       ...super.payloadSchema(request),
