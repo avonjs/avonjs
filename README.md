@@ -466,8 +466,10 @@ new Fields.Text('name').filterable((request, repository, value) => {
 - [Email Field](#email-field)
 - [ID Field](#id-field)
 - [Json Field](#json-field)
+- [List Field](#list-field)
 - [Integer Field](#integer-field)
 - [Text Field](#text-field)
+- [Enum Field](#enum-field)
 
 ### Array Field
 
@@ -536,6 +538,23 @@ new Fields.Json('meta', [
 ])
 ```
 
+You are free to pass any non-relational field as second parameters of `Json` field to shape and validate its entire data.
+
+### List Field
+
+The `List` field offers a user-friendly interface for editing arrays of `key-value` data stored within `JSON` column types. the list field is a combination of `Json` field and `Array` field:
+
+```
+import { Fields } from '@avonjs/avonjs';
+
+new Fields.List('comments', [
+    new Fields.Text('name').creationRules(Joi.required()),
+    new Fields.Text('comment').creationRules(Joi.required()),
+])
+```
+
+You are free to pass any non-relational field as second parameters of `List` field to shape and validate its entire data.
+
 ### Integer Field
 
 The `Integer` field store / retrieve value as `integer` in the model:
@@ -554,6 +573,16 @@ The `Text` field store / retrieve value as `string` in the model:
 import { Fields } from '@avonjs/avonjs';
 
 new Fields.Text('name')
+```
+
+## Enum Field
+
+The `Enum` field store / retrieve certain values as `string` in the model. The enum field accepts a list of possible values as the second parameter:
+
+```
+import { Fields } from '@avonjs/avonjs';
+
+new Fields.Enum('status', ['published', 'draft'])
 ```
 
 ## Customization
