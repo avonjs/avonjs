@@ -12,6 +12,7 @@ import Json from './Json';
 import Text from './Text';
 import Field from './Field';
 import Enum from './Enum';
+import List from './List';
 
 export {
   Array,
@@ -28,4 +29,5 @@ export {
   Text,
   Field,
   Enum,
+  List,
 };
