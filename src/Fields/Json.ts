@@ -27,7 +27,7 @@ export default class Json extends Field {
 
     this.default((request) => {
       return new FieldCollection(
-        this.fields.map((field) => field.resolveDefaultValue(request)),
+        this.fields.each((field) => field.resolveDefaultValue(request)),
       ).fieldValues(request);
     });
   }
