@@ -82,7 +82,6 @@ export default abstract class KnexRepository<
     const offset = (page - 1) * perPage > 0 ? (page - 1) * perPage : 0;
     const count = await query
       .clone()
-      .debug(true)
       .count(`${this.model().getKeyName()} as count`)
       .first();
 
