@@ -77,7 +77,11 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
       ](order.key);
     });
 
-    return collection;
+    return this.modifiers.reduce((collection, modifier) => {
+      const modified = modifier(collection);
+
+      return modified instanceof Collection ? modified : collection;
+    }, collection);
   }
 
   /**

@@ -5,6 +5,7 @@ import {
   Operator,
   SearchCollection,
   TransactionCallback,
+  QueryModifierCallback,
 } from '../Contracts';
 
 export default abstract class Repository<TModel extends Model = Model> {
@@ -17,6 +18,11 @@ export default abstract class Repository<TModel extends Model = Model> {
    * List of applied orderings.
    */
   public orders: Order[] = [];
+
+  /**
+   * List of query modifier callbacks.
+   */
+  public modifiers: QueryModifierCallback[] = [];
 
   /**
    * Run transaction on the storage.
@@ -79,6 +85,15 @@ export default abstract class Repository<TModel extends Model = Model> {
    */
   getOrders(): Order[] {
     return this.orders;
+  }
+
+  /**
+   * Modify underlying query before execute.
+   */
+  public modify<T extends unknown>(modifier: QueryModifierCallback<T>) {
+    this.modifiers.push(modifier);
+
+    return this;
   }
 
   /**

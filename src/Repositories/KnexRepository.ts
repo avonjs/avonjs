@@ -82,7 +82,7 @@ export default abstract class KnexRepository<
     const offset = (page - 1) * perPage > 0 ? (page - 1) * perPage : 0;
     const count = await query
       .clone()
-      .count(`${this.model().getKeyName()} as count`)
+      .count(`${this.tableName()}.${this.model().getKeyName()} as count`)
       .first();
 
     const data = await query.limit(perPage).offset(offset).select('*');
@@ -152,7 +152,9 @@ export default abstract class KnexRepository<
    * Get new query with wheres and orders.
    */
   public makeQuery(): Knex.QueryBuilder {
-    return this.applyWheres(this.query().orderBy(this.prepareOrdersForQuery()));
+    return this.applyModifiers(
+      this.applyWheres(this.query().orderBy(this.prepareOrdersForQuery())),
+    );
   }
 
   /**
@@ -173,13 +175,29 @@ export default abstract class KnexRepository<
   protected applyWheres(query: Knex.QueryBuilder): Knex.QueryBuilder {
     this.wheres.forEach(({ key, operator, value }) => {
       if (![null, undefined].includes(value)) {
-        query.where(key, operator, value);
+        query.where(this.getQualifiedColumnName(key), operator, value);
       } else if ([Operator.eq, Operator.in].includes(operator)) {
-        query.whereNull(key);
+        query.whereNull(this.getQualifiedColumnName(key));
       } else {
-        query.whereNotNull(key);
+        query.whereNotNull(this.getQualifiedColumnName(key));
       }
     });
+
+    return query;
+  }
+
+  /**
+   * Get fully qualified column name.
+   */
+  protected getQualifiedColumnName(columnName: string) {
+    return `${this.tableName()}.${columnName}`;
+  }
+
+  /**
+   * Apply wheres to the query.
+   */
+  protected applyModifiers(query: Knex.QueryBuilder): Knex.QueryBuilder {
+    this.modifiers.forEach((modifier) => modifier(query));
 
     return query;
   }

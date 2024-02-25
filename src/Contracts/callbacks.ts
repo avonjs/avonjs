@@ -83,3 +83,5 @@ export type TransactionCallback<
   R extends Repository,
   T extends any = any,
 > = (repository: R, transacting?: T) => Promise<V>;
+
+export type QueryModifierCallback<T = any> = (query: T) => T;
