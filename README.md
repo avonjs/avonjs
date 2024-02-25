@@ -72,6 +72,7 @@
 
 - [Action Events](#action-events)
 - [Custom Action Event](#custom-action-event)
+- [Action Event Table](#action-event-table)
 - [Action Event Actor](#action-event-actor)
 
 **Error Handling**
@@ -1284,6 +1285,39 @@ class Activities extends FillsActionEvents(Repositories.File) {
         return [];
     }
 };
+```
+
+### Action Event Table
+
+The action events table structure should be defined as follows:
+
+```
+import { Knex } from 'knex';
+
+export async function up(knex: Knex): Promise<void> {
+  return knex.schema.createTableIfNotExists('action_events', (table) => {
+    table.bigIncrements('id').primary();
+    table.text('name');
+    table.text('model_type');
+    table.bigInteger('model_id');
+    table.text('resource_name');
+    table.bigInteger('resource_id');
+    table.bigInteger('user_id');
+    table.text('batch_id');
+    table.json('payload').nullable();
+    table.json('changes').nullable();
+    table.json('original').nullable();
+    table.timestamps(true, true);
+    table.timestamp('deleted_at');
+    // Indexes
+    table.index(['model_type', 'model_id'], 'morphs');
+  });
+}
+
+export async function down(knex: Knex): Promise<void> {
+  return knex.schema.dropTableIfExists('action_events');
+}
+
 ```
 
 # Error Handling
