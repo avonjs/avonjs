@@ -96,7 +96,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
         model_id: params.resource.getKey(),
         changes: {},
         original: {},
-        user_id: params.userId,
+        user_id: params.userId ?? null,
         batch_id: params.batchId ?? randomUUID(),
       };
     }
