@@ -7,7 +7,6 @@ import {
   Where,
   Direction,
   Operator,
-  TransactionCallback,
 } from '../Contracts';
 import { slugify } from '../helpers';
 import Repository from './Repository';
@@ -16,58 +15,10 @@ export default abstract class KnexRepository<
   TModel extends Model = Fluent,
 > extends Repository<TModel> {
   /**
-   * The transaction instance.
-   */
-  protected _transaction?: Knex.Transaction;
-
-  /**
-   * Run transaction on the storage.
-   */
-  public async transaction<T>(
-    callback: TransactionCallback<T, this, Knex.Transaction>,
-  ): Promise<T> {
-    const trx = await this.prepareTransaction();
-
-    try {
-      // Execute the callback within the transaction
-      const result = await callback(this, trx);
-
-      // Commit the transaction
-      await trx.commit();
-
-      return result;
-    } catch (error) {
-      // Rollback the transaction if an error occurs
-      await trx.rollback();
-      throw error;
-    }
-  }
-
-  /**
    * Start new transaction.
    */
-  protected async prepareTransaction() {
-    const trx = await this.connection().transaction();
-
-    this.setTransaction(trx);
-
-    return trx;
-  }
-
-  /**
-   * Set the transaction instance.
-   */
-  public setTransaction(transaction: Knex.Transaction) {
-    this._transaction = transaction;
-
-    return this;
-  }
-
-  /**
-   * Get the transaction instance.
-   */
-  public getTransaction(): Knex.Transaction | undefined {
-    return this._transaction;
+  public async prepareTransaction() {
+    return this.connection().transaction();
   }
 
   /**
@@ -207,8 +158,11 @@ export default abstract class KnexRepository<
    */
   protected query(): Knex.QueryBuilder {
     const query = this.connection().table(this.tableName()).debug(this.debug());
+    const transaction = this.getTransaction();
 
-    return this._transaction ? query.transacting(this._transaction) : query;
+    return transaction
+      ? query.transacting(transaction as Knex.Transaction)
+      : query;
   }
 
   /**

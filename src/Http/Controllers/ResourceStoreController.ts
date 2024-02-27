@@ -27,7 +27,7 @@ export default class ResourceStoreController extends Controller {
 
         const resource = request.newResource(data);
 
-        await resource.beforeCreate(request);
+        await resource.beforeCreate(request, transaction);
 
         const model = await repository.store(data);
 
@@ -40,10 +40,11 @@ export default class ResourceStoreController extends Controller {
 
         const newResource = request.newResource(model);
 
-        await newResource.afterCreate(request);
+        await newResource.afterCreate(request, transaction);
 
         await newResource.recordCreationEvent(
           request.all(),
+          transaction,
           Avon.userId(request),
         );
 

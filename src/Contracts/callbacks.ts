@@ -2,7 +2,7 @@ import Field from '../Fields/Field';
 import ActionRequest from '../Http/Requests/ActionRequest';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Repository } from '../Repositories';
-import { Model } from './interfaces';
+import { Model, Transaction } from './interfaces';
 
 export type UserResolver = (request: AvonRequest) => Model | undefined;
 
@@ -78,10 +78,9 @@ export type AttemptCallback = (
   payload: Record<string, unknown>,
 ) => Promise<Auth | null | undefined | void>;
 
-export type TransactionCallback<
-  V extends unknown,
-  R extends Repository,
-  T extends any = any,
-> = (repository: R, transacting?: T) => Promise<V>;
+export type TransactionCallback<V extends unknown, R extends Repository> = (
+  repository: R,
+  transacting?: Transaction,
+) => Promise<V>;
 
 export type QueryModifierCallback<T = any> = (query: T) => T;

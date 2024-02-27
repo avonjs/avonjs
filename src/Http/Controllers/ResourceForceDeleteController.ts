@@ -24,13 +24,13 @@ export default class ResourceForceDeleteController extends Controller {
         //     .map((field) => field.forRequest(request)),
         // );
 
-        await resource.beforeForceDelete(request);
+        await resource.beforeForceDelete(request, transaction);
 
         await repository.forceDelete(resource.resource.getKey());
 
-        await resource.afterForceDelete(request);
+        await resource.afterForceDelete(request, transaction);
 
-        await resource.flushActionEvents();
+        await resource.flushActionEvents(transaction);
       });
 
     return new EmptyResponse();

@@ -27,7 +27,7 @@ export default class ResourceUpdateController extends Controller {
 
         const newResource = request.newResource(model);
 
-        await newResource.beforeUpdate(request);
+        await newResource.beforeUpdate(request, transaction);
 
         await repository.update(model);
 
@@ -38,11 +38,12 @@ export default class ResourceUpdateController extends Controller {
         for (const callback of callbacks)
           await callback(request, model, transaction);
 
-        await newResource.afterUpdate(request);
+        await newResource.afterUpdate(request, transaction);
 
         await newResource.recordUpdateEvent(
           previous,
           request.all(),
+          transaction,
           Avon.userId(request),
         );
 

@@ -23,13 +23,13 @@ export default class ResourceRestoreController extends Controller {
     await request
       .repository()
       .transaction<any>(async (repository, transaction) => {
-        await resource.beforeRestore(request);
+        await resource.beforeRestore(request, transaction);
 
         await repository.restore(request.route('resourceId') as string);
 
-        await resource.afterRestore(request);
+        await resource.afterRestore(request, transaction);
 
-        await resource.recordRestoreEvent(Avon.userId(request));
+        await resource.recordRestoreEvent(transaction, Avon.userId(request));
       });
 
     return new EmptyResponse();

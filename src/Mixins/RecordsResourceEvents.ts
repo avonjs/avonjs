@@ -6,6 +6,7 @@ import {
   Searchable,
   BulkActionResult,
   ActionEventRepository,
+  Transaction,
 } from '../Contracts';
 import { ActionEvent, Repository } from '../Repositories';
 import { Action } from '../Actions';
@@ -28,10 +29,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     async recordCreationEvent(
       payload: Payload = {},
+      transaction?: Transaction,
       userId?: string | number,
     ): Promise<void> {
       if (this.isRecordable()) {
-        await this.actionRepository().store(
+        await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceStore({
             resourceName: this.resourceName(),
             resource: this.resource!,
@@ -48,10 +50,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     async recordUpdateEvent(
       previous: Model,
       payload: Payload = {},
+      transaction?: Transaction,
       userId?: string | number,
     ): Promise<void> {
       if (this.isRecordable()) {
-        await this.actionRepository().store(
+        await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceUpdate({
             resourceName: this.resourceName(),
             resource: this.resource!,
@@ -66,9 +69,12 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Create an action event for the resource delete.
      */
-    async recordDeletionEvent(userId?: string | number): Promise<void> {
+    async recordDeletionEvent(
+      transaction?: Transaction,
+      userId?: string | number,
+    ): Promise<void> {
       if (this.isRecordable()) {
-        await this.actionRepository().store(
+        await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceDelete({
             resourceName: this.resourceName(),
             resource: this.resource!,
@@ -81,9 +87,12 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Create an action event for the resource delete.
      */
-    async recordRestoreEvent(userId?: string | number): Promise<void> {
+    async recordRestoreEvent(
+      transaction?: Transaction,
+      userId?: string | number,
+    ): Promise<void> {
       if (this.isRecordable()) {
-        await this.actionRepository().store(
+        await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceRestore({
             resourceName: this.resourceName(),
             resource: this.resource!,
@@ -101,7 +110,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       payload: Payload = {},
       userId?: string | number,
     ): Promise<void> {
-      await this.actionRepository().store(
+      await this.makeActionRepository().store(
         this.actionRepository().forActionRan({
           resourceName: this.resourceName(),
           resource: new Fluent(),
@@ -125,7 +134,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     ): Promise<void> {
       const batchId = randomUUID();
 
-      await this.actionRepository().insert(
+      await this.makeActionRepository().insert(
         changes.map(({ resource, previous }) => {
           return this.actionRepository().forActionRan({
             resourceName: this.resourceName(),
@@ -143,13 +152,20 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Forget action event rows.
      */
-    async flushActionEvents(): Promise<void> {
+    async flushActionEvents(transaction?: Transaction): Promise<void> {
       if (this.isRecordable()) {
-        await this.actionRepository().flush(
+        await this.makeActionRepository(transaction).flush(
           this.resourceName(),
           this.resource!.getKey(),
         );
       }
+    }
+
+    /**
+     * Make action events repository with given transaction;
+     */
+    makeActionRepository(transaction?: Transaction) {
+      return this.actionRepository().setTransaction(transaction);
     }
 
     /**

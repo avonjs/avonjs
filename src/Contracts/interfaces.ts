@@ -141,3 +141,8 @@ export interface ActionEventRepository<TModel extends Model> {
    */
   flush(resourceName: string, key: string | number): Promise<TModel[]>;
 }
+
+export interface Transaction {
+  commit(value?: any): Promise<any>;
+  rollback(error?: any): Promise<any>;
+}

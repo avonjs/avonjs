@@ -24,16 +24,16 @@ export default class ResourceDeleteController extends Controller {
         //     .map((field) => field.forRequest(request)),
         // );
 
-        await resource.beforeDelete(request);
+        await resource.beforeDelete(request, transaction);
 
         await repository.delete(model.getKey());
 
-        await resource.afterDelete(request);
+        await resource.afterDelete(request, transaction);
 
         if (resource.softDeletes()) {
-          await resource.recordDeletionEvent(Avon.userId(request));
+          await resource.recordDeletionEvent(transaction, Avon.userId(request));
         } else {
-          await resource.flushActionEvents();
+          await resource.flushActionEvents(transaction);
         }
       });
 

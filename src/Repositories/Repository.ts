@@ -6,6 +6,7 @@ import {
   SearchCollection,
   TransactionCallback,
   QueryModifierCallback,
+  Transaction,
 } from '../Contracts';
 
 export default abstract class Repository<TModel extends Model = Model> {
@@ -25,12 +26,66 @@ export default abstract class Repository<TModel extends Model = Model> {
   public modifiers: QueryModifierCallback[] = [];
 
   /**
-   * Run transaction on the storage.
+   * The transaction instance.
    */
-  public async transaction<T>(
-    callback: TransactionCallback<T, this>,
-  ): Promise<T> {
-    return Promise.resolve(callback(this));
+  public _transaction?: Transaction;
+
+  /**
+   * Run a transaction on the storage.
+   */
+  public async transaction<V>(
+    callback: TransactionCallback<V, this>,
+  ): Promise<V> {
+    const trx = await this.prepareTransaction();
+    // update current transaction
+    this.setTransaction(trx);
+
+    try {
+      // Execute the callback within the transaction
+      const result = await callback(this, trx);
+
+      // Commit the transaction if it exists
+      if (trx !== undefined) {
+        await trx.commit();
+      }
+
+      return result;
+    } catch (error) {
+      // Rollback the transaction if an error occurs
+      if (trx !== undefined) {
+        await trx.rollback();
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Set the transaction instance.
+   */
+  public setTransaction(transaction?: Transaction) {
+    this._transaction = transaction;
+
+    return this;
+  }
+
+  /**
+   * Get the transaction instance.
+   */
+  public getTransaction(): Transaction | undefined {
+    return this._transaction;
+  }
+  /**
+   * Indicates whether the transaction is running or not.
+   */
+  public runningInTransaction(): boolean {
+    return this.getTransaction() !== undefined;
+  }
+
+  /**
+   * Start new transaction.
+   */
+  public prepareTransaction(): any {
+    // nothing to do
   }
 
   /**

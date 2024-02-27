@@ -1,4 +1,4 @@
-import { AbstractMixable } from '../Contracts';
+import { AbstractMixable, Transaction } from '../Contracts';
 import AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
@@ -6,70 +6,79 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Register a callback to be called before the resource create.
      */
-    public beforeCreate(request: AvonRequest): void {
+    public beforeCreate(request: AvonRequest, transaction?: Transaction): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is created.
      */
-    public afterCreate(request: AvonRequest): void {
+    public afterCreate(request: AvonRequest, transaction?: Transaction): void {
       //
     }
 
     /**
      * Register a callback to be called before the resource update.
      */
-    public beforeUpdate(request: AvonRequest): void {
+    public beforeUpdate(request: AvonRequest, transaction?: Transaction): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is updated.
      */
-    public afterUpdate(request: AvonRequest): void {
+    public afterUpdate(request: AvonRequest, transaction?: Transaction): void {
       //
     }
 
     /**
      * Register a callback to be called before the resource delete.
      */
-    public beforeDelete(request: AvonRequest): void {
+    public beforeDelete(request: AvonRequest, transaction?: Transaction): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is destroyed.
      */
-    public afterDelete(request: AvonRequest): void {
+    public afterDelete(request: AvonRequest, transaction?: Transaction): void {
       //
     }
 
     /**
      * Register a callback to be called before the resource force-destroyed.
      */
-    public beforeForceDelete(request: AvonRequest): void {
+    public beforeForceDelete(
+      request: AvonRequest,
+      transaction?: Transaction,
+    ): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is force-destroyed.
      */
-    public afterForceDelete(request: AvonRequest): void {
+    public afterForceDelete(
+      request: AvonRequest,
+      transaction?: Transaction,
+    ): void {
       //
     }
 
     /**
      * Register a callback to be called before the resource restore.
      */
-    public beforeRestore(request: AvonRequest): void {
+    public beforeRestore(
+      request: AvonRequest,
+      transaction?: Transaction,
+    ): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is restored.
      */
-    public afterRestore(request: AvonRequest): void {
+    public afterRestore(request: AvonRequest, transaction?: Transaction): void {
       //
     }
   }
