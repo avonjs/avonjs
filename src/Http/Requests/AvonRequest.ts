@@ -199,4 +199,11 @@ export default abstract class AvonRequest extends FormRequest {
   protected trashed(): TrashedStatus {
     return this.query('trashed') ?? TrashedStatus.DEFAULT;
   }
+
+  /**
+   * Get authenticated user.
+   */
+  public user() {
+    return this.getRequest().auth;
+  }
 }
