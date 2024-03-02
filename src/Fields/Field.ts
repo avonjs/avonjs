@@ -489,7 +489,20 @@ export default abstract class Field
   ): this {
     super.nullable(nullable, validator);
 
-    this.rules(Joi.allow(null));
+    if (nullable) {
+      this.rules(this.rulesSchema.allow(null));
+    } else {
+      this.required();
+    }
+
+    return this;
+  }
+
+  /**
+   * Determine that the field should be filled in the request.
+   */
+  public required(): this {
+    this.rules(this.rulesSchema.required());
 
     return this;
   }
