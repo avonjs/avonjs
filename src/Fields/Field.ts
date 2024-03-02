@@ -308,7 +308,7 @@ export default abstract class Field
    * Set the validation rules for the field.
    */
   public rules(rules: AnySchema): this {
-    this.rulesSchema = rules;
+    this.rulesSchema = this.rulesSchema.concat(rules);
 
     return this;
   }
@@ -336,7 +336,7 @@ export default abstract class Field
    * Set the creation validation rules for the field.
    */
   public creationRules(rules: AnySchema): this {
-    this.creationRulesSchema = rules;
+    this.creationRulesSchema = this.creationRulesSchema.concat(rules);
 
     return this;
   }
@@ -357,7 +357,7 @@ export default abstract class Field
    * Set the creation validation rules for the field.
    */
   public updateRules(rules: AnySchema): this {
-    this.updateRulesSchema = rules;
+    this.updateRulesSchema = this.updateRulesSchema.concat(rules);
 
     return this;
   }
