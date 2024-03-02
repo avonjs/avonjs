@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi, { ObjectSchema } from 'joi';
 import FieldCollection from '../Collections/FieldCollection';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import {
@@ -11,6 +11,21 @@ import {
 import Field from './Field';
 
 export default class Json extends Field {
+  /**
+   * The validation rules callback for creation and updates.
+   */
+  protected rulesSchema: ObjectSchema = Joi.object();
+
+  /**
+   * The validation rules callback for creation.
+   */
+  protected creationRulesSchema: ObjectSchema = Joi.object();
+
+  /**
+   * The validation rules callback for updates.
+   */
+  protected updateRulesSchema: ObjectSchema = Joi.object();
+
   /**
    * The object possible keys.
    */
@@ -33,21 +48,6 @@ export default class Json extends Field {
   }
 
   /**
-   * Get the validation rules for this field.
-   */
-  public getRules(request: AvonRequest): Rules {
-    let rules: Rules = {};
-
-    this.fields.each((field) => {
-      rules = { ...rules, ...field.getRules(request) };
-    });
-
-    return {
-      [this.attribute]: Joi.object(rules),
-    };
-  }
-
-  /**
    * Get the creation rules for this field.
    */
   public getCreationRules(request: AvonRequest): Rules {
@@ -58,7 +58,9 @@ export default class Json extends Field {
     });
 
     return {
-      [this.attribute]: Joi.object(rules),
+      [this.attribute]: (
+        super.getCreationRules(request)[this.attribute] as ObjectSchema
+      ).keys(rules),
     };
   }
 
@@ -73,7 +75,9 @@ export default class Json extends Field {
     });
 
     return {
-      [this.attribute]: Joi.object(rules),
+      [this.attribute]: (
+        super.getUpdateRules(request)[this.attribute] as ObjectSchema
+      ).keys(rules),
     };
   }
 

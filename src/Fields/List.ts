@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi, { ArraySchema } from 'joi';
 import FieldCollection from '../Collections/FieldCollection';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import {
@@ -12,6 +12,21 @@ import Field from './Field';
 import collect from 'collect.js';
 
 export default class List extends Field {
+  /**
+   * The validation rules callback for creation and updates.
+   */
+  protected rulesSchema: ArraySchema = Joi.array();
+
+  /**
+   * The validation rules callback for creation.
+   */
+  protected creationRulesSchema: ArraySchema = Joi.array();
+
+  /**
+   * The validation rules callback for updates.
+   */
+  protected updateRulesSchema: ArraySchema = Joi.array();
+
   /**
    * The object possible keys.
    */
@@ -46,7 +61,9 @@ export default class List extends Field {
     });
 
     return {
-      [this.attribute]: Joi.array().items(rules),
+      [this.attribute]: (
+        super.getCreationRules(request)[this.attribute] as ArraySchema
+      ).items(rules),
     };
   }
 
@@ -61,7 +78,9 @@ export default class List extends Field {
     });
 
     return {
-      [this.attribute]: Joi.array().items(rules),
+      [this.attribute]: (
+        super.getUpdateRules(request)[this.attribute] as ArraySchema
+      ).items(rules),
     };
   }
 
