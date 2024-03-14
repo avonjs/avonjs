@@ -75,8 +75,15 @@ export default class Text extends Field {
       repository.where({
         key: this.filterableAttribute(request),
         operator: Operator.like,
-        value,
+        value: this.formatForSearch(value),
       });
     };
+  }
+
+  /**
+   * Format given value for search.
+   */
+  public formatForSearch(value: string) {
+    return value.match(/%/) ? value : `%${value}%`;
   }
 }
