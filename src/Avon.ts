@@ -151,7 +151,7 @@ export default class Avon {
 
   public static expressjwt() {
     return expressjwt({
-      secret: 'Avon',
+      secret: Avon.appKey,
       algorithms: [Avon.jwtSignOptions.algorithm ?? 'HS256'],
       audience: Avon.jwtSignOptions.audience,
       issuer: Avon.jwtSignOptions.issuer,
