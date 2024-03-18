@@ -10,12 +10,7 @@ export default class QueryParser<T extends QueryParameter> {
    */
   matches(): MatchesQueryParameters<T> {
     return this.handlers
-      .filter((handler) => {
-        // validate filters
-        const value = this.query[handler.key()];
-
-        return value !== undefined && !handler.isValidNullValue(value);
-      })
+      .filter((handler) => this.query[handler.key()] !== undefined)
       .map((handler) => {
         const value = this.query[handler.key()];
 
