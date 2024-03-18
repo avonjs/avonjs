@@ -7,10 +7,6 @@ import { AbstractMixable, Model, Operator } from '../Contracts';
 export default <T extends AbstractMixable<Filter>>(Parent: T) => {
   abstract class FilterableFields extends Parent {
     abstract field: Field;
-    /**
-     * Indicates if the field is nullable.
-     */
-    public acceptsNullValues = true;
 
     /**
      * Apply the filter into the given repository.
@@ -30,6 +26,13 @@ export default <T extends AbstractMixable<Filter>>(Parent: T) => {
      */
     public isValidNullValue(value: any): boolean {
       return this.field.isValidNullValue(value);
+    }
+
+    /**
+     * Determine if the field supports null values.
+     */
+    public isNullable(): boolean {
+      return this.field.isNullable();
     }
 
     /**
