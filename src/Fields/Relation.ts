@@ -19,6 +19,7 @@ import Field from './Field';
 import RelatableFilter from './Filters/RelatableFilter';
 import { guessRelation } from './ResourceRelationshipGuesser';
 import { Repository } from '../Repositories';
+import { snakeCase } from 'change-case-all';
 
 export default abstract class Relation extends Field {
   /**
@@ -72,7 +73,7 @@ export default abstract class Relation extends Field {
     this.relation = relation;
     this.relatedResource = relatedResource as Resource;
     this.ownerKey = this.relatedResource.repository().model().getKeyName();
-    this.foreignKey = `${this.relation}_${this.ownerKey}`;
+    this.foreignKey = snakeCase(`${this.relation}_${this.ownerKey}`);
   }
 
   /**
