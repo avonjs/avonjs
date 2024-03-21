@@ -1,7 +1,12 @@
+import collect from 'collect.js';
 import { Model } from '../Contracts';
+import HasAttributes from '../Mixins/HasAttributes';
 
-export default class Fluent implements Model {
-  constructor(protected attributes: Record<any, any> = {}) {
+export default class Fluent extends HasAttributes(class {}) implements Model {
+  constructor(attributes: Record<string, unknown> = {}) {
+    super();
+    this.setAttributes(attributes);
+    // proxify the model
     return new Proxy(this, {
       get: function (parent, property, receiver): any {
         // handle exists method
@@ -20,10 +25,21 @@ export default class Fluent implements Model {
   }
 
   /**
+   * Set the attributes.
+   */
+  setAttributes(attributes: Record<string, unknown>): this {
+    for (const key in attributes) {
+      this.setAttribute(key, attributes[key]);
+    }
+
+    return this;
+  }
+
+  /**
    * Set value for the given key.
    */
   setAttribute(key: string, value: any): Fluent {
-    this.attributes[key] = value;
+    super.setAttributeValue(key, value);
 
     return this;
   }
@@ -31,8 +47,8 @@ export default class Fluent implements Model {
   /**
    * Get value for the given key.
    */
-  getAttribute(key: string): any {
-    return this.attributes[key];
+  getAttribute<T extends any = any>(key: string): T {
+    return super.getAttributeValue<T>(key);
   }
 
   /**
@@ -53,7 +69,9 @@ export default class Fluent implements Model {
    * Return all the attributes.
    */
   public all(): Record<string, any> {
-    return this.attributes;
+    return collect(this.attributes)
+      .map((value, key) => this.getAttribute(key))
+      .all();
   }
 
   /**

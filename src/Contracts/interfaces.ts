@@ -38,7 +38,7 @@ export interface Model {
   /**
    * Get value for the given key.
    */
-  getAttribute: (key: string) => any;
+  getAttribute: <T extends any = any>(key: string) => T;
 
   /**
    * Get the model key.

@@ -63,6 +63,7 @@
     }
   },
   "dependencies": {
+    "change-case-all": "^2.1.0",
     "collect.js": "^4.36.1",
     "express-jwt": "^8.4.1",
     "joi": "^17.11.0",
