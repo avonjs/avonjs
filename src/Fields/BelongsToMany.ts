@@ -12,6 +12,7 @@ import {
   Ability,
   FilledCallback,
   OpenApiSchema,
+  Transaction,
 } from '../Contracts';
 import Relation from './Relation';
 import { guessForeignKey } from './ResourceRelationshipGuesser';
@@ -182,15 +183,18 @@ export default class BelongsToMany extends Relation {
       return;
     }
 
-    return async () => {
+    return async (request, model, transaction) => {
       // first we clear old attachments
       await this.clearAttachments(request, model);
       // then fill with new attachments
-      const repository = this.pivotResource.repository();
+      const repository = this.pivotResource
+        .repository()
+        .setTransaction(transaction);
       const attachments = await this.prepareAttachments(
         request,
         model,
         requestAttribute,
+        transaction,
       );
 
       await Promise.all(
@@ -247,6 +251,7 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     resource: Model,
     requestAttribute: string,
+    transaction?: Transaction,
   ): Promise<Model[]> {
     return this.fillPivotFromRequest(
       request,
@@ -255,6 +260,7 @@ export default class BelongsToMany extends Relation {
         request,
         resource,
         this.getAttachments(request, requestAttribute),
+        transaction,
       ),
     );
   }
@@ -275,11 +281,13 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     model: Model,
     attachments: Attachable[],
+    transaction?: Transaction,
   ): Promise<Attachable[]> {
     const authorizedResources: Attachable[] = [];
     const resource = request.newResource(model);
     const relatables = await this.getRelatedResources(
       attachments.map(({ id }) => id),
+      transaction,
     );
 
     for (const attachment of attachments) {
@@ -294,8 +302,15 @@ export default class BelongsToMany extends Relation {
     return authorizedResources;
   }
 
-  protected async getRelatedResources(resourceIds: Array<string | number>) {
-    return this.relatedResource.repository().whereKeys(resourceIds).all();
+  protected async getRelatedResources(
+    resourceIds: Array<string | number>,
+    transaction?: Transaction,
+  ) {
+    return this.relatedResource
+      .repository()
+      .setTransaction(transaction)
+      .whereKeys(resourceIds)
+      .all();
   }
 
   /**

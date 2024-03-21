@@ -8,6 +8,7 @@ import {
   OpenApiSchema,
   Operator,
   Rules,
+  Transaction,
 } from '../Contracts';
 import Relation from './Relation';
 
@@ -54,11 +55,11 @@ export default class BelongsTo extends Relation {
       this.isValidNullValue(value) ? this.nullValue() : value,
     );
 
-    return async (request, model) => {
+    return async (request, model, transaction) => {
       await request
         .newResource(model)
         .authorizeTo(request, Ability.add, [
-          await this.getRelatedResource(request, value),
+          await this.getRelatedResource(request, value, transaction),
         ]);
     };
   }
@@ -122,9 +123,11 @@ export default class BelongsTo extends Relation {
   protected async getRelatedResource(
     request: AvonRequest,
     id: string | number,
+    transaction?: Transaction,
   ) {
     return this.relatedResource
       .repository()
+      .setTransaction(transaction)
       .where({
         key: this.ownerKeyName(request),
         operator: Operator.eq,
