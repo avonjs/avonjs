@@ -107,7 +107,7 @@ export default class BelongsToMany extends Relation {
   protected existenceRule(
     request: AvonRequest,
   ): Joi.ExternalValidationFunction {
-    return async (value, helpers) => {
+    return async (value, { error }) => {
       if (this.isNullable() && (!Array.isArray(value) || value.length === 0)) {
         return;
       }
@@ -122,10 +122,8 @@ export default class BelongsToMany extends Relation {
         .first();
 
       if (related === undefined) {
-        return helpers.error('any.invalid', {
-          message: 'Related resource not exists',
-          label: 'Related resource not exists',
-          value,
+        return error('any.custom', {
+          error: new Error(`Related resource with ID:'${value}' not found`),
         });
       }
     };

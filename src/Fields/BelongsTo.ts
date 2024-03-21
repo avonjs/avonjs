@@ -102,21 +102,19 @@ export default class BelongsTo extends Relation {
    * Get the validation rules for this field.
    */
   public getRules(request: AvonRequest): Rules {
+    const rules = this.isNullable()
+      ? Joi.any().allow(null)
+      : Joi.any().required();
+
     return {
-      [this.attribute]: Joi.any().external(async (value, helpers) => {
-        if (this.isValidNullValue(value)) {
-          return;
-        }
-
-        if (value === undefined) {
-          return helpers.error('any.required');
-        }
-
+      [this.attribute]: rules.external(async (value, { error }) => {
         if ((await this.getRelatedResource(request, value)) === undefined) {
-          return helpers.error('any.invalid', {
-            message: 'Resource not found',
+          return error('any.custom', {
+            error: new Error(`Related resource with ID:'${value}' not found`),
           });
         }
+
+        return value;
       }),
     };
   }
