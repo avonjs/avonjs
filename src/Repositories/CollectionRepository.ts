@@ -128,7 +128,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
         return item.getAttribute(where.key) > where.value;
       case Operator.like:
         return new RegExp(where.value.replace(/%/g, '.*')).test(
-          item.getAttribute(where.key),
+          item.getAttribute(where.key) ?? '',
         );
       default:
         return true;
@@ -144,7 +144,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
 
       if (
         isRegExp(searchCallback) &&
-        searchCallback.test(item.getAttribute(searchable))
+        searchCallback.test(item.getAttribute(searchable) ?? '')
       ) {
         return true;
       }

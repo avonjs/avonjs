@@ -3,10 +3,8 @@ import { Model } from '../Contracts';
 import HasAttributes from '../Mixins/HasAttributes';
 
 export default class Fluent extends HasAttributes(class {}) implements Model {
-  constructor(attributes: Record<string, unknown> = {}) {
+  constructor(public attributes: Record<string, unknown> = {}) {
     super();
-    this.setAttributes(attributes);
-    // proxify the model
     return new Proxy(this, {
       get: function (parent, property, receiver): any {
         // handle exists method
@@ -47,7 +45,7 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
   /**
    * Get value for the given key.
    */
-  getAttribute<T extends any = any>(key: string): T {
+  getAttribute<T extends any = any>(key: string): T | undefined {
     return super.getAttributeValue<T>(key);
   }
 
@@ -55,7 +53,7 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
    * Get the model key.
    */
   getKey(): string | number {
-    return this.getAttribute(this.getKeyName());
+    return this.getAttribute(this.getKeyName())!;
   }
 
   /**
@@ -69,9 +67,7 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
    * Return all the attributes.
    */
   public all(): Record<string, any> {
-    return collect(this.attributes)
-      .map((value, key) => this.getAttribute(key))
-      .all();
+    return this.attributes;
   }
 
   /**

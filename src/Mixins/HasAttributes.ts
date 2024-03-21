@@ -1,5 +1,6 @@
 import { pascalCase } from 'change-case-all';
 import { AbstractMixable } from '../Contracts';
+import collect from 'collect.js';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class HasAttributes extends Parent {
@@ -26,13 +27,24 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Get value for the given key.
      */
-    getAttributeValue<T extends unknown = any>(key: string): T {
-      const mutator = `get${pascalCase(key)}Attribute` as keyof this;
-      const value = this.attributes[key] as T;
+    getAttributeValue<T extends unknown = any>(key: string): T | undefined {
+      if (this.attributes[key] !== undefined) {
+        const mutator = `get${pascalCase(key)}Attribute` as keyof this;
+        const value = this.attributes[key] as T;
 
-      return typeof this[mutator] === 'function'
-        ? ((this[mutator] as Function).apply(this, [value]) as T)
-        : value;
+        return typeof this[mutator] === 'function'
+          ? ((this[mutator] as Function).apply(this, [value]) as T)
+          : value;
+      }
+    }
+
+    /**
+     * Get all mutated values.
+     */
+    attributesToArray() {
+      return collect(this.attributes)
+        .map((value, key) => this.getAttributeValue(key))
+        .all();
     }
   }
 
