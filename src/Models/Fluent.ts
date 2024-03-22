@@ -45,7 +45,7 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
   /**
    * Get value for the given key.
    */
-  getAttribute<T extends any = any>(key: string): T | undefined {
+  getAttribute<T extends any = undefined>(key: string): T {
     return super.getAttributeValue<T>(key);
   }
 
@@ -66,7 +66,7 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
   /**
    * Return all the attributes.
    */
-  public all(): Record<string, any> {
+  public getAttributes(): Record<string, any> {
     return this.attributes;
   }
 
@@ -74,6 +74,6 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
    * Convert attributes to JSON string.
    */
   public toJson(): string {
-    return JSON.stringify(this.all());
+    return JSON.stringify(this.getAttributes());
   }
 }

@@ -38,7 +38,7 @@ export interface Model {
   /**
    * Get value for the given key.
    */
-  getAttribute: <T extends any = any>(key: string) => T | undefined;
+  getAttribute: <T extends any = undefined>(key: string) => T;
 
   /**
    * Get the model key.
@@ -53,7 +53,7 @@ export interface Model {
   /**
    * Get all of the model attributes.
    */
-  all: () => Record<string, any>;
+  getAttributes: () => Record<string, any>;
 }
 
 export interface SoftDeletes<TModel extends Model> {

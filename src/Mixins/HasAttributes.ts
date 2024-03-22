@@ -27,21 +27,19 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Get value for the given key.
      */
-    getAttributeValue<T extends unknown = any>(key: string): T | undefined {
-      if (this.attributes[key] !== undefined) {
-        const mutator = `get${pascalCase(key)}Attribute` as keyof this;
-        const value = this.attributes[key] as T;
+    getAttributeValue<T extends any = undefined>(key: string): T {
+      const value = this.attributes[key] as T;
+      const mutator = `get${pascalCase(key)}Attribute` as keyof this;
 
-        return typeof this[mutator] === 'function'
-          ? ((this[mutator] as Function).apply(this, [value]) as T)
-          : value;
-      }
+      return value !== undefined && typeof this[mutator] === 'function'
+        ? (this[mutator] as Function).apply(this, [value])
+        : value;
     }
 
     /**
      * Get all mutated values.
      */
-    attributesToArray() {
+    getAttributesValue() {
       return collect(this.attributes)
         .map((value, key) => this.getAttributeValue(key))
         .all();

@@ -64,7 +64,7 @@ describe('PUT resources api', () => {
         const item = (await repository.all())[0];
         expect(code).toBe(200);
         expect(data.fields).toEqual({
-          ...item.all(),
+          ...item.getAttributes(),
           name,
         });
         expect(data.authorization).toEqual({

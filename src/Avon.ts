@@ -301,7 +301,7 @@ export default class Avon {
         // resolve credentials
         Avon.fieldsForLogin().each((field) => field.fill(request, payload));
         // attempt login
-        Avon.attempt(payload.all())
+        Avon.attempt(payload.getAttributes())
           .then((response) => send(res, response))
           .catch((error) => {
             res

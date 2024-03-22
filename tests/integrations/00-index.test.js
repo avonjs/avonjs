@@ -114,7 +114,7 @@ describe('GET resources api', () => {
         data.forEach((item, index) => {
           expect(item).toHaveProperty('authorization');
           expect(item).toHaveProperty('fields');
-          expect(item.fields).toEqual(resources[index].all());
+          expect(item.fields).toEqual(resources[index].getAttributes());
           expect(item.authorization).toEqual({
             authorizedToView: true,
             authorizedToUpdate: true,

@@ -114,7 +114,9 @@ describe('The non-relational resource fields', () => {
 
         expect(code).toBe(201);
         expect(data.fields).toEqual(post);
-        expect((await new Repository().find(data.fields.id))?.all()).toEqual({
+        expect(
+          (await new Repository().find(data.fields.id))?.getAttributes(),
+        ).toEqual({
           ...post,
           meta: JSON.stringify(post.meta),
         });
@@ -131,7 +133,9 @@ describe('The non-relational resource fields', () => {
         updatePost.id = testPosts[0].id;
         expect(code).toBe(200);
         expect(data.fields).toEqual(updatePost);
-        expect((await new Repository().find(testPosts[0].id))?.all()).toEqual({
+        expect(
+          (await new Repository().find(testPosts[0].id))?.getAttributes(),
+        ).toEqual({
           ...updatePost,
           meta: JSON.stringify(updatePost.meta),
         });

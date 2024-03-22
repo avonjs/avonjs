@@ -356,7 +356,7 @@ export default class BelongsToMany extends Relation {
       resource.setAttribute(
         this.attribute,
         relatables.filter((relatable) => {
-          const pivot = relatable.getAttribute('pivot');
+          const pivot = relatable.getAttribute<Record<string, any>>('pivot');
 
           return pivot[foreignKeyName] === resource.getAttribute(ownerKeyName);
         }),

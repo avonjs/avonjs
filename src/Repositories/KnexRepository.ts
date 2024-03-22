@@ -74,7 +74,7 @@ export default abstract class KnexRepository<
    * Store given model into the storage.
    */
   async store(model: TModel): Promise<TModel> {
-    const insertedIds = await this.query().insert(model.all());
+    const insertedIds = await this.query().insert(model.getAttributes());
 
     return this.find(insertedIds[0]) as unknown as TModel;
   }
@@ -83,7 +83,7 @@ export default abstract class KnexRepository<
    * Store given model into the storage.
    */
   async update(model: TModel): Promise<TModel> {
-    const data = { ...model.all() };
+    const data = { ...model.getAttributes() };
     // remove primary key
     delete data[model.getKeyName()];
     // update storage

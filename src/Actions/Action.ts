@@ -70,7 +70,7 @@ export default abstract class Action
     return resources.map((resource) => {
       return {
         resource,
-        previous: request.newModel({ ...resource.all() }),
+        previous: request.newModel({ ...resource.getAttributes() }),
       };
     });
   }

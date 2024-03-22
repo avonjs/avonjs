@@ -21,7 +21,7 @@ describe('SoftDeletes mixins', () => {
     const models = await repository.withTrashed().all();
 
     expect(repository.withTrashed().getWheres()).toEqual([where]);
-    expect(models.map((model) => model.all())).toEqual(items);
+    expect(models.map((model) => model.getAttributes())).toEqual(items);
   });
 
   test('without trashed items', async () => {
@@ -32,7 +32,7 @@ describe('SoftDeletes mixins', () => {
       repository.scopeSoftDelete(),
       where,
     ]);
-    expect(models.map((model) => model.all())).toEqual([items[0]]);
+    expect(models.map((model) => model.getAttributes())).toEqual([items[0]]);
   });
 
   test('only trashed items', async () => {
@@ -44,6 +44,6 @@ describe('SoftDeletes mixins', () => {
       where,
       repository.scopeTrashedRecords(),
     ]);
-    expect(models.map((model) => model.all())).toEqual([items[1]]);
+    expect(models.map((model) => model.getAttributes())).toEqual([items[1]]);
   });
 });

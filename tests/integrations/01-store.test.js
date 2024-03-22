@@ -60,7 +60,9 @@ describe('POST resources api', () => {
       .expect(201)
       .then(async ({ body: { code, data } }) => {
         expect(code).toBe(201);
-        expect(data.fields).toEqual((await repository.all())[0].all());
+        expect(data.fields).toEqual(
+          (await repository.all())[0].getAttributes(),
+        );
         expect(data.authorization).toEqual({
           authorizedToUpdate: true,
           authorizedToDelete: true,

@@ -95,27 +95,29 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    * Apply the where constraint on the collection item.
    */
   protected checkAgainstWhere(item: Fluent, where: Where): boolean {
+    const value = item.getAttribute(where.key)!;
+
     switch (where.operator) {
       case Operator.in:
       case Operator.eq:
         const values = Array.isArray(where.value) ? where.value : [where.value];
 
-        return collect(values).contains((value: any) => {
+        return collect(values).contains((where: any) => {
           // compare numbers
-          if (Number(value) === item.getAttribute(where.key)) {
+          if (Number(where) === value) {
             return true;
           }
           // to handle soft deletes
-          if (value === null) {
-            return [value, undefined].includes(item.getAttribute(where.key));
+          if (where === null) {
+            return [where, undefined].includes(value);
           }
           // compare others
-          return item.getAttribute(where.key) === value;
+          return where === value;
         });
       case Operator.lte:
-        return item.getAttribute(where.key) <= where.value;
+        return value <= where.value;
       case Operator.gte:
-        return item.getAttribute(where.key) >= where.value;
+        return value >= where.value;
       case Operator.not:
       case Operator.notIn:
         return !this.checkAgainstWhere(item, {
@@ -123,13 +125,11 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
           operator: Operator.in,
         });
       case Operator.lt:
-        return item.getAttribute(where.key) < where.value;
+        return value < where.value;
       case Operator.gt:
-        return item.getAttribute(where.key) > where.value;
+        return value > where.value;
       case Operator.like:
-        return new RegExp(where.value.replace(/%/g, '.*')).test(
-          item.getAttribute(where.key) ?? '',
-        );
+        return new RegExp(where.value.replace(/%/g, '.*')).test(value ?? '');
       default:
         return true;
     }
@@ -166,7 +166,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
     this.resolveItems().push(
       model
         .setAttribute(model.getKeyName(), model.getKey() ?? this.newId())
-        .all(),
+        .getAttributes(),
     );
 
     return model;
@@ -190,7 +190,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
       (item: CollectionRecord) => item[keyName] === model.getKey(),
     );
 
-    this.resolveItems()[index] = model.all();
+    this.resolveItems()[index] = model.getAttributes();
 
     return model;
   }

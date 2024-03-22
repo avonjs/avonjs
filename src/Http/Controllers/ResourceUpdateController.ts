@@ -13,7 +13,7 @@ export default class ResourceUpdateController extends Controller {
     request: ResourceUpdateOrUpdateAttachedRequest,
   ): Promise<AvonResponse> {
     const resource = await request.findResourceOrFail();
-    const previous = request.newModel({ ...resource.resource.all() });
+    const previous = request.newModel({ ...resource.resource.getAttributes() });
 
     await resource.authorizeTo(request, Ability.update);
     await resource.validateForUpdate(request);

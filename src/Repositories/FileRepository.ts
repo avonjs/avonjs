@@ -62,7 +62,7 @@ export default abstract class FileRepository extends CollectionRepository {
   protected write(items: Fluent[]): any {
     fs.writeFileSync(
       this.filepath(),
-      JSON.stringify(items.map((item) => item.all())),
+      JSON.stringify(items.map((item) => item.getAttributes())),
     );
   }
 
