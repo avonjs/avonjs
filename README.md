@@ -787,6 +787,21 @@ new Fields.BelongsToMany('tags').load().fields((request) => {
 })
 ```
 
+### Relatable Resource Filtering & Ordering
+
+The `filterable` and `orderable` methods can also be applied to association fields, enabling you to filter and order related resources. Here's an example of how to use these methods with a BelongsTo association:
+
+```
+new Fields.BelongsTo('users').load().fields((request) => {
+    return [
+        new Fields.Text('name').filterable().orderable(),
+        new Fields.ID(),
+    ]
+})
+```
+
+By utilizing these methods, you can enhance the `filtering` and `ordering` capabilities of your resource associations. Adjust the fields and methods as needed to suit your application's requirements.
+
 ### Relatable Query Filtering
 
 For now, the `BelongsToMany` and `BelongsTo` relationship field's, allows you to modify their results on the create / update API. for common use case when you want to display the select fields on the UI, you need an API to get related resource for this fields. Fortunately, Avon create an extra API for this types of relationships that enables you to have an specific customizable API for each field. For example, if you have a `BelongsTo` field on the `Post` resource to show the author of the post, you will see an API like `/api/resources/posts/associable/user` on the swagger-ui. If you would like to customize the association query, you may do so by invoking the `relatableQueryUsing` method:

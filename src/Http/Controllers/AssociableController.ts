@@ -1,4 +1,3 @@
-import FieldNotFoundException from '../../Exceptions/FieldNotFoundException';
 import Resource from '../../Resource';
 import { SearchCollection, Model, Ability } from '../../Contracts';
 import AssociableRequest from '../Requests/AssociableRequest';
@@ -12,12 +11,7 @@ export default class AssociableController extends Controller {
    */
   public async __invoke(request: AssociableRequest): Promise<AvonResponse> {
     const resource = request.resource();
-    const relationship = resource
-      .availableFieldsOnForms(request)
-      .withOnlyRelatableFields()
-      .findFieldByAttribute(request.route('field') as string);
-
-    FieldNotFoundException.unless(relationship);
+    const relationship = request.relatedField();
 
     const repository = await relationship.searchAssociable(
       request,

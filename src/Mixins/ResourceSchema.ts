@@ -682,6 +682,14 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                   },
                   ...relatable.searchParameters(request),
                   ...relatable.softDeleteParameters(request),
+                  ...collect(field.availableFilters(request))
+                    .unique((filter: Filter) => filter.key())
+                    .all()
+                    .flatMap((filter) => filter.serializeParameters(request)),
+                  ...collect(field.availableOrderings(request))
+                    .unique((order: Ordering) => order.key())
+                    .all()
+                    .flatMap((order) => order.serializeParameters(request)),
                 ],
 
                 responses: {

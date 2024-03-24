@@ -20,6 +20,7 @@ import RelatableFilter from './Filters/RelatableFilter';
 import { guessRelation } from './ResourceRelationshipGuesser';
 import { Repository } from '../Repositories';
 import { snakeCase } from 'change-case-all';
+import { Ordering } from '../Orderings';
 
 export default abstract class Relation extends Field {
   /**
@@ -88,6 +89,32 @@ export default abstract class Relation extends Field {
       .withoutRelatableFields()
       .all();
   };
+
+  /**
+   * Get all of the possibly available filters for the request.
+   */
+  public availableFilters(request: AvonRequest): Filter[] {
+    return new FieldCollection(this.relatableFields(request))
+      .withOnlyFilterableFields()
+      .authorized(request)
+      .map((field) => field.resolveFilter(request))
+      .filter((filter) => filter instanceof Filter)
+      .unique((filter: Filter) => filter.key())
+      .all() as Filter[];
+  }
+
+  /**
+   * Get all of the possibly available filters for the request.
+   */
+  public availableOrderings(request: AvonRequest): Ordering[] {
+    return new FieldCollection(this.relatableFields(request))
+      .withOnlyOrderableFields()
+      .authorized(request)
+      .map((field) => field.resolveOrdering(request))
+      .filter((ordering) => ordering instanceof Ordering)
+      .unique((ordering: Ordering) => ordering.key())
+      .all() as Ordering[];
+  }
 
   /**
    * Mutate the field value for response.
@@ -215,8 +242,8 @@ export default abstract class Relation extends Field {
   ): Promise<Repository<Model>> {
     const repository = await this.relatedResource.search(
       request,
-      [],
-      [],
+      request.filters(),
+      request.orderings(),
       withTrashed ? TrashedStatus.WITH : TrashedStatus.DEFAULT,
     );
 

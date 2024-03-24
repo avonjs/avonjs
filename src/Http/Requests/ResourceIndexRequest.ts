@@ -98,7 +98,7 @@ export default class ResourceIndexRequest extends AvonRequest {
   /**
    * Get the orderings for the request.
    */
-  protected orderings(): MatchesQueryParameters<Ordering> {
+  public orderings(): MatchesQueryParameters<Ordering> {
     return new QueryParser<Ordering>(
       this.query('orders', []),
       this.availableOrderings(),
