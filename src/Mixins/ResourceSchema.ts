@@ -392,7 +392,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public resourceDetailSchema(
       request: AvonRequest,
     ): OpenAPIV3.PathItemObject | undefined {
-      if (this.availableForDelete) {
+      if (this.availableForDetail) {
         return {
           get: {
             tags: [this.uriKey()],
