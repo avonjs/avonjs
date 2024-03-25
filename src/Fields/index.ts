@@ -13,6 +13,7 @@ import Text from './Text';
 import Field from './Field';
 import Enum from './Enum';
 import List from './List';
+import Float from './Float';
 
 export {
   Array,
@@ -30,4 +31,5 @@ export {
   Field,
   Enum,
   List,
+  Float,
 };
