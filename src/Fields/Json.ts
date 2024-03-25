@@ -113,7 +113,7 @@ export default class Json extends Field {
 
     return new FieldCollection(
       this.fields.each((field) => field.resolve(attributes)),
-    ).mapWithKeys((field: Field) => [field.attribute, field.value]);
+    ).mapWithKeys((field: Field) => [field.attribute, field.getValue(request)]);
   }
 
   /**
