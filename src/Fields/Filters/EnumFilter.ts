@@ -4,7 +4,7 @@ import AvonRequest from '../../Http/Requests/AvonRequest';
 import FilterableFields from '../../Mixins/FilterableFields';
 import Enum from '../Enum';
 
-export default class TextFilter extends FilterableFields(Filter) {
+export default class EnumFilter extends FilterableFields(Filter) {
   constructor(public field: Enum) {
     super();
   }
