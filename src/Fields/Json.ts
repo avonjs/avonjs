@@ -9,6 +9,7 @@ import {
   OpenApiSchema,
 } from '../Contracts';
 import Field from './Field';
+import { Fluent } from '../Models';
 
 export default class Json extends Field {
   /**
@@ -106,7 +107,13 @@ export default class Json extends Field {
    * Mutate the field value for response.
    */
   public getMutatedValue(request: AvonRequest, value: any): Record<any, any> {
-    return typeof value === 'string' ? JSON.parse(value) : value;
+    const attributes = new Fluent(
+      typeof value === 'string' ? JSON.parse(value) : value,
+    );
+
+    return new FieldCollection(
+      this.fields.each((field) => field.resolve(attributes)),
+    ).mapWithKeys((field: Field) => [field.attribute, field.value]);
   }
 
   /**
