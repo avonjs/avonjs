@@ -469,6 +469,7 @@ new Fields.Text('name').filterable((request, repository, value) => {
 - [Json Field](#json-field)
 - [List Field](#list-field)
 - [Integer Field](#integer-field)
+- [Decimal Field](#decimal-field)
 - [Text Field](#text-field)
 - [Enum Field](#enum-field)
 
@@ -564,6 +565,22 @@ The `Integer` field store / retrieve value as `integer` in the model:
 import { Fields } from '@avonjs/avonjs';
 
 new Fields.Integer('hits')
+```
+
+### Decimal Field
+
+The `Decimal` field store / retrieve value as `float` in the model:
+
+```
+import { Fields } from '@avonjs/avonjs';
+
+new Fields.Decimal('price')
+```
+
+The `precision` method helps you to specify the maximum number of decimal places:
+
+```
+new Fields.Decimal('price').precision(2)
 ```
 
 ## Text Field
