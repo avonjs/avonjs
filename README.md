@@ -272,7 +272,7 @@ docker pull swaggerapi/swagger-ui
 now we use the previously [created](#initialize) URL for schema to run docker:
 
 ```
-docker run -p 80:8080 -e SWAGGER_JSON_URL=http://localhost:3000/api/schema swaggerapi/swagger-ui
+docker run -p 80:8080 -e SWAGGER_JSON_URL=http://localhost:3000/api/schema -e PERSIST_AUTHORIZATION=true swaggerapi/swagger-ui
 ```
 
 now you can go to the `http://localhost` and see the result.
