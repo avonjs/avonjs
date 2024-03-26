@@ -16,6 +16,7 @@ import * as Contracts from './Contracts';
 import * as Helpers from './helpers';
 import * as Resources from './Resources';
 import * as Constants from './Contracts/constants';
+import FilterableFields from './Mixins/FilterableFields';
 
 export {
   Avon as default,
@@ -37,4 +38,5 @@ export {
   Repositories,
   Helpers,
   Resources,
+  FilterableFields,
 };
