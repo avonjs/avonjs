@@ -13,7 +13,7 @@ import Field from './Field';
 import NumberFilter from './Filters/NumberFilter';
 import { Repository } from '../Repositories';
 
-export default class Float extends Field {
+export default class Decimal extends Field {
   /**
    * The callback to be used for the field's default value.
    */
