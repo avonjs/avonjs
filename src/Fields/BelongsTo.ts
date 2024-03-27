@@ -188,6 +188,7 @@ export default class BelongsTo extends Relation {
         this.schemaFields(request),
       ).responseSchemas(request),
       default: null,
+      nullable: true,
       oneOf: undefined,
     };
   }
