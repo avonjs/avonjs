@@ -100,6 +100,20 @@ export default class BelongsTo extends Relation {
   }
 
   /**
+   * Determine field is orderable or not.
+   */
+  public isOrderable(): boolean {
+    return true;
+  }
+
+  /**
+   * Define orderable attribute.
+   */
+  public orderableAttribute(request: AvonRequest): string {
+    return this.foreignKeyName(request);
+  }
+
+  /**
    * Get the validation rules for this field.
    */
   public getRules(request: AvonRequest): Rules {
