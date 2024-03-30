@@ -483,6 +483,18 @@ import { Fields } from '@avonjs/avonjs';
 new Fields.Array('tags')
 ```
 
+You may restrict the length of an array with the `min` and `max` methods:
+
+```
+new Fields.Array('title').min(1).max(120)
+```
+
+Alternatively, you can set a specific `length`:
+
+```
+new Fields.Array('title').length(3)
+```
+
 ### Binary Field
 
 The `Binary` field may be used to represent a boolean / "tiny integer" column in your database. For example, assuming your database has a boolean column named `active`, you may attach a `Binary` field to your resource like so:
@@ -567,6 +579,12 @@ import { Fields } from '@avonjs/avonjs';
 new Fields.Integer('hits')
 ```
 
+You can restrict the range of values accepted for a field in your application by using the `min` and `max` methods:
+
+```
+new Fields.Integer('price').min(1).max(10000)
+```
+
 ### Decimal Field
 
 The `Decimal` field store / retrieve value as `float` in the model:
@@ -591,6 +609,12 @@ The `Text` field store / retrieve value as `string` in the model:
 import { Fields } from '@avonjs/avonjs';
 
 new Fields.Text('name')
+```
+
+You may define constraints on the length of text input for a field in your application using the `min` and `max` methods
+
+```
+new Fields.Text('title').min(1).max(120)
 ```
 
 ## Enum Field
