@@ -37,6 +37,24 @@ export default class Integer extends Field {
   protected updateRulesSchema = Joi.number().integer();
 
   /**
+   * Specifies the minimum value.
+   */
+  public min(min: number = 0) {
+    this.rules(Joi.number().min(min));
+
+    return this;
+  }
+
+  /**
+   * Specifies the maximum value.
+   */
+  public max(min: number = 0) {
+    this.rules(Joi.number().max(min));
+
+    return this;
+  }
+
+  /**
    * Mutate the field value for response.
    */
   public getMutatedValue(request: AvonRequest, value: any): number | undefined {

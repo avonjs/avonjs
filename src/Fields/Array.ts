@@ -53,6 +53,33 @@ export default class Array extends Field {
   }
 
   /**
+   * Specifies the exact number of items in the array.
+   */
+  public length(limit: number = 0) {
+    this.rules(Joi.string().length(limit));
+
+    return this;
+  }
+
+  /**
+   * Specifies the minimum number of items in the array.
+   */
+  public min(min: number = 0) {
+    this.rules(Joi.array().min(min));
+
+    return this;
+  }
+
+  /**
+   * Specifies the maximum number of items in the array.
+   */
+  public max(min: number = 0) {
+    this.rules(Joi.array().max(min));
+
+    return this;
+  }
+
+  /**
    * Mutate the field value for response.
    */
   public getMutatedValue(request: AvonRequest, value: any): any[] {

@@ -36,6 +36,24 @@ export default class Text extends Field {
   protected updateRulesSchema = Joi.string();
 
   /**
+   * Specifies the minimum number of string characters.
+   */
+  public min(min: number = 0) {
+    this.rules(Joi.string().min(min));
+
+    return this;
+  }
+
+  /**
+   * Specifies the maximum number of string characters.
+   */
+  public max(min: number = 0) {
+    this.rules(Joi.string().max(min));
+
+    return this;
+  }
+
+  /**
    * Mutate the field value for response.
    */
   public getMutatedValue(request: AvonRequest, value: any): string | null {
