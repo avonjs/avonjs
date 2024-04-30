@@ -23,7 +23,13 @@
   "keywords": [
     "express",
     "avon",
-    "avonjs"
+    "avonjs",
+    "crud",
+    "api",
+    "swagger",
+    "generator",
+    "resource",
+    "backend"
   ],
   "repository": {
     "type": "git",
