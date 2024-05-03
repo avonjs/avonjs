@@ -14,8 +14,18 @@ export type SerializedAction = {
 // extends QueryParameter
 export type MatchesQueryParameters<T> = Array<{ handler: T; value: any }>;
 
-export type IndexSerializedResource = {
+export type ResourceMetaData = {
+  softDeletes: Boolean;
+  softDeleted: Boolean;
+};
+
+export type SerializedResource = {
   fields: Record<string, any>;
+  metadata: ResourceMetaData;
+  authorization: Record<string, boolean | undefined>;
+};
+
+export type IndexSerializedResource = SerializedResource & {
   authorization: {
     authorizedToView: boolean;
     authorizedToUpdate: boolean;
@@ -26,8 +36,7 @@ export type IndexSerializedResource = {
   };
 };
 
-export type DetailSerializedResource = {
-  fields: Record<string, any>;
+export type DetailSerializedResource = SerializedResource & {
   authorization: {
     authorizedToUpdate: boolean;
     authorizedToDelete: boolean;
@@ -35,8 +44,7 @@ export type DetailSerializedResource = {
   };
 };
 
-export type ReviewSerializedResource = {
-  fields: Record<string, any>;
+export type ReviewSerializedResource = SerializedResource & {
   authorization: {
     authorizedToForceDelete: boolean;
     authorizedToRestore: boolean;

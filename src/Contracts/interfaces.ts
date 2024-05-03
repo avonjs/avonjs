@@ -80,6 +80,11 @@ export interface SoftDeletes<TModel extends Model> {
    * Apply only trashed record constraints.
    */
   onlyTrashed(): this;
+
+  /**
+   * Determine whether a given resource is "soft-deleted".
+   */
+  isSoftDeleted(resource: Model): Boolean;
 }
 
 export interface ResourceActionEvent {

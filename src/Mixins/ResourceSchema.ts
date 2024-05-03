@@ -20,7 +20,6 @@ import {
   slugify,
   validationResponses,
 } from '../helpers';
-import { Fluent } from '../Models';
 import { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
@@ -127,6 +126,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                           items: {
                             type: 'object',
                             properties: {
+                              metadata: this.resourceMetaDataSchema(),
                               authorization: {
                                 type: 'object',
                                 properties: {
@@ -214,6 +214,25 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           },
         };
       }
+    }
+
+    /**
+     * Get the resource metadata schema.
+     */
+    resourceMetaDataSchema(): OpenApiSchema {
+      return {
+        type: 'object',
+        properties: {
+          softDeletes: {
+            type: 'boolean',
+            description: 'Indicates resource uses soft delete feature.',
+          },
+          softDeleted: {
+            type: 'boolean',
+            description: 'Indicates resource is deleted or not',
+          },
+        },
+      };
     }
 
     /**
@@ -770,6 +789,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
               data: {
                 type: 'object',
                 properties: {
+                  metadata: this.resourceMetaDataSchema(),
                   authorization: {
                     type: 'object',
                     properties: {
@@ -827,6 +847,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
               data: {
                 type: 'object',
                 properties: {
+                  metadata: this.resourceMetaDataSchema(),
                   authorization: {
                     type: 'object',
                     properties: {

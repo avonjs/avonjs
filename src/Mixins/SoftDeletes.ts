@@ -52,7 +52,10 @@ export default <
 
       ModelNotFoundException.unless(model);
 
-      model.setAttribute(this.getDeletedAtKey(), null);
+      model.setAttribute(
+        this.getDeletedAtKey(),
+        this.getDeletedAtValueOnRestore(),
+      );
 
       return this.update(model);
     }
@@ -129,6 +132,16 @@ export default <
     }
 
     /**
+     * Determine whether a given resource is "soft-deleted".
+     */
+    isSoftDeleted(resource: Model): Boolean {
+      return (
+        resource.getAttribute(this.getDeletedAtKey()) !==
+        this.getDeletedAtValue()
+      );
+    }
+
+    /**
      * Get name of `deleted_at` key.
      */
     public getDeletedAtKey(): string {
@@ -138,14 +151,23 @@ export default <
     /**
      * Get value for `deleted_at` key.
      */
-    public getDeletedAtValue(): string {
+    public getDeletedAtValue(): unknown {
       return new Date().toDateString();
     }
 
     /**
-     * Get value for soft delete records.
+     * Get value for available records.
+     *
+     * @deprecated Use `getDeletedAtValueOnRestore` instead.
      */
     public getSoftDeleteValue(): unknown {
+      return this.getDeletedAtValueOnRestore();
+    }
+
+    /**
+     * Get value for available records.
+     */
+    public getDeletedAtValueOnRestore(): unknown {
       return null;
     }
   }

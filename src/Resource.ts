@@ -1,5 +1,4 @@
 import { plural, singular } from 'pluralize';
-import { Field } from './Fields';
 import AvonRequest from './Http/Requests/AvonRequest';
 import Authorizable from './Mixins/Authorizable';
 import FillsFields from './Mixins/FillsFields';
@@ -17,10 +16,11 @@ import {
   Ability,
   DetailSerializedResource,
   ReviewSerializedResource,
+  SoftDeletes,
+  ResourceMetaData,
 } from './Contracts';
 import { slugify } from './helpers';
 import RecordsResourceEvents from './Mixins/RecordsResourceEvents';
-import { Action } from './Actions';
 
 export default abstract class Resource extends ResourceSchema(
   RecordsResourceEvents(
@@ -70,6 +70,7 @@ export default abstract class Resource extends ResourceSchema(
     request: AvonRequest,
   ): Promise<IndexSerializedResource> {
     return {
+      metadata: this.resourceMetaData(),
       authorization: {
         authorizedToView: await this.authorizedTo(request, Ability.view),
         authorizedToUpdate: await this.authorizedTo(request, Ability.update),
@@ -104,6 +105,7 @@ export default abstract class Resource extends ResourceSchema(
     request: AvonRequest,
   ): Promise<DetailSerializedResource> {
     return {
+      metadata: this.resourceMetaData(),
       authorization: {
         authorizedToUpdate: await this.authorizedTo(request, Ability.update),
         authorizedToDelete: await this.authorizedTo(request, Ability.delete),
@@ -124,6 +126,7 @@ export default abstract class Resource extends ResourceSchema(
     request: AvonRequest,
   ): Promise<ReviewSerializedResource> {
     return {
+      metadata: this.resourceMetaData(),
       authorization: {
         authorizedToForceDelete: await this.authorizedTo(
           request,
@@ -135,6 +138,28 @@ export default abstract class Resource extends ResourceSchema(
         .withoutUnresolvableFields()
         .fieldValues(request),
     };
+  }
+
+  /**
+   * Get the resource metadata.
+   */
+  protected resourceMetaData(): ResourceMetaData {
+    return {
+      softDeletes: this.softDeletes(),
+      softDeleted: this.isSoftDeleted(),
+    };
+  }
+
+  /**
+   * Determine whether a given resource is "soft-deleted".
+   */
+  public isSoftDeleted(): Boolean {
+    return (
+      this.softDeletes() &&
+      (this.repository() as unknown as SoftDeletes<Model>).isSoftDeleted(
+        this.resource,
+      )
+    );
   }
 
   /**
