@@ -7,7 +7,7 @@ import { readdirSync, statSync } from 'fs';
 import Resource from './Resource';
 import AvonRequest from './Http/Requests/AvonRequest';
 import { AttemptCallback, Auth, ErrorHandler } from './Contracts';
-import { Params, expressjwt } from 'express-jwt';
+import { expressjwt } from 'express-jwt';
 import {
   errorsResponses,
   handleAuthenticationError,
