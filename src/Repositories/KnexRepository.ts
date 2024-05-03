@@ -36,7 +36,7 @@ export default abstract class KnexRepository<
       .count(`${this.tableName()}.${this.model().getKeyName()} as count`)
       .first();
 
-    const data = await query.limit(perPage).offset(offset).select('*');
+    const data = await this.select(query.limit(perPage).offset(offset));
 
     return {
       ...count,
@@ -58,9 +58,16 @@ export default abstract class KnexRepository<
    * Find all model's for the given conditions.
    */
   async all(wheres: Where[] = []): Promise<TModel[]> {
-    const data = await this.where(wheres).makeQuery().select('*');
+    const data = await this.select(this.where(wheres).makeQuery());
 
     return data.map((item: Record<string, any>) => this.fillModel(item));
+  }
+
+  /**
+   * Get the select columns.
+   */
+  protected select(query: Knex.QueryBuilder): Knex.QueryBuilder {
+    return query.select(`${this.tableName()}.*`);
   }
 
   /**
