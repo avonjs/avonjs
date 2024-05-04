@@ -159,7 +159,7 @@ export default <
     isSoftDeleted(resource: Model): Boolean {
       return (
         resource.getAttribute(this.getDeletedAtKey()) !==
-        this.getDeletedAtValue()
+        this.getDeletedAtValueOnRestore()
       );
     }
 
