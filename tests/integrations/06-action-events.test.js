@@ -97,6 +97,7 @@ describe('action event logs', () => {
         expect(actionEvent.getAttribute('payload')).toEqual({ name });
         expect(actionEvent.getAttribute('original')).toEqual({});
         expect(actionEvent.getAttribute('changes')).toEqual({
+          deleted_at: null,
           id: data.fields.id,
           name,
         });

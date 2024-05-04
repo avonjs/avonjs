@@ -21,6 +21,14 @@ export default <
     }
 
     /**
+     * Store given model into the storage.
+     */
+    async store(model: TModel): Promise<TModel> {
+      //@ts-ignore
+      return super.store(this.resetSoftDeletes(model));
+    }
+
+    /**
      * Delete model for the given key.
      */
     async delete(key: string | number): Promise<void> {
@@ -30,9 +38,28 @@ export default <
         return;
       }
 
+      await this.update(this.fillSoftDeletes(model));
+    }
+
+    /**
+     * Fill the "deleted at" column.
+     */
+    public fillSoftDeletes(model: TModel): TModel {
       model.setAttribute(this.getDeletedAtKey(), this.getDeletedAtValue());
 
-      await this.update(model);
+      return model;
+    }
+
+    /**
+     * Reset the "deleted at" column.
+     */
+    public resetSoftDeletes(model: TModel): TModel {
+      model.setAttribute(
+        this.getDeletedAtKey(),
+        this.getDeletedAtValueOnRestore(),
+      );
+
+      return model;
     }
 
     /**
@@ -52,12 +79,7 @@ export default <
 
       ModelNotFoundException.unless(model);
 
-      model.setAttribute(
-        this.getDeletedAtKey(),
-        this.getDeletedAtValueOnRestore(),
-      );
-
-      return this.update(model);
+      return this.update(this.resetSoftDeletes(model));
     }
 
     /**
