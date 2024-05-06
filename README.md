@@ -46,6 +46,7 @@
 - [Preset Repositories](#preset-repositories)
 - [Defining Models](#defining-models)
 - [Soft Deletes](#soft-deletes)
+- [Timestamps](#timestamps)
 
 **Filters**
 
@@ -1045,6 +1046,37 @@ module.exports = class Categories extends (
 ```
 
 Soft deletes could apply to all type of repositories and also extends your API by three additional APIs.
+
+## Timestamps
+
+Avon includes the `Timestamps` mixins for conveniently setting operation dates on the repository. Here's how you can use it:
+
+```javascript
+//@ts-check
+const { Repositories, Timestamps } = require('@avonjs/avonjs');
+
+module.exports = class Categories extends Timestamps(Repositories.File) {
+  // Your code here
+};
+```
+
+The `Timestamps` mixin can be applied to all types of repositories to automatically set "created_at" and "updated_at" dates on the models when they're not set yet.
+
+To customize the timestamps columns, you can override the `getCreatedAtKey` and `getUpdatedAtKey` methods. For example:
+
+```javascript
+class MyRepository extends Timestamps(BaseRepository) {
+  getCreatedAtKey() {
+    return 'my_created_at_column';
+  }
+
+  getUpdatedAtKey() {
+    return 'my_updated_at_column';
+  }
+}
+```
+
+To modify the timestamps' values, you can change the `freshTimestamp` method according to your requirements. This method is responsible for providing the current timestamp when creating or updating records.
 
 # Filters
 

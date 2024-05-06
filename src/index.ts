@@ -17,6 +17,7 @@ import * as Helpers from './helpers';
 import * as Resources from './Resources';
 import * as Constants from './Contracts/constants';
 import FilterableFields from './Mixins/FilterableFields';
+import HasTimestamps from './Mixins/HasTimestamps';
 
 export {
   Avon as default,
@@ -26,6 +27,7 @@ export {
   AvonRequest,
   AvonResponse,
   SoftDeletes,
+  HasTimestamps,
   FillsActionEvents,
   Filters,
   Orderings,
