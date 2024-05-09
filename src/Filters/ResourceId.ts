@@ -1,23 +1,33 @@
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Repository } from '../Repositories';
-import { Model } from '../Contracts';
+import { OpenApiSchema } from '../Contracts';
 
 import Filter from './Filter';
+import collect from 'collect.js';
 
 export default class PrimaryKey extends Filter {
   constructor(...args: readonly []) {
     super(...args);
-    this.nullable();
+    this.nullable(true, (value) => collect(value).isEmpty());
   }
 
   /**
    * Apply the filter into the given repository.
    */
-  public apply(
-    request: AvonRequest,
-    repository: Repository<Model>,
-    value: any,
-  ): any {
-    repository.whereKey(value);
+  apply(request: AvonRequest, repository: Repository, value: any): any {
+    if (!this.isValidNullValue(value)) {
+      return repository.whereKey(value);
+    }
+  }
+
+  /**
+   * Get the swagger-ui schema.
+   */
+  schema(request: AvonRequest): OpenApiSchema {
+    return {
+      type: 'array',
+      items: { type: 'number' },
+      nullable: this.isNullable(),
+    };
   }
 }
