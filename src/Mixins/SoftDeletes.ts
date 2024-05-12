@@ -25,7 +25,14 @@ export default <
      */
     async store(model: TModel): Promise<TModel> {
       //@ts-ignore
-      return super.store(this.resetSoftDeletes(model));
+      return super.store(this.ensureOfSoftDelete(model));
+    }
+
+    /**
+     * Ensure that "delete at" attribute is set.
+     */
+    public ensureOfSoftDeletes(model: TModel) {
+      return !this.isSoftDeleted(model) ? this.resetSoftDeletes(model) : model;
     }
 
     /**
@@ -157,10 +164,9 @@ export default <
      * Determine whether a given resource is "soft-deleted".
      */
     isSoftDeleted(resource: Model): Boolean {
-      return (
-        resource.getAttribute(this.getDeletedAtKey()) !==
-        this.getDeletedAtValueOnRestore()
-      );
+      const deleteAt = resource.getAttribute(this.getDeletedAtKey());
+
+      return ![this.getDeletedAtValueOnRestore(), undefined].includes(deleteAt);
     }
 
     /**
