@@ -25,7 +25,7 @@ export default <
      */
     async store(model: TModel): Promise<TModel> {
       //@ts-ignore
-      return super.store(this.ensureOfSoftDelete(model));
+      return super.store(this.ensureOfSoftDeletes(model));
     }
 
     /**
