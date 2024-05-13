@@ -10,8 +10,8 @@ import {
   Operator,
 } from '../Contracts';
 import Field from './Field';
-import TextFilter from './Filters/TextFilter';
 import { Repository } from '../Repositories';
+import DateTimeFilter from './Filters/DateTimeFilter';
 
 export default class DateTime extends Field {
   /**
@@ -69,23 +69,28 @@ export default class DateTime extends Field {
    * Make the field filter.
    */
   public makeFilter(request: AvonRequest): Filter {
-    return new TextFilter(this);
+    return new DateTimeFilter(this);
   }
 
   /**
    * Define the default filterable callback.
    */
   public defaultFilterableCallback(): FilterableCallback {
-    return (
-      request: AvonRequest,
-      repository: Repository<Model>,
-      value: any,
-    ) => {
-      repository.where({
-        key: this.filterableAttribute(request),
-        operator: Operator.eq,
-        value: Boolean(value),
-      });
+    return (request: AvonRequest, repository: Repository<Model>, values) => {
+      if (values.from) {
+        repository.where({
+          key: this.filterableAttribute(request),
+          operator: Operator.gte,
+          value: values.from,
+        });
+      }
+      if (values.to) {
+        repository.where({
+          key: this.filterableAttribute(request),
+          operator: Operator.lte,
+          value: values.to,
+        });
+      }
     };
   }
 
