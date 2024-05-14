@@ -66,8 +66,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      * Resolve the association fields.
      */
     public associationFields(request: AvonRequest): FieldCollection {
-      return this.resolveFields(request)
-        .filterForAssociation(request)
+      //@ts-ignore
+      const fields = this.resolveFields(request).when(
+        this.fieldsMethod(request) !== 'fieldsForAssociation',
+        (fields: FieldCollection) => fields.filterForAssociation(request),
+      );
+
+      return (fields as unknown as FieldCollection)
         .withoutUnresolvableFields()
         .withoutRelatableFields();
     }
