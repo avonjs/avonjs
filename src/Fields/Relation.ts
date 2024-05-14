@@ -81,9 +81,9 @@ export default abstract class Relation extends Field {
    * Indicates fields uses to display in relation request.
    */
   protected relatableFields: DisplayFieldCallback = (request: AvonRequest) => {
-    return new FieldCollection(
-      this.relatedResource.fieldsForAssociation(request),
-    )
+    const fields = this.relatedResource.fieldsForAssociation(request);
+
+    return new FieldCollection(fields)
       .filterForAssociation(request)
       .withoutUnresolvableFields()
       .withoutRelatableFields()

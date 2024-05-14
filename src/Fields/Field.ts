@@ -123,7 +123,6 @@ export default abstract class Field
   constructor(attribute: string, resolveCallback?: ResolveCallback) {
     super();
     this.attribute = attribute;
-    this.hideFromAssociation();
 
     if (resolveCallback !== undefined) {
       this.resolveCallback = resolveCallback;
