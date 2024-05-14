@@ -719,6 +719,14 @@ The `BelongsTo` field only display the related resource foreign key on the `deta
 new Fields.BelongsTo('users').load()
 ```
 
+#### Filter Trashed Items ​
+
+By default, the `BelongsTo` field includes soft-deleted records when pre-loaded; however, this can be disabled using the `withoutTrashed` method:
+
+```
+new Fields.BelongsTo('users', 'author').withoutTrashed()
+```
+
 ### HasMany
 
 The `HasMany` field corresponds to a `one-to-many` relationship. A one-to-many relationship is used to define relationships where a single model is the parent to one or more child models. For example, a use may have a many posts in the blog. We may add the relationship to our `User` Avon resource like so:

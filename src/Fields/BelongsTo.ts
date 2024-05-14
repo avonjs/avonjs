@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi, { boolean } from 'joi';
 import FieldCollection from '../Collections/FieldCollection';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import {
@@ -8,11 +8,26 @@ import {
   OpenApiSchema,
   Operator,
   Rules,
+  SoftDeletes,
   Transaction,
 } from '../Contracts';
 import Relation from './Relation';
 
 export default class BelongsTo extends Relation {
+  /**
+   * Indicates trashed items have to be included in the related resource.
+   */
+  public withTrashed = true;
+
+  /**
+   * Prevent the trashed item from being included in the query.
+   */
+  public withoutTrashed() {
+    this.withTrashed = false;
+
+    return this;
+  }
+
   /**
    * Mutate the field value for response.
    */
@@ -71,18 +86,44 @@ export default class BelongsTo extends Relation {
     request: AvonRequest,
     resources: Model[],
   ): Promise<Model[]> {
-    return await this.relatedResource
-      .repository()
-      .where({
-        key: this.ownerKeyName(request),
-        value: resources
-          .map((resource) => {
-            return resource.getAttribute(this.foreignKeyName(request));
-          })
-          .filter((value) => value),
-        operator: Operator.in,
-      })
-      .all();
+    const query = this.relatedResource.repository().where({
+      key: this.ownerKeyName(request),
+      value: resources
+        .map((resource) => resource.getAttribute(this.foreignKeyName(request)))
+        .filter((value) => value),
+      operator: Operator.in,
+    });
+
+    return this.softDeletes() //@ts-ignore
+      ? query.withTrashed().all()
+      : query.all();
+  }
+
+  /**
+   * Format the given related resource.
+   */
+  public formatRelatedResource(
+    request: AvonRequest,
+    resource: Model,
+  ): Record<string, any> {
+    const repository =
+      this.relatedResource.repository() as unknown as SoftDeletes<Model>;
+    const softDeleted =
+      this.softDeletes() && repository.isSoftDeleted(resource);
+
+    return {
+      ...new FieldCollection(this.relatableFields(request))
+        .resolve(resource)
+        .fieldValues(request),
+      softDeleted,
+    };
+  }
+
+  /**
+   * Indicates related resource soft deletes applied.
+   */
+  protected softDeletes(): boolean {
+    return this.withTrashed && this.relatedResource.softDeletes();
   }
 
   /**
@@ -184,9 +225,17 @@ export default class BelongsTo extends Relation {
     return {
       ...super.responseSchema(request),
       type: 'object',
-      properties: new FieldCollection(
-        this.schemaFields(request),
-      ).responseSchemas(request),
+      properties: {
+        ...new FieldCollection(this.schemaFields(request)).responseSchemas(
+          request,
+        ),
+        softDeleted: {
+          type: 'boolean',
+          default: false,
+          description:
+            'Indicates whether the related resource is soft-deleted or not',
+        },
+      },
       default: null,
       nullable: true,
       oneOf: undefined,
