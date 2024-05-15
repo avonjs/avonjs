@@ -17,7 +17,6 @@ import {
 import Relation from './Relation';
 import { guessForeignKey } from './ResourceRelationshipGuesser';
 import FieldCollection from '../Collections/FieldCollection';
-import Field from './Field';
 
 export default class BelongsToMany extends Relation {
   /**
@@ -358,7 +357,10 @@ export default class BelongsToMany extends Relation {
         relatables.filter((relatable) => {
           const pivot = relatable.getAttribute<Record<string, any>>('pivot');
 
-          return pivot[foreignKeyName] === resource.getAttribute(ownerKeyName);
+          return (
+            pivot.getAttribute(foreignKeyName) ===
+            resource.getAttribute(ownerKeyName)
+          );
         }),
       );
     });
@@ -371,43 +373,65 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     resources: Model[],
   ): Promise<Model[]> {
-    const foreignKey = this.foreignKeyName(request);
-    const ownerKey = this.ownerKeyName(request);
-    const pivots = await this.pivotResource
+    const pivots = await this.getPivotModels(request, resources);
+    const relatedModels = await this.getRelatedModels(request, pivots);
+
+    return pivots
+      .map((pivot) => {
+        const resource = relatedModels.find((related) => {
+          return (
+            String(related.getAttribute(this.ownerKeyName(request))) ===
+            String(pivot.getAttribute(this.foreignKeyName(request)))
+          );
+        });
+
+        return this.relatedResource
+          .repository()
+          .fillModel({ ...resource?.getAttributes(), pivot });
+      })
+      .filter((resource) => resource.getKey());
+  }
+
+  /**
+   * Get pivot records for given resources.
+   */
+  protected async getPivotModels(
+    request: AvonRequest,
+    resources: Model[],
+  ): Promise<Model[]> {
+    const resourceIds = resources
+      .map((resource) => {
+        return resource.getAttribute(this.resourceOwnerKeyName(request));
+      })
+      .filter((value) => value);
+
+    return this.pivotResource
       .repository()
       .where({
         key: this.resourceForeignKeyName(request),
-        value: resources
-          .map((resource) => {
-            return resource.getAttribute(this.resourceOwnerKeyName(request));
-          })
-          .filter((value) => value),
+        value: resourceIds,
         operator: Operator.in,
       })
       .all();
+  }
 
-    const related = await this.relatedResource
+  /**
+   * Get pivot records for given resources.
+   */
+  protected async getRelatedModels(
+    request: AvonRequest,
+    pivots: Model[],
+  ): Promise<Model[]> {
+    return this.relatedResource
       .repository()
       .where({
-        key: ownerKey,
-        value: pivots.map((pivot) => pivot.getAttribute(foreignKey)),
+        key: this.ownerKeyName(request),
+        value: pivots.map((pivot) => {
+          return pivot.getAttribute(this.foreignKeyName(request));
+        }),
         operator: Operator.in,
       })
       .all();
-
-    related.forEach((related) => {
-      related.setAttribute(
-        'pivot',
-        pivots.find((pivot) => {
-          return (
-            String(pivot.getAttribute(foreignKey)) ===
-            String(related.getAttribute(ownerKey))
-          );
-        }),
-      );
-    });
-
-    return related;
   }
 
   /**
