@@ -1,9 +1,44 @@
 import { OpenAPIV3 } from 'openapi-types';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import Filter from './Filter';
-import { OpenApiSchema } from '../Contracts';
+import { Model, OpenApiSchema, Operator } from '../Contracts';
+import { Repository } from '../Repositories';
 
 export default abstract class RangeFilter extends Filter {
+  /**
+   * Apply the filter into the given repository.
+   */
+  public apply(
+    request: AvonRequest,
+    repository: Repository<Model>,
+    range: Record<string, string>,
+  ): any {
+    if (typeof range !== 'object') {
+      return;
+    }
+
+    if (range.min !== undefined) {
+      repository.where({
+        key: this.filterableAttribute(request),
+        operator: Operator.gte,
+        value: Number(range.min),
+      });
+    }
+
+    if (range.max !== undefined) {
+      repository.where({
+        key: this.filterableAttribute(request),
+        operator: Operator.lte,
+        value: Number(range.max),
+      });
+    }
+  }
+
+  /**
+   * Get the attribute that the date filter should perform on it.
+   */
+  abstract filterableAttribute(request: AvonRequest): string;
+
   /**
    * Serialize parameters for schema.
    */

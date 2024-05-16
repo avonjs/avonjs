@@ -5,7 +5,7 @@ import { OpenApiSchema } from '../Contracts';
 import Filter from './Filter';
 import collect from 'collect.js';
 
-export default class PrimaryKey extends Filter {
+export default class ResourceId extends Filter {
   constructor(...args: readonly []) {
     super(...args);
     this.nullable(true, (value) => collect(value).isEmpty());
@@ -16,7 +16,7 @@ export default class PrimaryKey extends Filter {
    */
   apply(request: AvonRequest, repository: Repository, value: any): any {
     if (!this.isValidNullValue(value)) {
-      return repository.whereKey(value);
+      return repository.whereKeys(collect<string | number>(value).all());
     }
   }
 
@@ -26,7 +26,7 @@ export default class PrimaryKey extends Filter {
   schema(request: AvonRequest): OpenApiSchema {
     return {
       type: 'array',
-      items: { type: 'number' },
+      items: { oneOf: [{ type: 'number' }, { type: 'string' }] },
       nullable: this.isNullable(),
     };
   }

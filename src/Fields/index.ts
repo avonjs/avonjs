@@ -14,6 +14,7 @@ import Field from './Field';
 import Enum from './Enum';
 import List from './List';
 import Decimal from './Decimal';
+import Lazy from './Lazy';
 
 export {
   Array,
@@ -32,4 +33,5 @@ export {
   Enum,
   List,
   Decimal,
+  Lazy,
 };

@@ -16,9 +16,25 @@ export default <T extends AbstractMixable<Filter>>(Parent: T) => {
       queryBuilder: Repository<Model>,
       value: any,
     ): Promise<any> {
-      return this.isValidNullValue(value)
-        ? this.applyNullFilter(request, queryBuilder)
-        : this.field.applyFilter(request, queryBuilder, this.parseValue(value));
+      if (typeof this.field.filterableCallback === 'function') {
+        this.isValidNullValue(value)
+          ? this.applyNullFilter(request, queryBuilder)
+          : this.field.applyFilter(
+              request,
+              queryBuilder,
+              this.parseValue(value),
+            );
+      } else if (this.field.filterableCallback) {
+        //@ts-ignore
+        super.apply(request, queryBuilder, value);
+      }
+    }
+
+    /**
+     * Get the attribute that the date filter should perform on it.
+     */
+    public filterableAttribute(request: AvonRequest): string {
+      return this.field.filterableAttribute(request);
     }
 
     /**

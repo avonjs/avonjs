@@ -1,4 +1,4 @@
-import Joi, { boolean } from 'joi';
+import Joi from 'joi';
 import FieldCollection from '../Collections/FieldCollection';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import {
@@ -12,6 +12,8 @@ import {
   Transaction,
 } from '../Contracts';
 import Relation from './Relation';
+import { Filter } from '../Filters';
+import BelongsToFilter from './Filters/BelongsToFilter';
 
 export default class BelongsTo extends Relation {
   /**
@@ -124,6 +126,13 @@ export default class BelongsTo extends Relation {
    */
   protected softDeletes(): boolean {
     return this.withTrashed && this.relatedResource.softDeletes();
+  }
+
+  /**
+   * Make the field filter.
+   */
+  public makeFilter(request: AvonRequest): Filter {
+    return new BelongsToFilter(this);
   }
 
   /**

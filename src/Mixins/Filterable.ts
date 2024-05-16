@@ -13,7 +13,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * The callback to be used for the field's default value.
      */
-    public filterableCallback?: FilterableCallback;
+    public filterableCallback?: FilterableCallback | boolean;
 
     /**
      * Apply the filter to the given query.
@@ -23,11 +23,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       queryBuilder: Repository<Model>,
       value: any,
     ): Promise<any> {
-      await this.filterableCallback?.apply(this, [
-        request,
-        queryBuilder,
-        value,
-      ]);
+      if (typeof this.filterableCallback === 'function') {
+        await this.filterableCallback?.apply(this, [
+          request,
+          queryBuilder,
+          value,
+        ]);
+      }
     }
 
     /**
@@ -35,7 +37,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public resolveFilter(request: AvonRequest): Filter | undefined {
       // prevent resolving fields that do not use for filtering
-      if (this.filterableCallback != null) {
+      if (this.filterableCallback) {
         return this.makeFilter(request);
       }
     }
@@ -43,27 +45,10 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * The callback used to determine if the field is filterable.
      */
-    public filterable(callback?: FilterableCallback): this {
-      this.filterableCallback = callback ?? this.defaultFilterableCallback();
+    public filterable(callback: FilterableCallback | boolean = true): this {
+      this.filterableCallback = callback;
 
       return this;
-    }
-
-    /**
-     * Define the default filterable callback.
-     */
-    public defaultFilterableCallback(): FilterableCallback {
-      return (
-        request: AvonRequest,
-        queryBuilder: Repository<Model>,
-        value: any,
-      ) => {
-        queryBuilder.where({
-          key: this.filterableAttribute(request),
-          operator: Operator.eq,
-          value,
-        });
-      };
     }
 
     /**

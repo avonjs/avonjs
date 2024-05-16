@@ -2,17 +2,12 @@ import AvonRequest from '../Http/Requests/AvonRequest';
 import {
   DefaultCallback,
   EnumValues,
-  FilterableCallback,
-  Model,
   OpenApiSchema,
-  Operator,
   ResolveCallback,
 } from '../Contracts';
-import Text from './Text';
 import Joi from 'joi';
 import EnumFilter from './Filters/EnumFilter';
 import { Filter } from '../Filters';
-import { Repository } from '../Repositories';
 import Field from './Field';
 
 export default class Enum extends Field {

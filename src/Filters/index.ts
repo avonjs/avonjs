@@ -4,6 +4,7 @@ import Filter from './Filter';
 import RangeFilter from './RangeFilter';
 import ResourceId from './ResourceId';
 import SelectFilter from './SelectFilter';
+import TextFilter from './TextFilter';
 
 export {
   Filter,
@@ -11,9 +12,11 @@ export {
   SelectFilter,
   RangeFilter,
   DateTimeFilter,
+  TextFilter,
   BooleanFilter as Boolean,
   SelectFilter as Select,
   RangeFilter as Range,
   DateTimeFilter as DateTime,
+  TextFilter as Text,
   ResourceId,
 };

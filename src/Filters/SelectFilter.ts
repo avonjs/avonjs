@@ -1,8 +1,30 @@
 import AvonRequest from '../Http/Requests/AvonRequest';
 import Filter from './Filter';
-import { OpenApiSchema } from '../Contracts';
-
+import { Model, OpenApiSchema, Operator } from '../Contracts';
+import { Repository } from '../Repositories';
 export default abstract class SelectFilter extends Filter {
+  /**
+   * Apply the filter into the given repository.
+   */
+  public apply(
+    request: AvonRequest,
+    repository: Repository<Model>,
+    value: unknown,
+  ): any {
+    if (this.options().includes(value) || this.isValidNullValue(value)) {
+      repository.where({
+        key: this.filterableAttribute(request),
+        operator: Operator.eq,
+        value: this.isValidNullValue(value) ? null : value,
+      });
+    }
+  }
+
+  /**
+   * Get the attribute that the boolean filter should perform on it.
+   */
+  abstract filterableAttribute(request: AvonRequest): string;
+
   /**
    * Get the possible filtering values.
    */
@@ -15,8 +37,11 @@ export default abstract class SelectFilter extends Filter {
    */
   schema(request: AvonRequest): OpenApiSchema {
     return {
-      oneOf: [{ type: 'string' }, { type: 'number' }],
-      enum: this.options(),
+      type: 'array',
+      items: {
+        oneOf: [{ type: 'string' }, { type: 'number' }],
+        enum: this.options(),
+      },
       nullable: this.isNullable(),
     };
   }

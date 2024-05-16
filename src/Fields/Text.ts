@@ -2,15 +2,9 @@ import Joi from 'joi';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
 
-import {
-  DefaultCallback,
-  FilterableCallback,
-  Model,
-  Operator,
-} from '../Contracts';
+import { DefaultCallback } from '../Contracts';
 import Field from './Field';
 import TextFilter from './Filters/TextFilter';
-import { Repository } from '../Repositories';
 
 export default class Text extends Field {
   /**
@@ -79,29 +73,5 @@ export default class Text extends Field {
    */
   public makeFilter(request: AvonRequest): Filter {
     return new TextFilter(this);
-  }
-
-  /**
-   * Define the default filterable callback.
-   */
-  public defaultFilterableCallback(): FilterableCallback {
-    return (
-      request: AvonRequest,
-      repository: Repository<Model>,
-      value: any,
-    ) => {
-      repository.where({
-        key: this.filterableAttribute(request),
-        operator: Operator.like,
-        value: this.formatForSearch(value),
-      });
-    };
-  }
-
-  /**
-   * Format given value for search.
-   */
-  public formatForSearch(value: string) {
-    return value.match(/%/) ? value : `%${value}%`;
   }
 }

@@ -1,21 +1,16 @@
-import { OpenApiSchema } from '../../Contracts';
-import { Filter } from '../../Filters';
-import AvonRequest from '../../Http/Requests/AvonRequest';
+import { Select } from '../../Filters';
 import FilterableFields from '../../Mixins/FilterableFields';
 import Enum from '../Enum';
 
-export default class EnumFilter extends FilterableFields(Filter) {
+export default class EnumFilter extends FilterableFields(Select) {
   constructor(public field: Enum) {
     super();
   }
 
   /**
-   * Get the swagger-ui schema.
+   * Get the possible filtering values.
    */
-  schema(request: AvonRequest): OpenApiSchema {
-    return {
-      ...super.schema(request),
-      enum: this.field.getValues(),
-    };
+  public options(): any[] {
+    return this.field.getValues();
   }
 }

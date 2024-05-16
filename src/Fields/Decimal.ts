@@ -2,16 +2,9 @@ import Joi from 'joi';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
 
-import {
-  DefaultCallback,
-  FilterableCallback,
-  Model,
-  OpenApiSchema,
-  Operator,
-} from '../Contracts';
+import { DefaultCallback, OpenApiSchema } from '../Contracts';
 import Field from './Field';
 import NumberFilter from './Filters/NumberFilter';
-import { Repository } from '../Repositories';
 
 export default class Decimal extends Field {
   /**
@@ -78,33 +71,6 @@ export default class Decimal extends Field {
    */
   public makeFilter(request: AvonRequest): Filter {
     return new NumberFilter(this);
-  }
-
-  /**
-   * Define the default filterable callback.
-   */
-  public defaultFilterableCallback(): FilterableCallback {
-    return (
-      request: AvonRequest,
-      repository: Repository<Model>,
-      values: number[],
-    ) => {
-      if (values[0] !== null) {
-        repository.where({
-          key: this.filterableAttribute(request),
-          operator: Operator.gte,
-          value: values[0],
-        });
-      }
-
-      if (values[1] !== null) {
-        repository.where({
-          key: this.filterableAttribute(request),
-          operator: Operator.lte,
-          value: values[1],
-        });
-      }
-    };
   }
 
   /**

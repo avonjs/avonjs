@@ -1,8 +1,6 @@
-import collect from 'collect.js';
-import { FilterableCallback, Model, ResolveCallback } from '../Contracts';
+import { ResolveCallback } from '../Contracts';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { Repository } from '../Repositories';
 import ResourceIdFilter from './Filters/ResourceIdFilter';
 import Integer from './Integer';
 
@@ -17,18 +15,5 @@ export default class ID extends Integer {
    */
   public makeFilter(request: AvonRequest): Filter {
     return new ResourceIdFilter(this);
-  }
-
-  /**
-   * Define the default filterable callback.
-   */
-  public defaultFilterableCallback(): FilterableCallback {
-    return (
-      request: AvonRequest,
-      repository: Repository<Model>,
-      values: number[],
-    ) => {
-      repository.whereKeys(collect(values).all());
-    };
   }
 }

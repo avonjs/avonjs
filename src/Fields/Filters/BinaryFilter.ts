@@ -6,8 +6,4 @@ export default class BinaryFilter extends FilterableFields(BooleanFilter) {
   constructor(public field: Field) {
     super();
   }
-
-  public parseValue(value: any) {
-    return ['true', 1, true].includes(value);
-  }
 }

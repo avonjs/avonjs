@@ -1,9 +1,10 @@
 import AvonRequest from '../Http/Requests/AvonRequest';
-import { Repository } from '../Repositories';
 
-import { FilterableCallback, Model, Operator } from '../Contracts';
+import { Model, Operator } from '../Contracts';
 import Relation from './Relation';
 import { guessForeignKey } from './ResourceRelationshipGuesser';
+import { Filter } from '../Filters';
+import HasOneOrManyFilter from './Filters/HasOneOrManyFilter';
 
 export default abstract class HasManyOrOne extends Relation {
   /**
@@ -15,6 +16,17 @@ export default abstract class HasManyOrOne extends Relation {
     super(resource, relation);
     this.foreignKey = '';
     this.ownerKey = '';
+  }
+
+  public filterableAttribute(request: AvonRequest): string {
+    return this.ownerKeyName(request);
+  }
+
+  /**
+   * Make the field filter.
+   */
+  public makeFilter(request: AvonRequest): Filter {
+    return new HasOneOrManyFilter(this);
   }
 
   /**
@@ -33,31 +45,6 @@ export default abstract class HasManyOrOne extends Relation {
     return String(this.ownerKey).length > 0
       ? this.ownerKey
       : request.model().getKeyName();
-  }
-
-  /**
-   * Define the default filterable callback.
-   */
-  public defaultFilterableCallback(): FilterableCallback {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    return async (
-      request: AvonRequest,
-      repository: Repository<Model>,
-      value: any,
-    ) => {
-      const related = await this.relatedResource
-        .repository()
-        .whereKeys(Array.isArray(value) ? value : [value])
-        .all();
-
-      repository.where({
-        key: this.ownerKeyName(request),
-        value: related.map((model) => {
-          return model.getAttribute(this.foreignKeyName(request));
-        }),
-        operator: Operator.in,
-      });
-    };
   }
 
   /**
