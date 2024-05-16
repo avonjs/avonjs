@@ -121,7 +121,7 @@ export default class Array extends Field {
    */
   protected baseSchema(request: AvonRequest): OpenApiSchema {
     return {
-      ...super.schema(request),
+      ...super.baseSchema(request),
       type: 'array',
       items: this.itemsSchema,
       uniqueItems: true,
