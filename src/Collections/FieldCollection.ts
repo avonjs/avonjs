@@ -1,5 +1,5 @@
 import { Collection } from 'collect.js';
-import { Field } from '../Fields';
+import { Field, Lazy } from '../Fields';
 import Relation from '../Fields/Relation';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { Model, OpenApiSchema } from '../Contracts';
@@ -148,6 +148,35 @@ export default class FieldCollection<
   public withoutRelatableFields(): FieldCollection<TItem> {
     return new FieldCollection<TItem>(
       this.reject((field) => field instanceof Relation).values(),
+    );
+  }
+
+  /**
+   * Reject if the field not supports Lazy Field.
+   */
+  public withOnlyLazyFields(): FieldCollection<Lazy> {
+    return new FieldCollection<Lazy>(
+      this.filter((field) => field instanceof Lazy).values(),
+    );
+  }
+
+  /**
+   * Reject if the field not supports Lazy Field and not eager loaded.
+   */
+  public onlyLoadedLazyFields(): FieldCollection<Lazy> {
+    return new FieldCollection<Lazy>(
+      this.withOnlyLazyFields()
+        .filter((field) => field.isLoaded())
+        .values(),
+    );
+  }
+
+  /**
+   * Reject if the field is Lazy Field.
+   */
+  public withoutLazyFields(): FieldCollection<TItem> {
+    return new FieldCollection<TItem>(
+      this.reject((field) => field instanceof Lazy).values(),
     );
   }
 

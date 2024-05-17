@@ -24,8 +24,8 @@ export default class ResourceDetailController extends Controller {
     await Promise.all(
       resource
         .detailFields(request, model!)
-        .onlyLoadedRelatableFields()
-        .map((field) => field.resolveRelatables(request, [model!])),
+        .onlyLoadedLazyFields()
+        .map((field) => field.resolveForResources(request, [model!])),
     );
 
     return new ResourceDetailResponse(

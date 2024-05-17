@@ -53,8 +53,10 @@ export default class ResourceUpdateController extends Controller {
     await Promise.all(
       resource
         .detailFields(request, resource.resource)
-        .withOnlyRelatableFields()
-        .map((field) => field.resolveRelatables(request, [resource.resource])),
+        .onlyLoadedLazyFields()
+        .map((field) =>
+          field.resolveForResources(request, [resource.resource]),
+        ),
     );
 
     return new ResourceUpdateResponse(

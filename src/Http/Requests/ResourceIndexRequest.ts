@@ -42,8 +42,8 @@ export default class ResourceIndexRequest extends AvonRequest {
     await Promise.all(
       this.resource()
         .indexFields(this, this.model())
-        .onlyLoadedRelatableFields()
-        .map((field) => field.resolveRelatables(this, items)),
+        .onlyLoadedLazyFields()
+        .map((field) => field.resolveForResources(this, items)),
     );
 
     return {

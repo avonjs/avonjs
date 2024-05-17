@@ -13,19 +13,13 @@ import {
   TrashedStatus,
   OpenApiSchema,
 } from '../Contracts';
-import Field from './Field';
-import BelongsToFilter from './Filters/BelongsToFilter';
 import { guessRelation } from './ResourceRelationshipGuesser';
 import { Repository } from '../Repositories';
 import { snakeCase } from 'change-case-all';
 import { Ordering } from '../Orderings';
+import Lazy from './Lazy';
 
-export default abstract class Relation extends Field {
-  /**
-   * Indicates related resources have to load.
-   */
-  public loaded: boolean = false;
-
+export default abstract class Relation extends Lazy {
   /**
    * Name of the relationship.
    */
@@ -178,26 +172,13 @@ export default abstract class Relation extends Field {
   }
 
   /**
-   * Determine field is resolvable or not.
+   * Resolve value for given resources.
    */
-  public resolvable(): boolean {
-    return this.isLoaded();
-  }
-
-  /**
-   * Specify related resources to load.
-   */
-  public load(): this {
-    this.loaded = true;
-
-    return this;
-  }
-
-  /**
-   * Determine that related resource loaded.
-   */
-  public isLoaded(): boolean {
-    return this.loaded;
+  async resolveForResources(
+    request: AvonRequest,
+    resources: Model[],
+  ): Promise<any> {
+    return this.resolveRelatables(request, resources);
   }
 
   /**

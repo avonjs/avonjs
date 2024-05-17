@@ -24,8 +24,8 @@ export default class ResourceReviewController extends Controller {
     await Promise.all(
       resource
         .reviewFields(request, model!)
-        .withOnlyRelatableFields()
-        .map((field) => field.resolveRelatables(request, [model!])),
+        .onlyLoadedLazyFields()
+        .map((field) => field.resolveForResources(request, [model!])),
     );
 
     return new ResourceReviewResponse(
