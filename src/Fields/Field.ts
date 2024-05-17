@@ -501,8 +501,10 @@ export default abstract class Field
   /**
    * Determine that the field should be filled in the request.
    */
-  public required(): this {
-    this.rules(this.rulesSchema.required());
+  public required(required: boolean = true): this {
+    if (required) {
+      this.rules(this.rulesSchema.required());
+    }
 
     return this;
   }
