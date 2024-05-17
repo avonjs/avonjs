@@ -112,19 +112,23 @@ export default class BelongsToMany extends Relation {
         return;
       }
 
-      const related = await this.relatedResource
-        .repository()
-        .where({
-          key: this.ownerKeyName(request),
-          operator: Operator.eq,
-          value,
-        })
-        .first();
+      try {
+        const resources = await this.relatedResource
+          .repository()
+          .where({
+            key: this.ownerKeyName(request),
+            operator: Operator.in,
+            value,
+          })
+          .all();
 
-      if (related === undefined) {
-        return error('any.custom', {
-          error: new Error(`Related resource with ID:'${value}' not found`),
-        });
+        if (resources.length !== value.length) {
+          return error('any.custom', {
+            error: new Error(`Some of related resources not found`),
+          });
+        }
+      } catch (err) {
+        return error('any.custom', { error: err });
       }
     };
   }
