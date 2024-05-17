@@ -173,6 +173,10 @@ export default class BelongsTo extends Relation {
 
     return {
       [this.attribute]: rules.external(async (value, { error }) => {
+        if (this.isValidNullValue(value)) {
+          return this.nullValue();
+        }
+
         if ((await this.getRelatedResource(request, value)) === undefined) {
           return error('any.custom', {
             error: new Error(`Related resource with ID:'${value}' not found`),
