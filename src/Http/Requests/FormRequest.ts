@@ -84,9 +84,16 @@ export default abstract class FormRequest {
   }
 
   /**
+   * Get value from request body and query as boolean.
+   */
+  public boolean(key: string, callback?: boolean): boolean {
+    return Boolean(this.get<boolean>(key, callback));
+  }
+
+  /**
    * Get value from request body and query as array.
    */
-  public array<T extends any = any>(key: string, callback?: number): T[] {
+  public array<T extends any = any>(key: string, callback?: []): T[] {
     const value = this.get(key, callback);
 
     return Array.isArray(value) ? value : [value];
