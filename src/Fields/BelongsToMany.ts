@@ -181,8 +181,14 @@ export default class BelongsToMany extends Relation {
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | undefined {
-    if (!request.exists(requestAttribute)) {
+  ): FilledCallback | void {
+    const defaults = this.resolveDefaultValue(request);
+
+    if (
+      !request.exists(requestAttribute) ||
+      !Array.isArray(defaults) ||
+      defaults.length === 0
+    ) {
       return;
     }
 
@@ -272,9 +278,11 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     requestAttribute: string,
   ): Attachable[] {
-    return request.array(requestAttribute).map((attachment) => {
-      return typeof attachment === 'object' ? attachment : { id: attachment };
-    });
+    return request
+      .array(requestAttribute, this.resolveDefaultValue(request))
+      .map((attachment) => {
+        return typeof attachment === 'object' ? attachment : { id: attachment };
+      });
   }
 
   /**

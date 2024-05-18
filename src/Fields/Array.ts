@@ -37,9 +37,9 @@ export default class Array extends Field {
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | undefined {
+  ): FilledCallback | void {
     if (!request.exists(requestAttribute)) {
-      return;
+      return this.fillAttributeFromDefault(request, model, attribute);
     }
 
     const value = request.array(requestAttribute);

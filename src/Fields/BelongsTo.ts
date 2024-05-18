@@ -60,9 +60,13 @@ export default class BelongsTo extends Relation {
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | undefined {
+  ): FilledCallback | void {
     if (!request.exists(requestAttribute)) {
-      return;
+      return this.fillAttributeFromDefault(
+        request,
+        model,
+        this.foreignKeyName(request),
+      );
     }
 
     const value = request.get(requestAttribute);

@@ -77,7 +77,7 @@ export default abstract class Field
   /**
    * The callback to be used for the field's default value.
    */
-  public defaultCallback: DefaultCallback = () => this.nullValue();
+  public defaultCallback?: DefaultCallback;
 
   /**
    * The validation rules callback for creation and updates.
@@ -176,7 +176,7 @@ export default abstract class Field
       request.isActionRequest() ||
       request.isSchemaRequest()
     ) {
-      return this.defaultCallback(request);
+      return this.defaultCallback?.apply(this, [request]);
     }
   }
 
@@ -270,9 +270,9 @@ export default abstract class Field
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | undefined {
+  ): FilledCallback | void {
     if (!request.exists(requestAttribute)) {
-      return;
+      return this.fillAttributeFromDefault(request, model, attribute);
     }
 
     const value = request.get(requestAttribute);
@@ -281,6 +281,24 @@ export default abstract class Field
       attribute,
       this.isValidNullValue(value) ? this.nullValue() : value,
     );
+  }
+
+  /**
+   * Hydrate the given attribute on the model based on the default callback.
+   */
+  protected fillAttributeFromDefault<TModel extends Model>(
+    request: AvonRequest,
+    model: TModel,
+    attribute: string,
+  ): void {
+    const value = this.resolveDefaultValue(request);
+
+    if (value !== undefined) {
+      model.setAttribute(
+        attribute,
+        this.isValidNullValue(value) ? this.nullValue() : value,
+      );
+    }
   }
 
   /**

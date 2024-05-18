@@ -90,9 +90,9 @@ export default class Json extends Field {
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | undefined {
+  ): FilledCallback | void {
     if (!request.exists(requestAttribute)) {
-      return;
+      return this.fillAttributeFromDefault(request, model, attribute);
     }
 
     const value = request.get(requestAttribute);
