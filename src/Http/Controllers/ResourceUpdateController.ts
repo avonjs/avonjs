@@ -38,7 +38,7 @@ export default class ResourceUpdateController extends Controller {
         for (const callback of callbacks)
           await callback(request, model, transaction);
 
-        await newResource.afterUpdate(request, transaction);
+        await newResource.afterUpdate(request, previous, transaction);
 
         await newResource.recordUpdateEvent(
           previous,
