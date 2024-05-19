@@ -1,4 +1,4 @@
-import { AbstractMixable, Transaction } from '../Contracts';
+import { AbstractMixable, Model, Transaction } from '../Contracts';
 import AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
@@ -27,7 +27,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Register a callback to be called after the resource is updated.
      */
-    public afterUpdate(request: AvonRequest, transaction?: Transaction): void {
+    public afterUpdate(
+      request: AvonRequest,
+      resource: Model,
+      transaction?: Transaction,
+    ): void {
       //
     }
 
