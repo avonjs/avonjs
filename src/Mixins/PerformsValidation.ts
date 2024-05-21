@@ -1,5 +1,5 @@
 import collect from 'collect.js';
-import Joi, { AnySchema } from 'joi';
+import Joi, { AnySchema, ValidationError } from 'joi';
 import ValidationException from '../Exceptions/ValidationException';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { AbstractMixable, Rules } from '../Contracts';
@@ -15,7 +15,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       await this.validatorForCreation(request)
         .validateAsync(request.all(), { abortEarly: false })
         .then((value) => this.afterCreationValidation(request, value))
-        .catch((error) => ValidationException.throw(error));
+        .catch((error) => {
+          if (error instanceof ValidationError) {
+            throw new ValidationException(error);
+          }
+
+          throw error;
+        });
     }
 
     /**
@@ -51,7 +57,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
         .validateAsync(request.all(), { abortEarly: false })
         .then((value) => this.afterUpdateValidation(request, value))
         .catch((error) => {
-          ValidationException.throw(error);
+          if (error instanceof ValidationError) {
+            throw new ValidationException(error);
+          }
+
+          throw error;
         });
     }
 
