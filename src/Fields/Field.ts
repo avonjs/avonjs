@@ -499,7 +499,7 @@ export default abstract class Field
   }
 
   /**
-   * Indicate that the field should be nullable.
+   * Determine that the field should be nullable.
    */
   public nullable(
     nullable: boolean = true,
@@ -522,6 +522,17 @@ export default abstract class Field
   public required(required: boolean = true): this {
     if (required) {
       this.rules(this.rulesSchema.required());
+    }
+
+    return this;
+  }
+
+  /**
+   * Determines that the field can be omitted from the request.
+   */
+  public optional(optional: boolean = true): this {
+    if (optional) {
+      this.rules(this.rulesSchema.optional());
     }
 
     return this;
