@@ -16,7 +16,7 @@ export default class ResourceUpdateController extends Controller {
     const previous = request.newModel({ ...resource.resource.getAttributes() });
 
     await resource.authorizeTo(request, Ability.update);
-    await resource.validateForUpdate(request);
+    await resource.validateForUpdate(request, resource);
 
     const newResource = await request
       .repository()

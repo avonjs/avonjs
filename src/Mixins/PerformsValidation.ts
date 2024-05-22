@@ -3,6 +3,7 @@ import Joi, { AnySchema, ValidationError } from 'joi';
 import ValidationException from '../Exceptions/ValidationException';
 import AvonRequest from '../Http/Requests/AvonRequest';
 import { AbstractMixable, Rules } from '../Contracts';
+import Resource from '../Resource';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class PerformsValidation extends Parent {
@@ -52,8 +53,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public async validateForUpdate(request: AvonRequest): Promise<any> {
-      await this.validatorForUpdate(request)
+    public async validateForUpdate(
+      request: AvonRequest,
+      resource?: Resource,
+    ): Promise<any> {
+      await this.validatorForUpdate(request, resource)
         .validateAsync(request.all(), { abortEarly: false })
         .then((value) => this.afterUpdateValidation(request, value))
         .catch((error) => {
@@ -68,19 +72,24 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Create a validator instance for a resource update request.
      */
-    public validatorForUpdate(request: AvonRequest): AnySchema {
-      return Joi.object(this.rulesForUpdate(request));
+    public validatorForUpdate(
+      request: AvonRequest,
+      resource?: Resource,
+    ): AnySchema {
+      return Joi.object(this.rulesForUpdate(request, resource));
     }
 
     /**
      * Get the validation rules for a resource update request.
      */
-    public rulesForUpdate(request: AvonRequest): AnySchema[] {
+    public rulesForUpdate(
+      request: AvonRequest,
+      resource?: Resource,
+    ): AnySchema[] {
       return this.formatRules(
         request,
         this.prepareRulesForValidator(
-          request
-            .newResource()
+          (resource ?? request.newResource())
             .updateFields(request)
             .map((field) => field.getUpdateRules(request))
             .all(),
