@@ -73,14 +73,18 @@ export default abstract class FormRequest {
    * Get value from request body and query as string.
    */
   public string(key: string, callback?: string): string {
-    return String(this.get<string>(key, callback));
+    return this.exists(key)
+      ? String(this.get<string>(key))
+      : this.get<string>(key, callback);
   }
 
   /**
    * Get value from request body and query as string.
    */
   public number(key: string, callback?: number): number {
-    return Number(this.get<number>(key, callback));
+    return this.exists(key)
+      ? Number(this.get<number>(key))
+      : this.get<number>(key, callback);
   }
 
   /**
@@ -94,7 +98,11 @@ export default abstract class FormRequest {
    * Get value from request body and query as array.
    */
   public array<T extends any = any>(key: string, callback?: []): T[] {
-    const value = this.get(key, callback);
+    if (!this.exists(key)) {
+      return this.get<T[]>(key, callback);
+    }
+
+    const value = this.get<T[]>(key, callback);
 
     return Array.isArray(value) ? value : [value];
   }
