@@ -81,7 +81,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
         this.prepareRulesForValidator(
           request
             .newResource()
-            .creationFields(request)
+            .updateFields(request)
             .map((field) => field.getUpdateRules(request))
             .all(),
         ),
