@@ -197,15 +197,18 @@ export default class BelongsTo extends Relation {
     id: string | number,
     transaction?: Transaction,
   ) {
-    return this.relatedResource
+    const repository = this.relatedResource
       .repository()
       .setTransaction(transaction)
       .where({
         key: this.ownerKeyName(request),
         operator: Operator.eq,
         value: id,
-      })
-      .first();
+      });
+    // to ensure only valid data attached
+    this.relatableQueryCallback.apply(this, [request, repository]);
+
+    return repository.first();
   }
 
   /**

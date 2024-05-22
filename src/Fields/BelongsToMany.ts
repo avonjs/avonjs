@@ -113,14 +113,15 @@ export default class BelongsToMany extends Relation {
       }
 
       try {
-        const resources = await this.relatedResource
-          .repository()
-          .where({
-            key: this.ownerKeyName(request),
-            operator: Operator.in,
-            value,
-          })
-          .all();
+        const repository = this.relatedResource.repository().where({
+          key: this.ownerKeyName(request),
+          operator: Operator.in,
+          value,
+        });
+        // to ensure only valid data attached
+        this.relatableQueryCallback.apply(this, [request, repository]);
+
+        const resources = await repository.all();
 
         if (resources.length !== value.length) {
           return error('any.custom', {
