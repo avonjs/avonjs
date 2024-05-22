@@ -32,6 +32,8 @@ export default class ResourceRestoreController extends Controller {
         await resource.recordRestoreEvent(transaction, Avon.userId(request));
       });
 
+    await resource.restored(request);
+
     return new EmptyResponse();
   }
 }

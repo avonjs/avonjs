@@ -18,6 +18,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     }
 
     /**
+     * Register a callback to be called after the resource creation is committed.
+     */
+    public created(request: AvonRequest): void {
+      //
+    }
+
+    /**
      * Register a callback to be called before the resource update.
      */
     public beforeUpdate(request: AvonRequest, transaction?: Transaction): void {
@@ -32,6 +39,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       resource: Model,
       transaction?: Transaction,
     ): void {
+      //
+    }
+
+    /**
+     * Register a callback to be called after the resource update is committed.
+     */
+    public updated(request: AvonRequest, resource: Model): void {
       //
     }
 
@@ -70,6 +84,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     }
 
     /**
+     * Register a callback to be called after the resource delete is committed.
+     */
+    public deleted(request: AvonRequest): void {
+      //
+    }
+
+    /**
      * Register a callback to be called before the resource restore.
      */
     public beforeRestore(
@@ -83,6 +104,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      * Register a callback to be called after the resource is restored.
      */
     public afterRestore(request: AvonRequest, transaction?: Transaction): void {
+      //
+    }
+
+    /**
+     * Register a callback to be called after the resource restore is committed.
+     */
+    public restored(request: AvonRequest): void {
       //
     }
   }

@@ -33,6 +33,8 @@ export default class ResourceForceDeleteController extends Controller {
         await resource.flushActionEvents(transaction);
       });
 
+    await resource.deleted(request);
+
     return new EmptyResponse();
   }
 }

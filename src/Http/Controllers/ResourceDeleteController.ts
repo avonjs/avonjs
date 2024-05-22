@@ -37,6 +37,10 @@ export default class ResourceDeleteController extends Controller {
         }
       });
 
+    if (!resource.softDeletes()) {
+      await resource.deleted(request);
+    }
+
     return new EmptyResponse();
   }
 }

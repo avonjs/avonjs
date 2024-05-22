@@ -50,6 +50,8 @@ export default class ResourceUpdateController extends Controller {
         return newResource;
       });
 
+    await newResource.updated(request, previous);
+
     await Promise.all(
       resource
         .detailFields(request, resource.resource)

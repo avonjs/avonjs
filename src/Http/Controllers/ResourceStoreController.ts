@@ -51,6 +51,8 @@ export default class ResourceStoreController extends Controller {
         return newResource;
       });
 
+    await resource.created(request);
+
     await Promise.all(
       resource
         .detailFields(request, resource.resource)
