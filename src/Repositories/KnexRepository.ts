@@ -15,6 +15,11 @@ export default abstract class KnexRepository<
   TModel extends Model = Fluent,
 > extends Repository<TModel> {
   /**
+   * List of selectable columns.
+   */
+  protected columns = ['*'];
+
+  /**
    * Start new transaction.
    */
   public async prepareTransaction() {
@@ -36,7 +41,7 @@ export default abstract class KnexRepository<
       .count(`${this.tableName()}.${this.model().getKeyName()} as count`)
       .first();
 
-    const data = await this.select(query.limit(perPage).offset(offset));
+    const data = await this.selectColumns(query.limit(perPage).offset(offset));
 
     return {
       ...count,
@@ -58,7 +63,7 @@ export default abstract class KnexRepository<
    * Find all model's for the given conditions.
    */
   async all(wheres: Where[] = []): Promise<TModel[]> {
-    const data = await this.select(this.where(wheres).makeQuery());
+    const data = await this.selectColumns(this.where(wheres).makeQuery());
 
     return data.map((item: Record<string, any>) => this.fillModel(item));
   }
@@ -66,8 +71,19 @@ export default abstract class KnexRepository<
   /**
    * Get the select columns.
    */
-  protected select(query: Knex.QueryBuilder): Knex.QueryBuilder {
-    return query.select(`${this.tableName()}.*`);
+  protected selectColumns(query: Knex.QueryBuilder): Knex.QueryBuilder {
+    return query.select(
+      this.columns.map((column) => this.getQualifiedColumnName(column)),
+    );
+  }
+
+  /**
+   * Get list of selectable columns.
+   */
+  public select(columns: string[] = ['*']) {
+    this.columns = columns;
+
+    return this;
   }
 
   /**
