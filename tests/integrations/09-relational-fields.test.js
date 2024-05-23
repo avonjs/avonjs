@@ -226,7 +226,7 @@ describe('The relational resource fields', () => {
         .expect(200)
         .then(({ body: { code, data } }) => {
           expect(code).toBe(200);
-          expect(data.fields.user).toEqual({ id: 1 });
+          expect(data.fields.user).toEqual({ id: 1, softDeleted: false });
         });
     });
 
