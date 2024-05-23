@@ -22,12 +22,13 @@
   - [Dynamic Field Methods](#dynamic-field-methods)
   - [Default Values](#default-values)
   - [Field Hydration](#field-hydration)
-  - [Orderable Fields](#orderable-fields)
-  - [Filterable Fields](#filterable-fields)
   - [Field Types](#field-types)
   - [Customization](#customization)
   - [Nullable Fields](#nullable-fields)
+  - [Optional Fields](#optional-fields)
   - [Filterable Fields](#filterable-fields)
+  - [Orderable Fields](#orderable-fields)
+  - [Lazy Fields](#lazy-fields)
 - [Relationships](#relationships)
   - [BelongsTo](#belongsto)
   - [HasMany](#hasmany)
@@ -285,7 +286,7 @@ now you can go to the `http://localhost` and see the result.
 
 ## Resource Hooks
 
-Avon also allows you to define the following methods on a resource to serve as hooks that are only invoked when the corresponding resource action is executed from within Avon:
+Avon provides a set of hooks that you can define on a resource. These hooks are invoked when the corresponding resource action is executed within Avon, allowing you to execute custom logic at specific points in the lifecycle of a resource.
 
 - `afterCreate`
 - `beforeCreate`
@@ -297,6 +298,15 @@ Avon also allows you to define the following methods on a resource to serve as h
 - `beforeRestore`
 - `afterForceDelete`
 - `beforeForceDelete`
+
+### Post-Commit Hooks
+
+In addition to the above hooks, Avon provides the following hooks that are called after the resource changes are committed to the storage:
+
+- `created`
+- `updated`
+- `deleted`
+- `restored`
 
 ## Pagination
 
@@ -418,46 +428,6 @@ new Fields.Text('name').fillUsing((request, model, attribute, requestAttribute) 
         request.string(attribute) + ' - ' + Date.now()
     );
 }),
-```
-
-## Orderable Fields
-
-When attaching a field to a resource, you may use the `orderable` method to indicate that the resource index may be sorted by the given field:
-
-```
-new Fields.Text('name').orderable()
-```
-
-Also its possible to passing a callback to customize the ordering behavior:
-
-```
-new Fields.Text('name').orderable((request, repository, direction) => {
-    repository.order({
-        key: 'another key',
-        direction: 'desc',
-    });
-})
-```
-
-## Filterable Fields
-
-The `filterable` method allows you to enable convenient, automatic filtering functionality for a given field on the resource's index:
-
-```
-new Fields.Text('name').filterable()
-```
-
-Also its possible to passing a callback to customize the filtering behavior:
-
-```
-new Fields.Text('name').filterable((request, repository, value) => {
-    repository.where({
-        key: this.filterableAttribute(request),
-        operator: Constants.Operator.like,
-        value,
-    });
-})
-
 ```
 
 ## Field Types
@@ -644,25 +614,150 @@ You may also set which values should be interpreted as a `null` value using the 
 new Fields.DateTime('publish_at').nullable().nullValues((value) => ['', undefined, null].includes(value));
 ```
 
-### Filterable Fields
+### Optional Fields
 
-The `filterable` method allows you to enable convenient, automatic filtering functionality for a given field on resources.
+By default, Avon attempts to validate all fields in a request. However, there are situations where certain fields may not be required in the request. To make a field optional, you can invoke the `optional` method on your field definition.
+
+#### Example: Making a DateTime Field Optional
+
+To define a DateTime field that is not required in the request, use the `optional` method as shown below:
+
+```javascript
+new Fields.DateTime('publish_at').optional();
+```
+
+#### Usage
+
+This approach ensures that the `publish_at` field is not required during validation. If the field is omitted in the request, it will not trigger a validation error.
+
+Here’s a more comprehensive example within a resource definition:
+
+```javascript
+import Fields from 'avon';
+
+export default class PostResource extends Resource {
+  // Other field definitions...
+
+  fields() {
+    return [
+      // Other fields...
+
+      new Fields.DateTime('publish_at').optional(),
+    ];
+  }
+}
+```
+
+In this example, the `publish_at` field is defined as a DateTime field that can be optionally included in the request. When omitted, it will be considered valid by Avon’s validation logic.
+
+## Filterable Fields
+
+The `filterable` method allows you to enable convenient, automatic filtering functionality for a given field on the resource's index:
 
 ```
-new Fields.Binary('active').filterable()
+new Fields.Text('name').filterable()
 ```
 
-The `filterable` method also accepts a callback as an argument. This callback will receive the filter query, which you may then customize in order to filter the resource results to your liking:
+Also its possible to passing a callback to customize the filtering behavior:
 
 ```
-new Fields.Binary('active').filterable((request, repository, value) => {
+new Fields.Text('name').filterable((request, repository, value) => {
     repository.where({
-        key: 'active',
-        operator: Constants.Operator.eq,
-        value: Boolean(value) ? 1 : 0
-    })
+        key: this.filterableAttribute(request),
+        operator: Constants.Operator.like,
+        value,
+    });
+})
+
+```
+
+## Orderable Fields
+
+When attaching a field to a resource, you may use the `orderable` method to indicate that the resource index may be sorted by the given field:
+
+```
+new Fields.Text('name').orderable()
+```
+
+Also its possible to passing a callback to customize the ordering behavior:
+
+```
+new Fields.Text('name').orderable((request, repository, direction) => {
+    repository.order({
+        key: 'another key',
+        direction: 'desc',
+    });
 })
 ```
+
+## Lazy Fields
+
+During development, you may need to resolve the value of certain fields based on the resolved resource. For this situation, you can create a new field that extends the `Lazy` class. This allows you to dynamically compute and set the field's value based on additional data fetched asynchronously.
+
+Here's an example of how to create and use a `Lazy` field:
+
+### Example: MessageCounter Field
+
+```javascript
+export default class MessageCounter extends Fields.Lazy {
+  /**
+   * Resolve necessary data for the given resources and set the resolved values.
+   */
+  async resolveForResources(
+    request: AvonRequest,
+    resources: Array<Contracts.Model & HasMessages>,
+  ): Promise<void> {
+    // Fetch unread message counts for the given resources and user
+    const counts = await this.countUnreadMessages(
+      resources.map((resource) => resource.filterKey()),
+      [Number(request.user()?.userId)].filter((id) => id),
+    );
+
+    // Set the message count attribute on each resource
+    resources.forEach((resource) => {
+      const count = counts.find(
+        ({ filter }) => resource.filterKey() === filter,
+      );
+
+      resource.setAttribute(this.attribute, count?.count ?? 0);
+    });
+  }
+
+  /**
+   * Count unread messages for the given filters and user IDs.
+   */
+  async countUnreadMessages(
+    filters: Array<string>,
+    userIds: Array<number>,
+  ): Promise<Array<{ filter: string, count: number }>> {
+    // Your implementation for counting unread messages
+  }
+}
+```
+
+In the `resolveForResources` method, you can fetch the necessary data and set it on the resource. This data can then be used when resolving the field value.
+
+### Using the Lazy Field
+
+To use the `MessageCounter` field, simply include it in your resource definition and it will handle the lazy resolution of the message count for each resource.
+
+```javascript
+import MessageCounter from './MessageCounter';
+
+export default class UserResource extends Resource {
+  // Other field definitions...
+
+  fields() {
+    return [
+      // Other fields...
+
+      new MessageCounter('unreadMessages', 'Unread Messages'),
+    ];
+  }
+}
+```
+
+This approach allows you to defer the resolution of field values until you have all the necessary data, making your application more flexible and efficient.
 
 ## Relationships
 
@@ -1093,6 +1188,9 @@ To modify the timestamps' values, you can change the `freshTimestamp` method acc
 - [Select Filter](#select-filter)
 - [Boolean Filter](#select-filter)
 - [Range Filter](#range-filter)
+- [Text Filter](#text-filter)
+- [DateTime Filter](#date-time-filter)
+- [ResourceId Filter](#resource-id-filter)
 
   Avon filters are simple classes that allow you to scope your Avon index queries with custom conditions.
 
