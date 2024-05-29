@@ -163,7 +163,7 @@ export default abstract class KnexRepository<
   /**
    * Get fully qualified column name.
    */
-  protected getQualifiedColumnName(columnName: string) {
+  public getQualifiedColumnName(columnName: string) {
     return `${this.tableName()}.${columnName}`;
   }
 
