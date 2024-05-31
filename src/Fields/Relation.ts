@@ -48,7 +48,7 @@ export default abstract class Relation extends Lazy {
   public relatableQueryCallback: RelatableQueryCallback = (
     request: AvonRequest,
     repository: Repository<Model>,
-  ) => request.resource().relatableQuery(request, repository) ?? repository;
+  ) => this.relatedResource.relatableQuery(request, repository) ?? repository;
 
   constructor(resource: string, relation?: string) {
     const relatedResource = Avon.resourceForKey(resource);
