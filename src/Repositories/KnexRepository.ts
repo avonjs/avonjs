@@ -8,7 +8,7 @@ import {
   Direction,
   Operator,
 } from '../Contracts';
-import { slugify } from '../helpers';
+import { isNullish, slugify } from '../helpers';
 import Repository from './Repository';
 
 export default abstract class KnexRepository<
@@ -18,6 +18,11 @@ export default abstract class KnexRepository<
    * List of selectable columns.
    */
   protected columns = ['*'];
+
+  /**
+   * The columns that should be searched.
+   */
+  protected searches: Array<string | Knex.Raw<any>> = [];
 
   /**
    * Start new transaction.
@@ -56,7 +61,29 @@ export default abstract class KnexRepository<
     query: Knex.QueryBuilder,
     search: string,
   ): Knex.QueryBuilder {
-    return query;
+    if (isNullish(search)) {
+      return query;
+    }
+    // only apply when search value is valid
+    return query.where((whereQuery) => {
+      const searchValue = search.match(/%/) ? search : `%${search}%`;
+      this.searchableColumns().forEach((searchable) => {
+        if (typeof searchable === 'string') {
+          whereQuery.orWhere(searchable, 'LIKE', searchValue);
+        } else {
+          whereQuery.orWhere(searchable, 'LIKE', searchValue);
+        }
+      });
+
+      return whereQuery;
+    });
+  }
+
+  /**
+   * Get the searchable columns for the resource.
+   */
+  public searchableColumns() {
+    return this.searches.length ? this.searches : [this.model().getKeyName()];
   }
 
   /**
