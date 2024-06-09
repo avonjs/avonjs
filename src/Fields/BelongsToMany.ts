@@ -184,40 +184,38 @@ export default class BelongsToMany extends Relation {
     attribute: string,
   ): FilledCallback | void {
     const defaults = this.resolveDefaultValue(request);
+    const shouldSetDefaults =
+      request.isCreateOrAttachRequest() &&
+      Array.isArray(defaults) &&
+      defaults.length > 0;
 
-    if (
-      !request.exists(requestAttribute) ||
-      !Array.isArray(defaults) ||
-      defaults.length === 0
-    ) {
-      return;
+    if (request.exists(requestAttribute) || shouldSetDefaults) {
+      return async (request, model, transaction) => {
+        // first we clear old attachments
+        await this.clearAttachments(request, model, transaction);
+        // then fill with new attachments
+        const repository = this.pivotResource
+          .repository()
+          .setTransaction(transaction);
+        const attachments = await this.prepareAttachments(
+          request,
+          model,
+          requestAttribute,
+          transaction,
+        );
+
+        await Promise.all(
+          attachments.map((pivot) => {
+            return repository.store(
+              pivot.setAttribute(
+                this.resourceForeignKeyName(request),
+                model.getAttribute(this.resourceOwnerKeyName(request)),
+              ),
+            );
+          }),
+        );
+      };
     }
-
-    return async (request, model, transaction) => {
-      // first we clear old attachments
-      await this.clearAttachments(request, model);
-      // then fill with new attachments
-      const repository = this.pivotResource
-        .repository()
-        .setTransaction(transaction);
-      const attachments = await this.prepareAttachments(
-        request,
-        model,
-        requestAttribute,
-        transaction,
-      );
-
-      await Promise.all(
-        attachments.map((pivot) => {
-          return repository.store(
-            pivot.setAttribute(
-              this.resourceForeignKeyName(request),
-              model.getAttribute(this.resourceOwnerKeyName(request)),
-            ),
-          );
-        }),
-      );
-    };
   }
 
   /**
@@ -226,21 +224,34 @@ export default class BelongsToMany extends Relation {
   protected async clearAttachments(
     request: AvonRequest,
     resource: Model,
+    transaction: Transaction,
   ): Promise<any> {
-    const allowedDetachments = await this.allowedDetachments(request, resource);
+    const allowedDetachments = await this.allowedDetachments(
+      request,
+      resource,
+      transaction,
+    );
 
     await Promise.all(
       allowedDetachments.map((relatedResource) => {
-        return this.pivotResource.repository().delete(relatedResource.getKey());
+        return this.pivotResource
+          .repository()
+          .setTransaction(transaction)
+          .delete(relatedResource.getKey());
       }),
     );
   }
 
-  protected async allowedDetachments(request: AvonRequest, model: Model) {
+  protected async allowedDetachments(
+    request: AvonRequest,
+    model: Model,
+    transaction: Transaction,
+  ) {
     const authorizedResources = [];
     const resource = request.newResource(model);
     const relatedResources = await this.pivotResource
       .repository()
+      .setTransaction(transaction)
       .where({
         key: this.foreignKeyName(request),
         value: model.getAttribute(this.ownerKeyName(request)),
