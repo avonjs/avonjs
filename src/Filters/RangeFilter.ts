@@ -51,6 +51,8 @@ export default abstract class RangeFilter extends Filter {
         in: 'query',
         explode: true,
         style: 'deepObject',
+        description: this.helpText,
+        allowEmptyValue: this.isNullable(),
         schema: this.schema(request),
       },
       {
@@ -58,6 +60,8 @@ export default abstract class RangeFilter extends Filter {
         in: 'query',
         explode: true,
         style: 'deepObject',
+        description: this.helpText,
+        allowEmptyValue: this.isNullable(),
         schema: this.schema(request),
       },
     ];

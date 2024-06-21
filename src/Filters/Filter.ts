@@ -16,10 +16,24 @@ export default abstract class Filter
   implements ParameterSerializable, HasSchema
 {
   /**
+   * The help text for the field.
+   */
+  public helpText?: string;
+
+  /**
    * Get the query parameter key for filter.
    */
   public key(): string {
     return this.constructor.name;
+  }
+
+  /**
+   * Specify the field help text.
+   */
+  public help(helpText: string): this {
+    this.helpText = helpText;
+
+    return this;
   }
 
   /**
@@ -43,6 +57,8 @@ export default abstract class Filter
         in: 'query',
         explode: true,
         style: 'deepObject',
+        description: this.helpText,
+        allowEmptyValue: this.isNullable(),
         schema: this.schema(request),
       },
     ];
