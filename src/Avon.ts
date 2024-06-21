@@ -29,7 +29,7 @@ export default class Avon {
   /**
    * Indicates application current version.
    */
-  protected static VERSION = '2.7.4';
+  protected static VERSION = '2.8.0';
 
   /**
    * Array of available resources.
