@@ -6,6 +6,11 @@ import Filter from './Filter';
 import collect from 'collect.js';
 
 export default class ResourceId extends Filter {
+  /**
+   * The help text for the filter.
+   */
+  public helpText?: string = 'Enter the resource IDs to filter records.';
+
   constructor(...args: readonly []) {
     super(...args);
     this.nullable(true, (value) => collect(value).isEmpty());

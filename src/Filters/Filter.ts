@@ -16,9 +16,9 @@ export default abstract class Filter
   implements ParameterSerializable, HasSchema
 {
   /**
-   * The help text for the field.
+   * The help text for the filter.
    */
-  public helpText?: string;
+  public helpText?: string = 'Filter records by exact value match.';
 
   /**
    * Get the query parameter key for filter.
@@ -28,7 +28,7 @@ export default abstract class Filter
   }
 
   /**
-   * Specify the field help text.
+   * Specify the filter help text.
    */
   public help(helpText: string): this {
     this.helpText = helpText;

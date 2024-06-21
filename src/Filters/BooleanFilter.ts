@@ -5,6 +5,11 @@ import { Repository } from '../Repositories';
 
 export default abstract class BooleanFilter extends Filter {
   /**
+   * The help text for the filter.
+   */
+  public helpText?: string = 'Select value to filter records.';
+
+  /**
    * Apply the filter into the given repository.
    */
   public apply(

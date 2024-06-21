@@ -6,6 +6,11 @@ import Filter from './Filter';
 
 export default abstract class TextFilter extends Filter {
   /**
+   * The help text for the filter.
+   */
+  public helpText?: string = 'Enter text to search within records.';
+
+  /**
    * Apply the filter into the given repository.
    */
   apply(request: AvonRequest, repository: Repository, value: string): any {
