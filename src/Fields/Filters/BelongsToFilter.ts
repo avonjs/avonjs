@@ -7,6 +7,11 @@ import { Repository } from '../../Repositories';
 import collect from 'collect.js';
 
 export default class BelongsToFilter extends FilterableFields(Filter) {
+  /**
+   * The help text for the filter.
+   */
+  public helpText?: string = 'Filter records by related resource IDs.';
+
   constructor(public field: Relation) {
     super();
   }
