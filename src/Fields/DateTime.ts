@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import moment from 'moment';
+import { DateTime as Formatter } from 'luxon';
 import { Filter } from '../Filters';
 import AvonRequest from '../Http/Requests/AvonRequest';
 
@@ -34,7 +34,7 @@ export default class DateTime extends Field {
     this.default(() => {
       return this.isNullable()
         ? this.nullValue()
-        : moment().format(this.dateFormat);
+        : Formatter.now().toFormat(this.dateFormat);
     });
   }
 
@@ -42,7 +42,9 @@ export default class DateTime extends Field {
    * Mutate the field value for response.
    */
   public getMutatedValue(request: AvonRequest, value: any): string {
-    return moment(value).format(this.dateFormat);
+    return Formatter.fromFormat(value, this.dateFormat).toFormat(
+      this.dateFormat,
+    );
   }
 
   /**
