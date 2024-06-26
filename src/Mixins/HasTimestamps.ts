@@ -1,5 +1,6 @@
 import { Model, AbstractMixable } from '../Contracts';
 import Repository from '../Repositories/Repository';
+import { DateTime } from 'luxon';
 
 export default <
   TModel extends Model,
@@ -62,7 +63,7 @@ export default <
      * Get a fresh timestamp for the model.
      */
     public freshTimestamp(): unknown {
-      return new Date().toDateString();
+      return DateTime.now().toSQL({ includeOffset: false });
     }
   }
 
