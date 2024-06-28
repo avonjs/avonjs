@@ -446,16 +446,17 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     pivots: Model[],
   ): Promise<Model[]> {
-    return this.relatedResource
-      .repository()
-      .where({
-        key: this.ownerKeyName(request),
-        value: pivots.map((pivot) => {
-          return pivot.getAttribute(this.foreignKeyName(request));
-        }),
-        operator: Operator.in,
-      })
-      .all();
+    const repository = this.relatedResource.repository().where({
+      key: this.ownerKeyName(request),
+      value: pivots.map((pivot) => {
+        return pivot.getAttribute(this.foreignKeyName(request));
+      }),
+      operator: Operator.in,
+    });
+
+    this.relatableQueryCallback.apply(this, [request, repository]);
+
+    return repository.all();
   }
 
   /**
