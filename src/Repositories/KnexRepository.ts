@@ -164,7 +164,7 @@ export default abstract class KnexRepository<
   protected prepareOrdersForQuery() {
     return this.orders.map((order) => {
       return {
-        column: order.key,
+        column: this.getQualifiedColumnName(order.key),
         order: order.direction === Direction.DESC ? 'desc' : 'asc',
       };
     });
