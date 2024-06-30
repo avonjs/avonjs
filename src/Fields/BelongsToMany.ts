@@ -13,10 +13,12 @@ import {
   FilledCallback,
   OpenApiSchema,
   Transaction,
+  RelatableQueryCallback,
 } from '../Contracts';
 import Relation from './Relation';
 import { guessForeignKey } from './ResourceRelationshipGuesser';
 import FieldCollection from '../Collections/FieldCollection';
+import { Repository } from '../Repositories';
 
 export default class BelongsToMany extends Relation {
   /**
@@ -41,6 +43,14 @@ export default class BelongsToMany extends Relation {
    */
   protected pivotFields: PivotFieldCallback = (request: AvonRequest) => [];
 
+  /**
+   * The callback that should be run to pivots table.
+   */
+  public pivotQueryCallback: RelatableQueryCallback = (
+    request: AvonRequest,
+    repository: Repository<Model>,
+  ) => this.pivotResource.relatableQuery(request, repository) ?? repository;
+
   constructor(resource: string, pivot: string, attribute?: string) {
     super(resource);
 
@@ -48,6 +58,15 @@ export default class BelongsToMany extends Relation {
     this.attribute = attribute ?? resource;
 
     this.nullable(true, (value) => !Array.isArray(value) || value.length === 0);
+  }
+
+  /**
+   * Determine the pivot resource query.
+   */
+  public pivotQueryUsing(pivotQueryCallback: RelatableQueryCallback): this {
+    this.pivotQueryCallback = pivotQueryCallback;
+
+    return this;
   }
 
   /**
@@ -429,14 +448,15 @@ export default class BelongsToMany extends Relation {
       })
       .filter((value) => value);
 
-    return this.pivotResource
-      .repository()
-      .where({
-        key: this.resourceForeignKeyName(request),
-        value: resourceIds,
-        operator: Operator.in,
-      })
-      .all();
+    const repository = this.pivotResource.repository().where({
+      key: this.resourceForeignKeyName(request),
+      value: resourceIds,
+      operator: Operator.in,
+    });
+    // apply custom query callback
+    this.pivotQueryCallback.apply(this, [request, repository]);
+
+    return repository.all();
   }
 
   /**
