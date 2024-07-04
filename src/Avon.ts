@@ -21,7 +21,7 @@ import Joi, { AnySchema } from 'joi';
 import ValidationException from './Exceptions/ValidationException';
 import { Fluent } from './Models';
 import { AvonResponse } from './Http/Responses';
-import { NotFoundException } from './Exceptions';
+import { NotFoundException, ResponsableException } from './Exceptions';
 import LoginResponse from './Http/Responses/Auth/LoginResponse';
 import { sign, SignOptions } from 'jsonwebtoken';
 
@@ -304,9 +304,14 @@ export default class Avon {
         Avon.attempt(payload.getAttributes())
           .then((response) => send(res, response))
           .catch((error) => {
-            res
-              .status(500)
-              .send({ message: error?.message, name: 'InternalServerError' });
+            if (error instanceof ResponsableException) {
+              send(res, error.toResponse());
+            } else {
+              Avon.handleError(error);
+              res
+                .status(500)
+                .send({ message: error.message, name: 'InternalServerError' });
+            }
           });
       })
       .catch((error) => {
