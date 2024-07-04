@@ -3,6 +3,7 @@ import ForbiddenException from './ForbiddenException';
 import NotFoundException from './NotFoundException';
 import ResponsableException from './ResponsableException';
 import RuntimeException from './RuntimeException';
+import AuthenticationException from './AuthenticationException';
 
 export {
   Exception,
@@ -10,4 +11,5 @@ export {
   NotFoundException,
   ResponsableException,
   RuntimeException,
+  AuthenticationException,
 };
