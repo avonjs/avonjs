@@ -115,11 +115,11 @@ export default abstract class FormRequest {
       return false;
     }
 
-    const filled = this.only(Array.isArray(keys) ? keys : [keys]).filter(
+    const filled = this.only(Array.isArray(keys) ? keys : [keys])?.filter(
       (value: any) => ![null, undefined, '', [], {}].includes(value),
     );
 
-    return filled.length > 0;
+    return filled?.length > 0;
   }
 
   /**
