@@ -92,7 +92,7 @@ export default class ResourceIndexRequest extends AvonRequest {
    * Check if filter found in request.
    */
   protected hasFilter(key: string): boolean {
-    return this.query(key, undefined) !== undefined;
+    return this.exists(`filters.${key}`);
   }
 
   /**
