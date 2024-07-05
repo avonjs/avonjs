@@ -35,6 +35,16 @@ export default class Collection<TItem> extends BaseCollection<TItem> {
       return super.has(path);
     }
 
-    return this.get(path, undefined) !== undefined;
+    const keys = path.split('.');
+    let current: any = this.items;
+
+    for (let key of keys) {
+      if (current == null || !(key in current)) {
+        return false;
+      }
+      current = current[key];
+    }
+
+    return current !== undefined;
   }
 }
