@@ -216,21 +216,21 @@ export default class BelongsTo extends Relation {
    */
   protected baseSchema(request: AvonRequest): OpenApiSchema {
     return {
-      ...{
-        ...super.baseSchema(request),
-        items: undefined,
-      },
+      ...super.baseSchema(request),
       default: this.isNullable() ? null : this.resolveDefaultValue(request),
-      type: undefined,
-      oneOf: [{ type: 'number' }, { type: 'string' }],
+      type: 'number',
+      oneOf: [{ type: 'string' }, { type: 'number' }],
     };
   }
 
   protected payloadSchema(request: AvonRequest): OpenApiSchema {
     return {
-      ...super.payloadSchema(request),
+      ...this.baseSchema(request),
       default: this.isNullable() ? null : this.resolveDefaultValue(request),
-      description: `use the "associable/${this.attribute}" to retrieve data`,
+      description: [
+        this.helpText,
+        `use the "associable/${this.attribute}" to retrieve data`,
+      ].join('</br>'),
     };
   }
 
