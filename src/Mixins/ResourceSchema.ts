@@ -397,7 +397,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
               ...this.validationResponses(),
               201: {
                 description: `Get detail of stored ${this.label()}`,
-                content: this.singleResourceContent(request),
+                content: this.singleResourceContent(request, {
+                  id: { oneOf: [{ type: 'number' }, { type: 'string' }] },
+                }),
               },
             },
           },
@@ -496,7 +498,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
               ...this.validationResponses(),
               200: {
                 description: `Get detail of updated ${this.label()}`,
-                content: this.singleResourceContent(request),
+                content: this.singleResourceContent(request, {
+                  id: { oneOf: [{ type: 'number' }, { type: 'string' }] },
+                }),
               },
             },
           },
@@ -780,6 +784,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public singleResourceContent(
       request: AvonRequest,
+      schema?: Record<string, OpenApiSchema>,
     ): Record<string, OpenAPIV3.MediaTypeObject> {
       return {
         'application/json': {
@@ -805,22 +810,28 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                         description:
                           'Determines user authorized to delete the resource',
                       },
-                      authorizedToForceDelete: {
-                        type: 'boolean',
-                        default: true,
-                        description:
-                          'Determines user authorized to force-delete the resource',
-                      },
+                      ...(this.softDeletes()
+                        ? {
+                            authorizedToForceDelete: {
+                              type: 'boolean',
+                              default: true,
+                              description:
+                                'Determines user authorized to force-delete the resource',
+                            },
+                          }
+                        : {}),
                     },
                   },
                   fields: {
                     type: 'object',
-                    properties: this.formatResponseFields(
-                      request,
-                      new FieldCollection(
-                        this.fieldsForDetail(request),
-                      ).filterForDetail(request, this.resource),
-                    ),
+                    properties:
+                      schema ??
+                      this.formatResponseFields(
+                        request,
+                        new FieldCollection(
+                          this.fieldsForDetail(request),
+                        ).filterForDetail(request, this.resource),
+                      ),
                   },
                 },
               },

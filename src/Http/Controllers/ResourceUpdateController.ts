@@ -52,17 +52,8 @@ export default class ResourceUpdateController extends Controller {
 
     await newResource.updated(request, previous);
 
-    await Promise.all(
-      resource
-        .detailFields(request, resource.resource)
-        .onlyLoadedLazyFields()
-        .map((field) =>
-          field.resolveForResources(request, [resource.resource]),
-        ),
-    );
-
     return new ResourceUpdateResponse(
-      await newResource.serializeForDetail(request),
+      await newResource.serializeForUpdate(request),
     );
   }
 }

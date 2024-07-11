@@ -53,17 +53,6 @@ export default class ResourceStoreController extends Controller {
 
     await resource.created(request);
 
-    await Promise.all(
-      resource
-        .detailFields(request, resource.resource)
-        .onlyLoadedLazyFields()
-        .map((field) =>
-          field.resolveForResources(request, [resource.resource]),
-        ),
-    );
-
-    return new ResourceStoreResponse(
-      await resource.serializeForDetail(request),
-    );
+    return new ResourceStoreResponse(await resource.serializeForStore(request));
   }
 }

@@ -44,6 +44,21 @@ export type DetailSerializedResource = SerializedResource & {
   };
 };
 
+export type StoreSerializedResource = SerializedResource & {
+  authorization: {
+    authorizedToUpdate: boolean;
+    authorizedToDelete: boolean;
+    authorizedToForceDelete?: boolean;
+  };
+};
+
+export type UpdateSerializedResource = SerializedResource & {
+  authorization: {
+    authorizedToDelete: boolean;
+    authorizedToForceDelete?: boolean;
+  };
+};
+
 export type ReviewSerializedResource = SerializedResource & {
   authorization: {
     authorizedToForceDelete: boolean;

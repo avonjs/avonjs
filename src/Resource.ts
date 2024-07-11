@@ -18,6 +18,8 @@ import {
   ReviewSerializedResource,
   SoftDeletes,
   ResourceMetaData,
+  StoreSerializedResource,
+  UpdateSerializedResource,
 } from './Contracts';
 import { slugify } from './helpers';
 import RecordsResourceEvents from './Mixins/RecordsResourceEvents';
@@ -96,6 +98,43 @@ export default abstract class Resource extends ResourceSchema(
    */
   public serializeForAssociation(request: AvonRequest): Record<string, any> {
     return this.associationFields(request).fieldValues(request);
+  }
+
+  /**
+   * Prepare the resource for JSON serialization.
+   */
+  public async serializeForStore(
+    request: AvonRequest,
+  ): Promise<StoreSerializedResource> {
+    return {
+      metadata: this.resourceMetaData(),
+      authorization: {
+        authorizedToUpdate: await this.authorizedTo(request, Ability.update),
+        authorizedToDelete: await this.authorizedTo(request, Ability.delete),
+        authorizedToForceDelete: this.softDeletes()
+          ? await this.authorizedTo(request, Ability.forceDelete)
+          : undefined,
+      },
+      fields: { id: this.resource.getKey() },
+    };
+  }
+
+  /**
+   * Prepare the resource for JSON serialization.
+   */
+  public async serializeForUpdate(
+    request: AvonRequest,
+  ): Promise<UpdateSerializedResource> {
+    return {
+      metadata: this.resourceMetaData(),
+      authorization: {
+        authorizedToDelete: await this.authorizedTo(request, Ability.delete),
+        authorizedToForceDelete: this.softDeletes()
+          ? await this.authorizedTo(request, Ability.forceDelete)
+          : undefined,
+      },
+      fields: { id: this.resource.getKey() },
+    };
   }
 
   /**
