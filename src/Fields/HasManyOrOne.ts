@@ -81,7 +81,7 @@ export default abstract class HasManyOrOne extends Relation {
     resources: Model[],
   ): Promise<Model[]> {
     return await this.relatedResource
-      .repository()
+      .resolveRepository(request)
       .where({
         key: this.foreignKeyName(request),
         value: resources

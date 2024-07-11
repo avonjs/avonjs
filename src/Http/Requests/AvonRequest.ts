@@ -122,7 +122,7 @@ export default abstract class AvonRequest extends FormRequest {
    * Get the repository for resource being requested.
    */
   public repository(): Repository<Model> {
-    return this.resource().repository();
+    return this.resource().resolveRepository(this);
   }
 
   /**

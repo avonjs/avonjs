@@ -21,7 +21,7 @@ export default class HasOneOrManyFilter extends BelongsToFilter {
       this.field.applyFilter(request, queryBuilder, this.parseValue(value));
     } else if (this.field.filterableCallback) {
       const related = await this.field.relatedResource
-        .repository()
+        .resolveRepository(request)
         .whereKeys(Array.isArray(value) ? value : [value])
         .all();
 

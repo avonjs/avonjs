@@ -47,7 +47,9 @@ export default class BelongsTo extends Relation {
     if (request.exists(this.attribute)) {
       model.setAttribute(
         this.attribute,
-        this.relatedResource.repository().find(request.input(this.attribute)),
+        this.relatedResource
+          .resolveRepository(request)
+          .find(request.input(this.attribute)),
       );
     }
   }
@@ -92,7 +94,7 @@ export default class BelongsTo extends Relation {
     request: AvonRequest,
     resources: Model[],
   ): Promise<Model[]> {
-    const query = this.relatedResource.repository().where({
+    const query = this.relatedResource.resolveRepository(request).where({
       key: this.ownerKeyName(request),
       value: resources
         .map((resource) => resource.getAttribute(this.foreignKeyName(request)))
@@ -112,8 +114,9 @@ export default class BelongsTo extends Relation {
     request: AvonRequest,
     resource: Model,
   ): Record<string, any> {
-    const repository =
-      this.relatedResource.repository() as unknown as SoftDeletes<Model>;
+    const repository = this.relatedResource.resolveRepository(
+      request,
+    ) as unknown as SoftDeletes<Model>;
     const softDeleted =
       this.softDeletes() && repository.isSoftDeleted(resource);
 
@@ -198,7 +201,7 @@ export default class BelongsTo extends Relation {
     transaction?: Transaction,
   ) {
     const repository = this.relatedResource
-      .repository()
+      .resolveRepository(request)
       .setTransaction(transaction)
       .where({
         key: this.ownerKeyName(request),

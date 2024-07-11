@@ -132,11 +132,13 @@ export default class BelongsToMany extends Relation {
       }
 
       try {
-        const repository = this.relatedResource.repository().where({
-          key: this.ownerKeyName(request),
-          operator: Operator.in,
-          value,
-        });
+        const repository = this.relatedResource
+          .resolveRepository(request)
+          .where({
+            key: this.ownerKeyName(request),
+            operator: Operator.in,
+            value,
+          });
         // to ensure only valid data attached
         this.relatableQueryCallback.apply(this, [request, repository]);
 
@@ -214,7 +216,7 @@ export default class BelongsToMany extends Relation {
         await this.clearAttachments(request, model, transaction);
         // then fill with new attachments
         const repository = this.pivotResource
-          .repository()
+          .resolveRepository(request)
           .setTransaction(transaction);
         const attachments = await this.prepareAttachments(
           request,
@@ -254,7 +256,7 @@ export default class BelongsToMany extends Relation {
     await Promise.all(
       allowedDetachments.map((relatedResource) => {
         return this.pivotResource
-          .repository()
+          .resolveRepository(request)
           .setTransaction(transaction)
           .delete(relatedResource.getKey());
       }),
@@ -269,7 +271,7 @@ export default class BelongsToMany extends Relation {
     const authorizedResources = [];
     const resource = request.newResource(model);
     const relatedResources = await this.pivotResource
-      .repository()
+      .resolveRepository(request)
       .setTransaction(transaction)
       .where({
         key: this.foreignKeyName(request),
@@ -328,6 +330,7 @@ export default class BelongsToMany extends Relation {
     const authorizedResources: Attachable[] = [];
     const resource = request.newResource(model);
     const relatables = await this.getRelatedResources(
+      request,
       attachments.map(({ id }) => id),
       transaction,
     );
@@ -345,11 +348,12 @@ export default class BelongsToMany extends Relation {
   }
 
   protected async getRelatedResources(
+    request: AvonRequest,
     resourceIds: Array<string | number>,
     transaction?: Transaction,
   ) {
     return this.relatedResource
-      .repository()
+      .resolveRepository(request)
       .setTransaction(transaction)
       .whereKeys(resourceIds)
       .all();
@@ -366,7 +370,7 @@ export default class BelongsToMany extends Relation {
     const pivotFields = this.pivotFields(request);
     // fill pivot fields
     return attachments.map((related, index: number) => {
-      const model = this.pivotResource.repository().model();
+      const model = this.pivotResource.resolveRepository(request).model();
 
       model.setAttribute(this.foreignKeyName(request), related.id);
 
@@ -429,7 +433,7 @@ export default class BelongsToMany extends Relation {
         });
 
         return this.relatedResource
-          .repository()
+          .resolveRepository(request)
           .fillModel({ ...resource?.getAttributes(), pivot });
       })
       .filter((resource) => resource.getKey());
@@ -448,7 +452,7 @@ export default class BelongsToMany extends Relation {
       })
       .filter((value) => value);
 
-    const repository = this.pivotResource.repository().where({
+    const repository = this.pivotResource.resolveRepository(request).where({
       key: this.resourceForeignKeyName(request),
       value: resourceIds,
       operator: Operator.in,
@@ -466,7 +470,7 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     pivots: Model[],
   ): Promise<Model[]> {
-    const repository = this.relatedResource.repository().where({
+    const repository = this.relatedResource.resolveRepository(request).where({
       key: this.ownerKeyName(request),
       value: pivots.map((pivot) => {
         return pivot.getAttribute(this.foreignKeyName(request));

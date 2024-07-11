@@ -50,6 +50,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      * Get query builder.
      */
     public queryBuilder(request: AvonRequest): Repository<Model> {
+      return this.resolveRepository(request);
+    }
+
+    /**
+     * Resolve the resource repository.
+     */
+    public resolveRepository(request: AvonRequest): Repository<Model> {
       return this.repository();
     }
 
