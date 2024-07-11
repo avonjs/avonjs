@@ -51,8 +51,12 @@ export default abstract class FormRequest {
   /**
    * Get only given keys from request body and query.
    */
-  public only<T extends any = any>(keys: string[] = []): Record<string, T> {
-    return this.collect().only(keys).all() as unknown as Record<string, T>;
+  public only<T extends any = any>(
+    keys: string | string[] = [],
+  ): Record<string, T> {
+    return this.collect()
+      .only(Array.isArray(keys) ? keys : [keys])
+      .all() as unknown as Record<string, T>;
   }
 
   /**
@@ -115,11 +119,9 @@ export default abstract class FormRequest {
       return false;
     }
 
-    const filled = this.only(Array.isArray(keys) ? keys : [keys])?.filter(
-      (value: any) => ![null, undefined, '', [], {}].includes(value),
-    );
-
-    return filled?.length > 0;
+    return new Collection(this.only(keys))
+      .filter((value: any) => ![null, undefined, '', [], {}].includes(value))
+      .isNotEmpty();
   }
 
   /**
