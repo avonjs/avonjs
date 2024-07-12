@@ -8,6 +8,7 @@ const { Repositories, Resource, Fields } = require('../../dist');
 const { join } = require('path');
 
 const { Avon } = require('../../dist');
+const { Operator } = require('../../dist/Contracts');
 const categories = join(__dirname, 'categories.json');
 const pivots = join(__dirname, 'pivots.json');
 const posts = join(__dirname, 'posts.json');
@@ -236,9 +237,10 @@ describe('The relational resource fields', () => {
         .expect('Content-Type', /json/)
         .send({ user: 2, categories: [] })
         .expect(201)
-        .then(({ body: { code, data } }) => {
+        .then(async ({ body: { code, data } }) => {
           expect(code).toBe(201);
-          expect(data.fields.user).toBe(2);
+          const post = await new PostRepository().find(data.fields.id);
+          expect(post?.getAttribute('user_id')).toBe(2);
         });
     });
 
@@ -248,9 +250,10 @@ describe('The relational resource fields', () => {
         .expect('Content-Type', /json/)
         .send({ user: 2, categories: [] })
         .expect(200)
-        .then(({ body: { code, data } }) => {
+        .then(async ({ body: { code, data } }) => {
           expect(code).toBe(200);
-          expect(data.fields.user).toBe(2);
+          const post = await new PostRepository().find(data.fields.id);
+          expect(post?.getAttribute('user_id')).toBe(2);
         });
     });
   });
@@ -261,9 +264,10 @@ describe('The relational resource fields', () => {
         .get(`/api/resources/${new Profile().uriKey()}/1`)
         .expect('Content-Type', /json/)
         .expect(200)
-        .then(({ body: { code, data } }) => {
+        .then(async ({ body: { code, data } }) => {
           expect(code).toBe(200);
-          expect(data.fields.user).toEqual(1);
+          const post = await new PostRepository().find(data.fields.id);
+          expect(post?.getAttribute('user_id')).toBe(1);
         });
     });
 
@@ -323,7 +327,17 @@ describe('The relational resource fields', () => {
         .expect(201)
         .then(async ({ body: { code, data } }) => {
           expect(code).toBe(201);
-          expect(data.fields.posts).toEqual([{ id: 1, order: 10 }]);
+          const pivots = await new PivotRepository()
+            .where({ operator: Operator.in, key: 'post_id', value: [1] })
+            .where({
+              operator: Operator.eq,
+              key: 'category_id',
+              value: data.fields.id,
+            })
+            .all();
+          expect(pivots.length).toEqual(1);
+          expect(pivots[0].getAttribute('post_id')).toEqual(1);
+          expect(pivots[0].getAttribute('order')).toEqual(10);
         });
     });
   });

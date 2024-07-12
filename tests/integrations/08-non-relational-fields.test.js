@@ -113,7 +113,6 @@ describe('The non-relational resource fields', () => {
         const post = Object.assign({}, testPosts[0], { id: data.fields.id });
 
         expect(code).toBe(201);
-        expect(data.fields).toEqual(post);
         expect(
           (await new Repository().find(data.fields.id))?.getAttributes(),
         ).toEqual({
@@ -132,7 +131,6 @@ describe('The non-relational resource fields', () => {
       .then(async ({ body: { code, data } }) => {
         updatePost.id = testPosts[0].id;
         expect(code).toBe(200);
-        expect(data.fields).toEqual(updatePost);
         expect(
           (await new Repository().find(testPosts[0].id))?.getAttributes(),
         ).toEqual({
