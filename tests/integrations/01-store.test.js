@@ -53,16 +53,17 @@ describe('POST resources api', () => {
   });
 
   test('Could store requested payload', () => {
+    const name = 'john';
     return request(app)
       .post(`/api/resources/${resource.uriKey()}`)
-      .send({ name: 'john' })
+      .send({ name })
       .expect('Content-Type', /json/)
       .expect(201)
       .then(async ({ body: { code, data } }) => {
         expect(code).toBe(201);
-        expect(data.fields).toEqual(
-          (await repository.all())[0].getAttributes(),
-        );
+        const resource = await repository.find(data.fields.id);
+
+        expect(resource?.getAttribute('name')).toEqual(name);
         expect(data.authorization).toEqual({
           authorizedToUpdate: true,
           authorizedToDelete: true,

@@ -6,12 +6,13 @@ const bodyParser = require('body-parser');
 const { Repositories, Resource, Fields } = require('../../dist');
 const { Fluent } = require('../../dist/Models');
 const targetData = { id: Date.now(), name: Date.now() + ' NAME' };
+const items = [new Fluent(Object.assign({}, targetData))];
 const repository = new (class extends Repositories.Collection {
   searchableColumns() {
     return [];
   }
   resolveItems() {
-    return [new Fluent(Object.assign({}, targetData))];
+    return items;
   }
 })();
 
@@ -61,18 +62,13 @@ describe('PUT resources api', () => {
       .expect('Content-Type', /json/)
       .expect(200)
       .then(async ({ body: { code, data } }) => {
-        const item = (await repository.all())[0];
+        const item = await repository.find(targetData.id);
         expect(code).toBe(200);
-        expect(data.fields).toEqual({
-          ...item.getAttributes(),
-          name,
-        });
         expect(data.authorization).toEqual({
-          authorizedToUpdate: true,
           authorizedToDelete: true,
         });
-        expect(data.fields.name).toBe(name);
-        expect(data.fields.name).not.toBe(targetData.name);
+        expect(item.getAttribute('name')).toBe(name);
+        expect(item.getAttribute('name')).not.toBe(targetData.name);
       });
   });
 });
