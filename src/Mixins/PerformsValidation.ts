@@ -14,7 +14,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public async validateForCreation(request: AvonRequest): Promise<any> {
       await this.validatorForCreation(request)
-        .validateAsync(request.all(), { abortEarly: false })
+        .validateAsync(this.dataForValidation(request), {
+          abortEarly: false,
+        })
         .then((value) => this.afterCreationValidation(request, value))
         .catch((error) => {
           if (error instanceof ValidationError) {
@@ -58,7 +60,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       resource?: Resource,
     ): Promise<any> {
       await this.validatorForUpdate(request, resource)
-        .validateAsync(request.all(), { abortEarly: false })
+        .validateAsync(this.dataForValidation(request), {
+          abortEarly: false,
+        })
         .then((value) => this.afterUpdateValidation(request, value))
         .catch((error) => {
           if (error instanceof ValidationError) {
@@ -112,6 +116,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public formatRules(request: AvonRequest, rules: AnySchema[]): AnySchema[] {
       return rules;
+    }
+
+    /**
+     * Prepare given rules for validator.
+     */
+    public dataForValidation(request: AvonRequest) {
+      return request.all();
     }
 
     /**

@@ -135,7 +135,10 @@ export default abstract class Action
    */
   public async validate(request: AvonRequest): Promise<any> {
     await this.validator(request)
-      .validateAsync(request.all(), { abortEarly: false, allowUnknown: true })
+      .validateAsync(this.dataForValidation(request), {
+        abortEarly: false,
+        allowUnknown: true,
+      })
       .then((value) => {
         this.afterValidation(request, value);
       })
@@ -180,6 +183,13 @@ export default abstract class Action
    */
   protected formatRules(request: AvonRequest, rules: AnySchema[]): AnySchema[] {
     return rules;
+  }
+
+  /**
+   * Prepare given rules for validator.
+   */
+  public dataForValidation(request: AvonRequest) {
+    return request.all();
   }
 
   /**
