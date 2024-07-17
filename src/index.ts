@@ -12,6 +12,7 @@ import * as Models from './Models';
 import * as Exceptions from './Exceptions';
 import * as Repositories from './Repositories';
 import * as Responses from './Http/Responses';
+import * as Requests from './Http/Requests';
 import * as Contracts from './Contracts';
 import * as Helpers from './helpers';
 import * as Resources from './Resources';
@@ -35,6 +36,7 @@ export {
   Models,
   Exceptions,
   Responses,
+  Requests,
   Contracts,
   Constants,
   Repositories,
