@@ -290,4 +290,11 @@ export default abstract class Action
       },
     };
   }
+
+  /**
+   * Get the swagger-ui possible request body contents.
+   */
+  public accepts(): string[] {
+    return ['application/json', 'multipart/form-data'];
+  }
 }

@@ -12,6 +12,7 @@ import {
   AbstractMixable,
   Model,
   OpenApiSchema,
+  RequestBodyContent,
   TrashedStatus,
 } from '../Contracts';
 import {
@@ -371,6 +372,14 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
         const fields = new FieldCollection(this.fieldsForCreate(request))
           .withoutUnfillableFields()
           .onlyCreationFields(request);
+        const schema = {
+          type: 'object',
+          required: fields
+            .filter((field) => field.isRequiredForCreation(request))
+            .map((field) => field.attribute)
+            .all(),
+          properties: this.formatPayloadFields(request, fields),
+        };
 
         return {
           post: {
@@ -378,18 +387,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
             description: `Create new record for the given payload`,
             operationId: `store`,
             requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    required: fields
-                      .filter((field) => field.isRequiredForCreation(request))
-                      .map((field) => field.attribute)
-                      .all(),
-                    properties: this.formatPayloadFields(request, fields),
-                  },
-                },
-              },
+              content: collect(this.accepts())
+                .mapWithKeys((content: string) => [content, { schema }])
+                .all() as unknown as RequestBodyContent,
             },
             responses: {
               ...this.authorizationResponses(),
@@ -471,6 +471,14 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
         const fields = new FieldCollection(
           this.fieldsForUpdate(request),
         ).onlyCreationFields(request);
+        const schema = {
+          type: 'object',
+          required: fields
+            .filter((field) => field.isRequiredForUpdate(request))
+            .map((field) => field.attribute)
+            .all(),
+          properties: this.formatPayloadFields(request, fields),
+        };
 
         return {
           put: {
@@ -479,18 +487,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
             operationId: `update`,
             parameters: [...this.singleResourcePathParameters(request)],
             requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    required: fields
-                      .filter((field) => field.isRequiredForUpdate(request))
-                      .map((field) => field.attribute)
-                      .all(),
-                    properties: this.formatPayloadFields(request, fields),
-                  },
-                },
-              },
+              content: collect(this.accepts())
+                .mapWithKeys((content: string) => [content, { schema }])
+                .all() as unknown as RequestBodyContent,
             },
             responses: {
               ...this.authorizationResponses(),
@@ -587,6 +586,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       return actions
         .mapWithKeys((action: Action): [string, OpenAPIV3.PathItemObject] => {
           const fields = new FieldCollection(action.fields(request));
+          const schema = {
+            type: 'object',
+            required: fields.map((field) => field.attribute).all(),
+            properties: this.formatPayloadFields(request, fields),
+          };
 
           return [
             `${paths.index}/actions/${action.uriKey()}`,
@@ -619,20 +623,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                 requestBody: fields.isEmpty()
                   ? undefined
                   : {
-                      content: {
-                        'application/json': {
-                          schema: {
-                            type: 'object',
-                            required: fields
-                              .map((field) => field.attribute)
-                              .all(),
-                            properties: this.formatPayloadFields(
-                              request,
-                              fields,
-                            ),
-                          },
-                        },
-                      },
+                      content: collect(action.accepts())
+                        .mapWithKeys((content: string) => [content, { schema }])
+                        .all() as unknown as RequestBodyContent,
                     },
                 responses: {
                   ...this.authorizationResponses(),
@@ -981,6 +974,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public validationResponses(): OpenAPIV3.ResponsesObject {
       return validationResponses();
+    }
+
+    /**
+     * Get the swagger-ui possible request body contents.
+     */
+    public accepts(): string[] {
+      return ['application/json', 'multipart/form-data'];
     }
 
     abstract uriKey(): string;

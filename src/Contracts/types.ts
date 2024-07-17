@@ -92,3 +92,5 @@ export type JwVerifyOptions = Params & { secret: string };
 export type CollectionRecord = Record<string, any>;
 
 export type EnumValues = unknown[];
+
+export type RequestBodyContent = Record<string, OpenAPIV3.MediaTypeObject>;
