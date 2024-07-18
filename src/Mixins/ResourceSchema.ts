@@ -14,6 +14,7 @@ import {
   OpenApiSchema,
   RequestBodyContent,
   TrashedStatus,
+  UnknownRecord,
 } from '../Contracts';
 import {
   authorizationResponses,
@@ -117,99 +118,69 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
               ...this.errorsResponses(),
               200: {
                 description: `Get list of available ${this.label()}`,
-                content: {
-                  'application/json': {
-                    schema: {
-                      type: 'object',
-                      properties: {
-                        data: {
-                          type: 'array',
-                          items: {
-                            type: 'object',
-                            properties: {
-                              metadata: this.resourceMetaDataSchema(),
-                              authorization: {
-                                type: 'object',
-                                properties: {
-                                  authorizedToView: {
-                                    type: 'boolean',
-                                    default: true,
-                                    description:
-                                      'Determines user authorized to view the resource detail',
-                                  },
-                                  authorizedToUpdate: {
-                                    type: 'boolean',
-                                    default: true,
-                                    description:
-                                      'Determines user authorized to update the resource',
-                                  },
-                                  authorizedToDelete: {
-                                    type: 'boolean',
-                                    default: true,
-                                    description:
-                                      'Determines user authorized to delete the resource',
-                                  },
-                                  ...(this.softDeletes()
-                                    ? {
-                                        authorizedToForceDelete: {
-                                          type: 'boolean',
-                                          default: true,
-                                          description:
-                                            'Determines user authorized to force-delete the resource',
-                                        },
-                                        authorizedToRestore: {
-                                          type: 'boolean',
-                                          default: true,
-                                          description:
-                                            'Determines user authorized to restore the resource',
-                                        },
-                                        authorizedToReview: {
-                                          type: 'boolean',
-                                          default: true,
-                                          description:
-                                            'Determines user authorized to review soft deleted the resource',
-                                        },
-                                      }
-                                    : {}),
+                content: this.paginatedResponseSchema({
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      metadata: this.resourceMetaDataSchema(),
+                      authorization: {
+                        type: 'object',
+                        properties: {
+                          authorizedToView: {
+                            type: 'boolean',
+                            default: true,
+                            description:
+                              'Determines user authorized to view the resource detail',
+                          },
+                          authorizedToUpdate: {
+                            type: 'boolean',
+                            default: true,
+                            description:
+                              'Determines user authorized to update the resource',
+                          },
+                          authorizedToDelete: {
+                            type: 'boolean',
+                            default: true,
+                            description:
+                              'Determines user authorized to delete the resource',
+                          },
+                          ...(this.softDeletes()
+                            ? {
+                                authorizedToForceDelete: {
+                                  type: 'boolean',
+                                  default: true,
+                                  description:
+                                    'Determines user authorized to force-delete the resource',
                                 },
-                              },
-                              fields: {
-                                type: 'object',
-                                properties: this.formatResponseFields(
-                                  request,
-                                  new FieldCollection(
-                                    this.fieldsForIndex(request),
-                                  ).filterForIndex(request, this.resource),
-                                ),
-                              },
-                            },
-                          },
+                                authorizedToRestore: {
+                                  type: 'boolean',
+                                  default: true,
+                                  description:
+                                    'Determines user authorized to restore the resource',
+                                },
+                                authorizedToReview: {
+                                  type: 'boolean',
+                                  default: true,
+                                  description:
+                                    'Determines user authorized to review soft deleted the resource',
+                                },
+                              }
+                            : {}),
                         },
-                        meta: {
-                          type: 'object',
-                          properties: {
-                            count: {
-                              type: 'integer',
-                            },
-                            page: {
-                              type: 'integer',
-                            },
-                            perPage: {
-                              type: 'integer',
-                            },
-                            perPageOptions: {
-                              type: 'array',
-                              uniqueItems: true,
-                              items: {
-                                type: 'integer',
-                              },
-                            },
-                          },
-                        },
+                      },
+                      fields: {
+                        type: 'object',
+                        properties: this.formatResponseFields(
+                          request,
+                          new FieldCollection(
+                            this.fieldsForIndex(request),
+                          ).filterForIndex(request, this.resource),
+                        ),
                       },
                     },
                   },
-                },
+                }),
               },
             },
           },
@@ -708,51 +679,21 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                     description: `Get list of related ${
                       relatable.label() as string
                     }`,
-                    content: {
-                      'application/json': {
-                        schema: {
-                          type: 'object',
-                          properties: {
-                            data: {
-                              type: 'array',
-                              items: {
-                                type: 'object',
-                                properties: relatable.formatResponseFields(
-                                  request,
-                                  new FieldCollection(
-                                    relatable.fieldsForAssociation(request),
-                                  )
-                                    .filterForAssociation(request)
-                                    .withoutUnresolvableFields()
-                                    .withoutRelatableFields(),
-                                ),
-                              },
-                            },
-                            meta: {
-                              type: 'object',
-                              properties: {
-                                count: {
-                                  type: 'integer',
-                                },
-                                page: {
-                                  type: 'integer',
-                                },
-                                perPage: {
-                                  type: 'integer',
-                                },
-                                perPageOptions: {
-                                  type: 'array',
-                                  uniqueItems: true,
-                                  items: {
-                                    type: 'integer',
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
+                    content: this.paginatedResponseSchema({
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: relatable.formatResponseFields(
+                          request,
+                          new FieldCollection(
+                            relatable.fieldsForAssociation(request),
+                          )
+                            .filterForAssociation(request)
+                            .withoutUnresolvableFields()
+                            .withoutRelatableFields(),
+                        ),
                       },
-                    },
+                    }),
                   },
                 },
               },
@@ -772,58 +713,90 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       request: AvonRequest,
       schema?: Record<string, OpenApiSchema>,
     ): Record<string, OpenAPIV3.MediaTypeObject> {
+      return this.jsonResponseSchema({
+        type: 'object',
+        properties: {
+          metadata: this.resourceMetaDataSchema(),
+          authorization: {
+            type: 'object',
+            properties: {
+              authorizedToUpdate: {
+                type: 'boolean',
+                default: true,
+                description:
+                  'Determines user authorized to update the resource',
+              },
+              authorizedToDelete: {
+                type: 'boolean',
+                default: true,
+                description:
+                  'Determines user authorized to delete the resource',
+              },
+              ...(this.softDeletes()
+                ? {
+                    authorizedToForceDelete: {
+                      type: 'boolean',
+                      default: true,
+                      description:
+                        'Determines user authorized to force-delete the resource',
+                    },
+                  }
+                : {}),
+            },
+          },
+          fields: {
+            type: 'object',
+            properties:
+              schema ??
+              this.formatResponseFields(
+                request,
+                new FieldCollection(
+                  this.fieldsForDetail(request),
+                ).filterForDetail(request, this.resource),
+              ),
+          },
+        },
+      });
+    }
+
+    public paginatedResponseSchema(
+      data: UnknownRecord,
+    ): Record<string, OpenAPIV3.MediaTypeObject> {
+      return this.jsonResponseSchema(data, {
+        type: 'object',
+        properties: {
+          count: {
+            type: 'integer',
+          },
+          page: {
+            type: 'integer',
+          },
+          perPage: {
+            type: 'integer',
+          },
+          perPageOptions: {
+            type: 'array',
+            uniqueItems: true,
+            items: {
+              type: 'integer',
+            },
+          },
+        },
+      });
+    }
+
+    public jsonResponseSchema(
+      data: UnknownRecord,
+      meta?: UnknownRecord,
+    ): Record<string, OpenAPIV3.MediaTypeObject> {
       return {
         'application/json': {
           schema: {
             type: 'object',
             properties: {
-              data: {
-                type: 'object',
-                properties: {
-                  metadata: this.resourceMetaDataSchema(),
-                  authorization: {
-                    type: 'object',
-                    properties: {
-                      authorizedToUpdate: {
-                        type: 'boolean',
-                        default: true,
-                        description:
-                          'Determines user authorized to update the resource',
-                      },
-                      authorizedToDelete: {
-                        type: 'boolean',
-                        default: true,
-                        description:
-                          'Determines user authorized to delete the resource',
-                      },
-                      ...(this.softDeletes()
-                        ? {
-                            authorizedToForceDelete: {
-                              type: 'boolean',
-                              default: true,
-                              description:
-                                'Determines user authorized to force-delete the resource',
-                            },
-                          }
-                        : {}),
-                    },
-                  },
-                  fields: {
-                    type: 'object',
-                    properties:
-                      schema ??
-                      this.formatResponseFields(
-                        request,
-                        new FieldCollection(
-                          this.fieldsForDetail(request),
-                        ).filterForDetail(request, this.resource),
-                      ),
-                  },
-                },
-              },
-              meta: {
-                type: 'object',
-              },
+              code: { type: 'number', default: 200 },
+              data,
+              meta: { type: 'object', ...meta },
             },
           },
         },
@@ -836,50 +809,38 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public reviewResourceContent(
       request: AvonRequest,
     ): Record<string, OpenAPIV3.MediaTypeObject> {
-      return {
-        'application/json': {
-          schema: {
+      return this.jsonResponseSchema({
+        type: 'object',
+        properties: {
+          metadata: this.resourceMetaDataSchema(),
+          authorization: {
             type: 'object',
             properties: {
-              data: {
-                type: 'object',
-                properties: {
-                  metadata: this.resourceMetaDataSchema(),
-                  authorization: {
-                    type: 'object',
-                    properties: {
-                      authorizedToForceDelete: {
-                        type: 'boolean',
-                        default: true,
-                        description:
-                          'Determines user authorized to force-delete the resource',
-                      },
-                      authorizedToRestore: {
-                        type: 'boolean',
-                        default: true,
-                        description:
-                          'Determines user authorized to restore the resource',
-                      },
-                    },
-                  },
-                  fields: {
-                    type: 'object',
-                    properties: this.formatResponseFields(
-                      request,
-                      new FieldCollection(
-                        this.fieldsForReview(request),
-                      ).filterForReview(request, this.resource),
-                    ),
-                  },
-                },
+              authorizedToForceDelete: {
+                type: 'boolean',
+                default: true,
+                description:
+                  'Determines user authorized to force-delete the resource',
               },
-              meta: {
-                type: 'object',
+              authorizedToRestore: {
+                type: 'boolean',
+                default: true,
+                description:
+                  'Determines user authorized to restore the resource',
               },
             },
           },
+          fields: {
+            type: 'object',
+            properties: this.formatResponseFields(
+              request,
+              new FieldCollection(
+                this.fieldsForReview(request),
+              ).filterForReview(request, this.resource),
+            ),
+          },
         },
-      };
+      });
     }
 
     /**
