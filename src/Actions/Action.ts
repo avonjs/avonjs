@@ -15,10 +15,13 @@ import {
   OpenApiSchema,
   SeeCallback,
   Rules,
+  UnknownRecord,
 } from '../Contracts';
 import { AvonResponse, SuccessfulResponse } from '../Http/Responses';
 import Avon from '../Avon';
 import collect from 'collect.js';
+import { OpenAPIV3 } from 'openapi-types';
+import ActionResponse from '../Http/Responses/ActionResponse';
 
 export default abstract class Action
   extends AuthorizedToSee(class {})
@@ -33,6 +36,16 @@ export default abstract class Action
    * Indicates if the action can be run without any models.
    */
   public standaloneAction: boolean = false;
+
+  /**
+   * Indicates the response status code.
+   */
+  protected responseCode: number = 200;
+
+  /**
+   * Indicates the response content type.
+   */
+  protected responseType: string = 'application/json';
 
   /**
    * Execute the action for the given request.
@@ -282,8 +295,42 @@ export default abstract class Action
   /**
    * Get successful response.
    */
-  public respondSuccess(): AvonResponse {
-    return new SuccessfulResponse();
+  public respondSuccess(data?: UnknownRecord): AvonResponse {
+    return new ActionResponse(
+      data ?? { message: 'Your action successfully ran.' },
+      { message: 'Your action successfully ran.' },
+    );
+  }
+
+  /**
+   * Get the swagger-ui response schema.
+   */
+  public responseSchema(request: AvonRequest): OpenAPIV3.ResponsesObject {
+    return {
+      [this.responseCode]: {
+        description: `Action ${this.name()} ran successfully`,
+        content: {
+          [this.responseType]: {
+            schema: {
+              type: 'object',
+              properties: {
+                code: { type: 'number', default: this.responseCode },
+                data: this.schema(request),
+                meta: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      default: 'Your action ran successfully.',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
   }
 
   /**

@@ -630,14 +630,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                 responses: {
                   ...this.authorizationResponses(),
                   ...this.errorsResponses(),
-                  200: {
-                    description: `Action ${action.name()} ran successfully`,
-                    content: {
-                      'application/json': {
-                        schema: action.schema(request),
-                      },
-                    },
-                  },
+                  ...action.responseSchema(request),
                 },
               },
             },
