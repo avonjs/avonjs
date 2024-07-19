@@ -112,9 +112,9 @@ export const errorsResponses = (): OpenAPIV3.ResponsesObject => {
  */
 export const validationResponses = (): OpenAPIV3.ResponsesObject => {
   return {
-    // 400: {
-    //   $ref: '#/components/responses/BadRequest',
-    // },
+    400: {
+      $ref: '#/components/responses/BadRequest',
+    },
     422: {
       $ref: '#/components/responses/UnprocessableContent',
     },

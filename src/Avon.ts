@@ -499,6 +499,30 @@ export default class Avon {
               'application/json': {},
             },
           },
+          BadRequest: {
+            description: 'Bad request error.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    code: { type: 'number', default: 400 },
+                    message: {
+                      type: 'string',
+                      default: 'Request payload are invalid.',
+                    },
+                    name: { type: 'string', default: 'BadRequest' },
+                    meta: {
+                      type: 'object',
+                      properties: {
+                        stack: { type: 'object' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     };

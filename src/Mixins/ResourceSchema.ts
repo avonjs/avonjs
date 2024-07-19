@@ -601,6 +601,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                 responses: {
                   ...this.authorizationResponses(),
                   ...this.errorsResponses(),
+                  ...this.validationResponses(),
                   ...action.responseSchema(request),
                 },
               },
