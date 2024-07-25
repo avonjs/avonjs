@@ -86,7 +86,20 @@ describe('Associable resources api', () => {
       .expect(200)
       .then(({ body: { code, data, meta } }) => {
         expect(code).toBe(200);
-        expect(data).toEqual([{ id: 1 }]);
+        expect(data).toEqual([
+          {
+            metadata: { softDeletes: true, softDeleted: false },
+            authorization: {
+              authorizedToView: true,
+              authorizedToUpdate: true,
+              authorizedToDelete: true,
+              authorizedToForceDelete: true,
+              authorizedToRestore: true,
+              authorizedToReview: true,
+            },
+            fields: { id: 1 },
+          },
+        ]);
         expect(meta).toStrictEqual({
           count: 1,
           currentPage: 1,
@@ -103,7 +116,32 @@ describe('Associable resources api', () => {
       .expect(200)
       .then(({ body: { code, data, meta } }) => {
         expect(code).toBe(200);
-        expect(data).toEqual([{ id: 1 }, { id: 2 }]);
+        expect(data).toEqual([
+          {
+            metadata: { softDeletes: true, softDeleted: false },
+            authorization: {
+              authorizedToView: true,
+              authorizedToUpdate: true,
+              authorizedToDelete: true,
+              authorizedToForceDelete: true,
+              authorizedToRestore: true,
+              authorizedToReview: true,
+            },
+            fields: { id: 1 },
+          },
+          {
+            metadata: { softDeletes: true, softDeleted: true },
+            authorization: {
+              authorizedToView: true,
+              authorizedToUpdate: true,
+              authorizedToDelete: true,
+              authorizedToForceDelete: true,
+              authorizedToRestore: true,
+              authorizedToReview: true,
+            },
+            fields: { id: 2 },
+          },
+        ]);
         expect(meta).toStrictEqual({
           count: 2,
           currentPage: 1,

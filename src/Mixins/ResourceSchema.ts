@@ -118,74 +118,82 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
               ...this.errorsResponses(),
               200: {
                 description: `Get list of available ${this.label()}`,
-                content: this.paginatedResponseSchema({
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      metadata: this.resourceMetaDataSchema(),
-                      authorization: {
-                        type: 'object',
-                        properties: {
-                          authorizedToView: {
-                            type: 'boolean',
-                            default: true,
-                            description:
-                              'Determines user authorized to view the resource detail',
-                          },
-                          authorizedToUpdate: {
-                            type: 'boolean',
-                            default: true,
-                            description:
-                              'Determines user authorized to update the resource',
-                          },
-                          authorizedToDelete: {
-                            type: 'boolean',
-                            default: true,
-                            description:
-                              'Determines user authorized to delete the resource',
-                          },
-                          ...(this.softDeletes()
-                            ? {
-                                authorizedToForceDelete: {
-                                  type: 'boolean',
-                                  default: true,
-                                  description:
-                                    'Determines user authorized to force-delete the resource',
-                                },
-                                authorizedToRestore: {
-                                  type: 'boolean',
-                                  default: true,
-                                  description:
-                                    'Determines user authorized to restore the resource',
-                                },
-                                authorizedToReview: {
-                                  type: 'boolean',
-                                  default: true,
-                                  description:
-                                    'Determines user authorized to review soft deleted the resource',
-                                },
-                              }
-                            : {}),
-                        },
-                      },
-                      fields: {
-                        type: 'object',
-                        properties: this.formatResponseFields(
-                          request,
-                          new FieldCollection(
-                            this.fieldsForIndex(request),
-                          ).filterForIndex(request, this.resource),
-                        ),
-                      },
-                    },
-                  },
-                }),
+                content: this.paginatedResponseSchema(
+                  this.resourceContentSchema(
+                    this.formatResponseFields(
+                      request,
+                      new FieldCollection(
+                        this.fieldsForIndex(request),
+                      ).filterForIndex(request, this.resource),
+                    ),
+                  ),
+                ),
               },
             },
           },
         };
       }
+    }
+
+    resourceContentSchema(fields: Record<string, OpenApiSchema>) {
+      return {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            metadata: this.resourceMetaDataSchema(),
+            authorization: {
+              type: 'object',
+              properties: {
+                authorizedToView: {
+                  type: 'boolean',
+                  default: true,
+                  description:
+                    'Determines user authorized to view the resource detail',
+                },
+                authorizedToUpdate: {
+                  type: 'boolean',
+                  default: true,
+                  description:
+                    'Determines user authorized to update the resource',
+                },
+                authorizedToDelete: {
+                  type: 'boolean',
+                  default: true,
+                  description:
+                    'Determines user authorized to delete the resource',
+                },
+                ...(this.softDeletes()
+                  ? {
+                      authorizedToForceDelete: {
+                        type: 'boolean',
+                        default: true,
+                        description:
+                          'Determines user authorized to force-delete the resource',
+                      },
+                      authorizedToRestore: {
+                        type: 'boolean',
+                        default: true,
+                        description:
+                          'Determines user authorized to restore the resource',
+                      },
+                      authorizedToReview: {
+                        type: 'boolean',
+                        default: true,
+                        description:
+                          'Determines user authorized to review soft deleted the resource',
+                      },
+                    }
+                  : {}),
+              },
+            },
+            fields: {
+              type: 'object',
+              properties: fields,
+            },
+          },
+        },
+      };
     }
 
     /**
@@ -680,11 +688,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                     description: `Get list of related ${
                       relatable.label() as string
                     }`,
-                    content: this.paginatedResponseSchema({
-                      type: 'array',
-                      items: {
-                        type: 'object',
-                        properties: relatable.formatResponseFields(
+                    content: this.paginatedResponseSchema(
+                      this.resourceContentSchema(
+                        relatable.formatResponseFields(
                           request,
                           new FieldCollection(
                             relatable.fieldsForAssociation(request),
@@ -693,8 +699,8 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
                             .withoutUnresolvableFields()
                             .withoutRelatableFields(),
                         ),
-                      },
-                    }),
+                      ),
+                    ),
                   },
                 },
               },

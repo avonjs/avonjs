@@ -38,9 +38,11 @@ export default class AssociableController extends Controller {
     );
 
     return new ResourceAssociationResponse(
-      resources.map((resource: Resource) => {
-        return resource.serializeForAssociation(request);
-      }),
+      await Promise.all(
+        resources.map((resource: Resource) => {
+          return resource.serializeForAssociation(request);
+        }),
+      ),
       {
         count,
         currentPage: request.currentPage(),

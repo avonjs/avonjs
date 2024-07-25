@@ -20,6 +20,7 @@ import {
   ResourceMetaData,
   StoreSerializedResource,
   UpdateSerializedResource,
+  UnknownRecord,
 } from './Contracts';
 import { slugify } from './helpers';
 import RecordsResourceEvents from './Mixins/RecordsResourceEvents';
@@ -71,6 +72,30 @@ export default abstract class Resource extends ResourceSchema(
   public async serializeForIndex(
     request: AvonRequest,
   ): Promise<IndexSerializedResource> {
+    return this.serializeIndex(
+      request,
+      this.indexFields(request, this.resource)
+        .withoutUnresolvableFields()
+        .fieldValues(request),
+    );
+  }
+
+  /**
+   * Prepare the resource for JSON serialization.
+   */
+  public async serializeForAssociation(
+    request: AvonRequest,
+  ): Promise<IndexSerializedResource> {
+    return this.serializeIndex(
+      request,
+      this.associationFields(request).fieldValues(request),
+    );
+  }
+
+  /**
+   * Prepare the resource for JSON serialization.
+   */
+  protected async serializeIndex(request: AvonRequest, fields: UnknownRecord) {
     return {
       metadata: this.resourceMetaData(),
       authorization: {
@@ -87,17 +112,8 @@ export default abstract class Resource extends ResourceSchema(
           ? await this.authorizedTo(request, Ability.restore)
           : undefined,
       },
-      fields: this.indexFields(request, this.resource)
-        .withoutUnresolvableFields()
-        .fieldValues(request),
+      fields,
     };
-  }
-
-  /**
-   * Prepare the resource for JSON serialization.
-   */
-  public serializeForAssociation(request: AvonRequest): Record<string, any> {
-    return this.associationFields(request).fieldValues(request);
   }
 
   /**
