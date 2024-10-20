@@ -1,28 +1,28 @@
-import { randomUUID } from 'crypto';
-import {
+import { randomUUID } from 'node:crypto';
+import type { Action } from '../Actions';
+import type {
   AbstractMixable,
+  ActionEventRepository,
+  BulkActionResult,
   Model,
   Payload,
   Searchable,
-  BulkActionResult,
-  ActionEventRepository,
   Transaction,
 } from '../Contracts';
-import { ActionEvent, Repository } from '../Repositories';
-import { Action } from '../Actions';
 import { Fluent } from '../Models';
+import { ActionEvent, type Repository } from '../Repositories';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class RecordsResourceEvents extends Parent {
     /**
      * Indicates related resource model.
      */
-    public abstract resource?: Model;
+    public abstract resource: Model;
 
     /**
      * Indicates activating record events for the resource.
      */
-    recordEvents: boolean = true;
+    recordEvents = true;
 
     /**
      * Create an action event for the resource creation.
@@ -31,12 +31,12 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       payload: Payload = {},
       transaction?: Transaction,
       userId?: string | number,
-    ): Promise<void> {
+    ) {
       if (this.isRecordable()) {
         await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceStore({
             resourceName: this.resourceName(),
-            resource: this.resource!,
+            resource: this.resource,
             userId,
             payload,
           }),
@@ -52,12 +52,12 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       payload: Payload = {},
       transaction?: Transaction,
       userId?: string | number,
-    ): Promise<void> {
+    ) {
       if (this.isRecordable()) {
         await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceUpdate({
             resourceName: this.resourceName(),
-            resource: this.resource!,
+            resource: this.resource,
             previous,
             userId,
             payload,
@@ -72,12 +72,12 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     async recordDeletionEvent(
       transaction?: Transaction,
       userId?: string | number,
-    ): Promise<void> {
+    ) {
       if (this.isRecordable()) {
         await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceDelete({
             resourceName: this.resourceName(),
-            resource: this.resource!,
+            resource: this.resource,
             userId,
           }),
         );
@@ -90,12 +90,12 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     async recordRestoreEvent(
       transaction?: Transaction,
       userId?: string | number,
-    ): Promise<void> {
+    ) {
       if (this.isRecordable()) {
         await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceRestore({
             resourceName: this.resourceName(),
-            resource: this.resource!,
+            resource: this.resource,
             userId,
           }),
         );
@@ -109,12 +109,12 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       action: Action,
       payload: Payload = {},
       userId?: string | number,
-    ): Promise<void> {
+    ) {
       await this.makeActionRepository().store(
         this.actionRepository().forActionRan({
           resourceName: this.resourceName(),
-          resource: new Fluent(),
-          previous: new Fluent(),
+          resource: Fluent.create(),
+          previous: Fluent.create(),
           batchId: randomUUID(),
           payload,
           action,
@@ -131,7 +131,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       changes: BulkActionResult = [],
       payload: Payload = {},
       userId?: string | number,
-    ): Promise<void> {
+    ) {
       const batchId = randomUUID();
 
       await this.makeActionRepository().insert(
@@ -152,11 +152,11 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Forget action event rows.
      */
-    async flushActionEvents(transaction?: Transaction): Promise<void> {
+    async flushActionEvents(transaction?: Transaction) {
       if (this.isRecordable()) {
         await this.makeActionRepository(transaction).flush(
           this.resourceName(),
-          this.resource!.getKey(),
+          this.resource.getKey(),
         );
       }
     }

@@ -1,6 +1,6 @@
 import Avon from '../../Avon';
-import SchemaRequest from '../Requests/SchemaRequest';
-import { AvonResponse } from '../Responses';
+import type SchemaRequest from '../Requests/SchemaRequest';
+import type { AvonResponse } from '../Responses';
 import SchemaResponse from '../Responses/SchemaResponse';
 import Controller from './Controller';
 

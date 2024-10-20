@@ -1,16 +1,17 @@
+import { isRegExp } from 'node:util/types';
 import collect, { Collection } from 'collect.js';
-import { Fluent } from '../Models';
 import {
-  SearchCollection,
-  Where,
-  Order,
+  type AnyArray,
+  type CollectionRecord,
   Direction,
   Operator,
-  Searchable,
-  CollectionRecord,
+  type Order,
+  type SearchCollection,
+  type Searchable,
+  type Where,
 } from '../Contracts';
+import { Fluent } from '../Models';
 import Repository from './Repository';
-import { isRegExp } from 'util/types';
 
 export default abstract class CollectionRepository extends Repository<Fluent> {
   /**
@@ -23,9 +24,9 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
   /**
    * Prepare given items for collection.
    */
-  protected prepareItems(items: any[]): Fluent[] {
+  protected prepareItems(items: AnyArray): Fluent[] {
     return items.map((item) => {
-      return item instanceof Fluent ? item : new Fluent(item);
+      return item instanceof Fluent ? item : Fluent.create(item);
     });
   }
 
@@ -34,8 +35,8 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    */
   async search(
     search: string,
-    page: number = 1,
-    perPage: number = 15,
+    page = 1,
+    perPage = 15,
   ): Promise<SearchCollection<Fluent>> {
     const searched = this.searchCollection(search);
 
@@ -55,7 +56,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
   /**
    * Search collection for given query string.
    */
-  protected searchCollection(search: string = ''): Collection<Fluent> {
+  protected searchCollection(search = ''): Collection<Fluent> {
     const collection = this.getCollection();
 
     return search.length > 0
@@ -95,14 +96,14 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    * Apply the where constraint on the collection item.
    */
   protected checkAgainstWhere(item: Fluent, where: Where): boolean {
-    const value = item.getAttribute(where.key)!;
+    const value = item.getAttribute<never>(where.key);
 
     switch (where.operator) {
       case Operator.in:
       case Operator.eq:
-        const values = Array.isArray(where.value) ? where.value : [where.value];
-
-        return collect(values).contains((where: any) => {
+        return collect(
+          Array.isArray(where.value) ? where.value : [where.value],
+        ).contains((where: unknown) => {
           // compare numbers
           if (Number(where) === value) {
             return true;
@@ -211,7 +212,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    * Create new instance of model.
    */
   model(): Fluent {
-    return new Fluent();
+    return Fluent.create();
   }
 
   /**

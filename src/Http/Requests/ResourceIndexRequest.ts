@@ -1,13 +1,13 @@
-import { Filter } from '../../Filters';
-import { Ordering } from '../../Orderings';
 import {
+  type IndexSerializedResource,
+  type MatchesQueryParameters,
+  type Model,
   RequestTypes,
-  IndexSerializedResource,
-  SearchCollection,
-  Model,
-  MatchesQueryParameters,
+  type SearchCollection,
   TrashedStatus,
 } from '../../Contracts';
+import type { Filter } from '../../Filters';
+import type { Ordering } from '../../Orderings';
 import AvonRequest from './AvonRequest';
 import QueryParser from './QueryParser';
 

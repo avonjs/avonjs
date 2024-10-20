@@ -1,12 +1,13 @@
-import ModelNotFoundException from '../Exceptions/ModelNotFoundException';
 import {
-  Model,
-  AbstractMixable,
-  Where,
+  type AbstractMixable,
+  type Args,
+  type Model,
   Operator,
-  SoftDeletes as SoftDeletesContract,
+  type SoftDeletes as SoftDeletesContract,
+  type Where,
 } from '../Contracts';
-import Repository from '../Repositories/Repository';
+import ModelNotFoundException from '../Exceptions/ModelNotFoundException';
+import type Repository from '../Repositories/Repository';
 
 export default <
   TModel extends Model,
@@ -15,7 +16,7 @@ export default <
   Parent: TBase,
 ) => {
   abstract class SoftDeletes extends Parent {
-    constructor(...params: any[]) {
+    constructor(...params: Args) {
       super(params);
       this.applySoftDelete();
     }
@@ -163,7 +164,7 @@ export default <
     /**
      * Determine whether a given resource is "soft-deleted".
      */
-    isSoftDeleted(resource: Model): Boolean {
+    isSoftDeleted(resource: Model): boolean {
       const deleteAt = resource.getAttribute(this.getDeletedAtKey());
 
       return ![this.getDeletedAtValueOnRestore(), undefined].includes(deleteAt);

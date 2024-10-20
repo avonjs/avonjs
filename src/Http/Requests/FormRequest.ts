@@ -1,5 +1,6 @@
-import { Request } from 'express';
+import type { Request } from 'express';
 import Collection from '../../Collections/Collection';
+import type { AnyRecord, AnyValue } from '../../Contracts';
 
 export default abstract class FormRequest {
   constructor(protected request: Request) {}
@@ -14,21 +15,21 @@ export default abstract class FormRequest {
   /**
    * Get param from route.
    */
-  public segment<T extends any = any>(key: string, callback?: any): T {
+  public segment<T = AnyValue>(key: string, callback?: AnyValue): T {
     return this.segments().get(key, callback) as T;
   }
 
   /**
    * Get params from route for the given key.
    */
-  public route<T extends any = any>(key: string, callback?: any): T {
+  public route<T = AnyValue>(key: string, callback?: AnyValue): T {
     return this.segment<T>(key, callback);
   }
 
   /**
    * Get collection of request attributes.
    */
-  public collect(): Collection<Record<string, any>> {
+  public collect(): Collection<AnyRecord> {
     return new Collection(this.request.query ?? {}).merge(
       this.request.body ?? {},
     );
@@ -37,23 +38,21 @@ export default abstract class FormRequest {
   /**
    * Get value from request.
    */
-  public get<T extends any = any>(key: string, callback?: any): T {
+  public get<T = AnyValue>(key: string, callback?: AnyValue): T {
     return this.collect().get(key, callback) as T;
   }
 
   /**
    * Get all attributes from request body and query.
    */
-  public all(keys: string[] = []): Record<string, any> {
+  public all(keys: string[] = []): AnyRecord {
     return keys.length > 0 ? this.only(keys) : this.collect().all();
   }
 
   /**
    * Get only given keys from request body and query.
    */
-  public only<T extends any = any>(
-    keys: string | string[] = [],
-  ): Record<string, T> {
+  public only<T = AnyValue>(keys: string | string[] = []): Record<string, T> {
     return this.collect()
       .only(Array.isArray(keys) ? keys : [keys])
       .all() as unknown as Record<string, T>;
@@ -62,14 +61,14 @@ export default abstract class FormRequest {
   /**
    * Get value from request body.
    */
-  public input<T extends any = any>(key: string, callback?: any): T {
+  public input<T = AnyValue>(key: string, callback?: AnyValue): T {
     return new Collection(this.request?.body).get(key, callback) as T;
   }
 
   /**
    * Get value from query strings.
    */
-  public query<T extends any = any>(key: string, callback?: any): T {
+  public query<T = AnyValue>(key: string, callback?: AnyValue): T {
     return new Collection(this.request?.query).get(key, callback) as T;
   }
 
@@ -101,7 +100,7 @@ export default abstract class FormRequest {
   /**
    * Get value from request body and query as array.
    */
-  public array<T extends any = any>(key: string, callback?: []): T[] {
+  public array<T = AnyValue>(key: string, callback?: []): T[] {
     if (!this.exists(key)) {
       return this.get<T[]>(key, callback);
     }
@@ -120,7 +119,9 @@ export default abstract class FormRequest {
     }
 
     return new Collection(this.only(keys))
-      .filter((value: any) => ![null, undefined, '', [], {}].includes(value))
+      .filter(
+        (value: AnyValue) => ![null, undefined, '', [], {}].includes(value),
+      )
       .isNotEmpty();
   }
 

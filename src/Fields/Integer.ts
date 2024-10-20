@@ -1,8 +1,13 @@
 import Joi from 'joi';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
-import { DefaultCallback, OpenApiSchema } from '../Contracts';
+import type {
+  AnyValue,
+  DefaultCallback,
+  OpenApiSchema,
+  Optional,
+} from '../Contracts';
 import Field from './Field';
 import NumberFilter from './Filters/NumberFilter';
 
@@ -32,7 +37,7 @@ export default class Integer extends Field {
   /**
    * Specifies the minimum value.
    */
-  public min(min: number = 0) {
+  public min(min = 0) {
     this.rules(Joi.number().min(min));
 
     return this;
@@ -41,7 +46,7 @@ export default class Integer extends Field {
   /**
    * Specifies the maximum value.
    */
-  public max(min: number = 0) {
+  public max(min = 0) {
     this.rules(Joi.number().max(min));
 
     return this;
@@ -50,8 +55,11 @@ export default class Integer extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): number | undefined {
-    return parseInt(value);
+  public getMutatedValue(
+    request: AvonRequest,
+    value: AnyValue,
+  ): Optional<number> {
+    return Number.parseInt(value);
   }
 
   /**

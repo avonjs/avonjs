@@ -1,28 +1,31 @@
-import { AnySchema } from 'joi';
-import { Direction, Operator } from './constants';
-import { Fluent } from '../Models';
-import { Model } from './interfaces';
-import { OpenAPIV3 } from 'openapi-types';
-import { Params } from 'express-jwt';
+import type { Params } from 'express-jwt';
+import type { AnySchema } from 'joi';
+import type { OpenAPIV3 } from 'openapi-types';
+import type { Fluent } from '../Models';
+import type { Direction, Operator } from './constants';
+import type { Model } from './interfaces';
 
 export type SerializedAction = {
   uriKey: string;
   isStandalone: boolean;
-  fields: Record<string, any>[];
+  fields: AnyRecord[];
 };
 
 // extends QueryParameter
-export type MatchesQueryParameters<T> = Array<{ handler: T; value: any }>;
+export type MatchesQueryParameters<T> = Array<{
+  handler: T;
+  value: AnyValue;
+}>;
 
 export type ResourceMetaData = {
-  softDeletes: Boolean;
-  softDeleted: Boolean;
+  softDeletes: boolean;
+  softDeleted: boolean;
 };
 
 export type SerializedResource = {
-  fields: Record<string, any>;
+  fields: AnyRecord;
   metadata: ResourceMetaData;
-  authorization: Record<string, boolean | undefined>;
+  authorization: Record<string, Optional<boolean>>;
 };
 
 export type IndexSerializedResource = SerializedResource & {
@@ -66,7 +69,7 @@ export type ReviewSerializedResource = SerializedResource & {
   };
 };
 
-export type Where = { key: string; value: any; operator: Operator };
+export type Where = { key: string; value: AnyValue; operator: Operator };
 
 export type Order = { key: string; direction: Direction };
 
@@ -78,7 +81,7 @@ export type Payload = Record<string, unknown>;
 
 export type BulkActionResult = Array<{ resource: Model; previous: Model }>;
 
-export type Attachable = { id: string | number; [key: string]: any };
+export type Attachable = { id: string | number } & AnyRecord;
 
 export type OpenApiSchema = OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject;
 
@@ -89,10 +92,20 @@ export type OpenApiFieldSchema = {
 
 export type JwVerifyOptions = Params & { secret: string };
 
-export type CollectionRecord = Record<string, any>;
+export type CollectionRecord = AnyRecord;
 
 export type EnumValues = unknown[];
 
 export type RequestBodyContent = Record<string, OpenAPIV3.MediaTypeObject>;
 
 export type UnknownRecord = Record<string, unknown>;
+// TODO: Should fix later
+// biome-ignore lint/suspicious/noExplicitAny: Should fix later
+export type AnyValue = any;
+export type AnyRecord = Record<string, AnyValue>;
+export type AnyArray = Array<AnyValue>;
+export type Args = AnyArray;
+export type Optional<T> = T | undefined;
+export type Nullable<T = undefined> = T | null;
+export type PrimaryKey = string | number;
+export type Attributes = AnyRecord;

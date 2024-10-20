@@ -1,13 +1,17 @@
 import {
-  Model,
-  Where,
-  Order,
+  type AnyRecord,
+  type AnyValue,
+  type Model,
   Operator,
-  SearchCollection,
-  TransactionCallback,
-  QueryModifierCallback,
-  Transaction,
+  Optional,
+  type Order,
+  type QueryModifierCallback,
+  type SearchCollection,
+  type Transaction,
+  type TransactionCallback,
+  type Where,
 } from '../Contracts';
+import { Fluent } from '../Models';
 
 export default abstract class Repository<TModel extends Model = Model> {
   /**
@@ -84,8 +88,15 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Start new transaction.
    */
-  public prepareTransaction(): any {
-    // nothing to do
+  public async prepareTransaction(): Promise<Transaction> {
+    return new (class implements Transaction {
+      commit(value?: AnyValue) {
+        return value;
+      }
+      rollback(error?: AnyValue) {
+        return error;
+      }
+    })();
   }
 
   /**
@@ -145,7 +156,7 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Modify underlying query before execute.
    */
-  public modify<T extends unknown>(modifier: QueryModifierCallback<T>) {
+  public modify<T>(modifier: QueryModifierCallback<T>) {
     this.modifiers.push(modifier);
 
     return this;
@@ -183,10 +194,13 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Fill data into model.
    */
-  public fillModel(result: Record<string, any>): TModel {
-    const Constructor = this.model().constructor.prototype.constructor;
+  public fillModel(result: AnyRecord): TModel {
+    const model = this.model();
+    const Constructor = model.constructor.prototype.constructor;
 
-    return new Constructor(result);
+    return model instanceof Fluent
+      ? Constructor.create(result)
+      : new Constructor(result);
   }
 
   /**

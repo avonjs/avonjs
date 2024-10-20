@@ -1,6 +1,7 @@
+import type { AnyArray } from '../../Contracts';
 import { Select } from '../../Filters';
 import FilterableFields from '../../Mixins/FilterableFields';
-import Enum from '../Enum';
+import type Enum from '../Enum';
 
 export default class EnumFilter extends FilterableFields(Select) {
   constructor(public field: Enum) {
@@ -10,7 +11,7 @@ export default class EnumFilter extends FilterableFields(Select) {
   /**
    * Get the possible filtering values.
    */
-  public options(): any[] {
+  public options(): AnyArray {
     return this.field.getValues();
   }
 }

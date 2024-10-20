@@ -1,14 +1,14 @@
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Ordering } from '../Orderings';
-import { Repository } from '../Repositories';
 import {
-  AbstractMixable,
-  MatchesQueryParameters,
-  TrashedStatus,
+  type AbstractMixable,
   Direction,
-  Model,
+  type MatchesQueryParameters,
+  type Model,
+  TrashedStatus,
 } from '../Contracts';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Ordering } from '../Orderings';
+import type { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class PerformQueries extends Parent {

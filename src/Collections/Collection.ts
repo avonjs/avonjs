@@ -1,4 +1,5 @@
 import { Collection as BaseCollection } from 'collect.js';
+import { type AnyValue, UnknownRecord } from '../Contracts';
 
 export default class Collection<TItem> extends BaseCollection<TItem> {
   /**
@@ -6,7 +7,7 @@ export default class Collection<TItem> extends BaseCollection<TItem> {
    */
   get<K, V>(
     path: keyof TItem | K,
-    defaultValue?: ((...any: any[]) => V | TItem) | V | TItem,
+    defaultValue?: ((...any: unknown[]) => V | TItem) | V | TItem,
   ): TItem | null {
     if (typeof path !== 'string' || !path.includes('.')) {
       return super.get(path, defaultValue);
@@ -24,7 +25,10 @@ export default class Collection<TItem> extends BaseCollection<TItem> {
       return value;
     }
 
-    return new Collection<any>(value).get(paths.join('.'), defaultValue);
+    return new Collection<TItem | null>(value).get(
+      paths.join('.'),
+      defaultValue,
+    );
   }
 
   /**
@@ -36,9 +40,9 @@ export default class Collection<TItem> extends BaseCollection<TItem> {
     }
 
     const keys = path.split('.');
-    let current: any = this.items;
+    let current: AnyValue = this.all();
 
-    for (let key of keys) {
+    for (const key of keys) {
       if (current == null || !(key in current)) {
         return false;
       }

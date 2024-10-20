@@ -1,34 +1,36 @@
-import Joi, { AnySchema } from 'joi';
-import { OpenAPIV3 } from 'openapi-types';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import Joi, { type AnySchema } from 'joi';
+import type { OpenAPIV3 } from 'openapi-types';
+import {
+  type AnyValue,
+  type DefaultCallback,
+  Direction,
+  type EvaluatorCallback,
+  type FieldSchema,
+  type FillCallback,
+  type FilledCallback,
+  type FilterableCallback,
+  type Model,
+  type NullableCallback,
+  type OpenApiFieldSchema,
+  type OpenApiSchema,
+  type Optional,
+  type OrderingCallback,
+  type ParameterSerializable,
+  type ResolveCallback,
+  type ResourceEvaluatorCallback,
+  type Rules,
+  type SeeCallback,
+} from '../Contracts';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import AuthorizedToSee from '../Mixins/AuthorizedToSee';
 import Filterable from '../Mixins/Filterable';
 import Nullable from '../Mixins/Nullable';
 import Orderable from '../Mixins/Orderable';
 import Presentable from '../Mixins/Presentable';
-import Ordering from './Orderings/Ordering';
-import {
-  ParameterSerializable,
-  FieldSchema,
-  FillCallback,
-  ResolveCallback,
-  Model,
-  DefaultCallback,
-  OrderingCallback,
-  Direction,
-  Rules,
-  NullableCallback,
-  FilterableCallback,
-  SeeCallback,
-  ResourceEvaluatorCallback,
-  EvaluatorCallback,
-  FilledCallback,
-  OpenApiFieldSchema,
-  OpenApiSchema,
-} from '../Contracts';
+import type { Repository } from '../Repositories';
 import TextFilter from './Filters/TextFilter';
-import { Repository } from '../Repositories';
+import Ordering from './Orderings/Ordering';
 
 export default abstract class Field
   extends Nullable(
@@ -49,7 +51,7 @@ export default abstract class Field
   /**
    * The field's resolved value.
    */
-  public value?: any;
+  public value?: AnyValue;
 
   /**
    * The callback to be used to hydrate the model attribute.
@@ -60,7 +62,7 @@ export default abstract class Field
    * The callback to be used to resolve the field's display value.
    */
   public displayCallback: ResolveCallback = (
-    value: any,
+    value: AnyValue,
     resource: Model,
     attribute: string,
   ) => value;
@@ -69,7 +71,7 @@ export default abstract class Field
    * The callback to be used to resolve the field's value.
    */
   public resolveCallback: ResolveCallback = (
-    value: any,
+    value: AnyValue,
     resource: Model,
     attribute: string,
   ) => value;
@@ -111,7 +113,7 @@ export default abstract class Field
     return (
       request: AvonRequest,
       repository: Repository<Model>,
-      direction: any,
+      direction: AnyValue,
     ) => {
       repository.order({
         key: this.orderableAttribute(request),
@@ -132,14 +134,14 @@ export default abstract class Field
   /**
    * Resolve the field's value for display.
    */
-  public resolveForDisplay(resource: Model, attribute?: string): any {
+  public resolveForDisplay(resource: Model, attribute?: string): AnyValue {
     this.resolve(resource, attribute);
   }
 
   /**
    * Resolve the field's value.
    */
-  public resolve(resource: Model, attribute?: string): any {
+  public resolve(resource: Model, attribute?: string): AnyValue {
     const resolveAttribute = attribute ?? this.attribute;
 
     this.setValue(
@@ -154,7 +156,7 @@ export default abstract class Field
   /**
    * Resolve the given attribute from the given resource.
    */
-  protected resolveAttribute(resource: Model, attribute: string): any {
+  protected resolveAttribute(resource: Model, attribute: string): AnyValue {
     return resource.getAttribute(attribute);
   }
 
@@ -170,7 +172,7 @@ export default abstract class Field
   /**
    * Resolve the default value for the field.
    */
-  public resolveDefaultValue(request: AvonRequest): any {
+  public resolveDefaultValue(request: AvonRequest): AnyValue {
     if (
       request.isCreateOrAttachRequest() ||
       request.isActionRequest() ||
@@ -210,7 +212,10 @@ export default abstract class Field
   /**
    * Hydrate the given attribute on the model based on the incoming request.
    */
-  public fill<TModel extends Model>(request: AvonRequest, model: TModel): any {
+  public fill<TModel extends Model>(
+    request: AvonRequest,
+    model: TModel,
+  ): AnyValue {
     return this.fillInto(request, model, this.attribute);
   }
 
@@ -220,7 +225,7 @@ export default abstract class Field
   public fillForAction<TModel extends Model>(
     request: AvonRequest,
     model: TModel,
-  ): any {
+  ): AnyValue {
     return this.fill(request, model);
   }
 
@@ -232,7 +237,7 @@ export default abstract class Field
     model: TModel,
     attribute: string,
     requestAttribute?: string,
-  ): any {
+  ): AnyValue {
     return this.fillAttribute(
       request,
       requestAttribute ?? this.attribute,
@@ -249,17 +254,15 @@ export default abstract class Field
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): any {
-    if (this.fillCallback !== undefined) {
-      return this.fillCallback(request, model, attribute, requestAttribute);
-    } else {
-      return this.fillAttributeFromRequest(
-        request,
-        requestAttribute,
-        model,
-        attribute,
-      );
-    }
+  ): AnyValue {
+    return this.fillCallback !== undefined
+      ? this.fillCallback(request, model, attribute, requestAttribute)
+      : this.fillAttributeFromRequest(
+          request,
+          requestAttribute,
+          model,
+          attribute,
+        );
   }
 
   /**
@@ -270,9 +273,10 @@ export default abstract class Field
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | void {
+  ): Optional<FilledCallback> {
     if (!request.exists(requestAttribute)) {
-      return this.fillAttributeFromDefault(request, model, attribute);
+      this.fillAttributeFromDefault(request, model, attribute);
+      return;
     }
 
     const value = request.get(requestAttribute);
@@ -304,14 +308,14 @@ export default abstract class Field
   /**
    * Get the value considered as null.
    */
-  public nullValue(): any {
+  public nullValue(): AnyValue {
     return null;
   }
 
   /**
    * Set the value for the field.
    */
-  public setValue(value: any): this {
+  public setValue(value: AnyValue): this {
     this.value = value;
 
     return this;
@@ -320,7 +324,10 @@ export default abstract class Field
   /**
    * Mutate the field value for response.
    */
-  public abstract getMutatedValue(request: AvonRequest, value: any): any;
+  public abstract getMutatedValue(
+    request: AvonRequest,
+    value: AnyValue,
+  ): AnyValue;
 
   /**
    * Set the validation rules for the field.
@@ -501,10 +508,7 @@ export default abstract class Field
   /**
    * Determine that the field should be nullable.
    */
-  public nullable(
-    nullable: boolean = true,
-    validator?: NullableCallback,
-  ): this {
+  public nullable(nullable = true, validator?: NullableCallback): this {
     super.nullable(nullable, validator);
 
     if (nullable) {
@@ -519,7 +523,7 @@ export default abstract class Field
   /**
    * Determine that the field should be filled in the request.
    */
-  public required(required: boolean = true): this {
+  public required(required = true): this {
     if (required) {
       this.rules(this.rulesSchema.required());
     }
@@ -530,7 +534,7 @@ export default abstract class Field
   /**
    * Determines that the field can be omitted from the request.
    */
-  public optional(optional: boolean = true): this {
+  public optional(optional = true): this {
     if (optional) {
       this.rules(this.rulesSchema.optional());
     }
@@ -541,7 +545,7 @@ export default abstract class Field
   /**
    * Get the value for the field.
    */
-  public getValue(request: AvonRequest): any {
+  public getValue(request: AvonRequest): AnyValue {
     if (this.value === undefined) {
       this.value = this.resolveDefaultValue(request);
     }

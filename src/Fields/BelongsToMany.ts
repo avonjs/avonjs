@@ -1,24 +1,28 @@
+import assert from 'node:assert';
 import Joi from 'joi';
 import Avon from '../Avon';
-import { RuntimeException } from '../Exceptions';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import Resource from '../Resource';
+import FieldCollection from '../Collections/FieldCollection';
 import {
-  PivotFieldCallback,
-  Rules,
-  Operator,
-  Model,
-  Attachable,
   Ability,
-  FilledCallback,
-  OpenApiSchema,
-  Transaction,
-  RelatableQueryCallback,
+  type AnyRecord,
+  type AnyValue,
+  type Attachable,
+  type FilledCallback,
+  type Model,
+  type OpenApiSchema,
+  Operator,
+  type Optional,
+  type PivotFieldCallback,
+  type RelatableQueryCallback,
+  type Rules,
+  type Transaction,
 } from '../Contracts';
+import { RuntimeException } from '../Exceptions';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Repository } from '../Repositories';
+import type Resource from '../Resource';
 import Relation from './Relation';
 import { guessForeignKey } from './ResourceRelationshipGuesser';
-import FieldCollection from '../Collections/FieldCollection';
-import { Repository } from '../Repositories';
 
 export default class BelongsToMany extends Relation {
   /**
@@ -146,7 +150,7 @@ export default class BelongsToMany extends Relation {
 
         if (resources.length !== value.length) {
           return error('any.custom', {
-            error: new Error(`Some of related resources not found`),
+            error: new Error('Some of related resources not found'),
           });
         }
       } catch (err) {
@@ -193,7 +197,7 @@ export default class BelongsToMany extends Relation {
   public fillForAction<TModel extends Model>(
     request: AvonRequest,
     model: TModel,
-  ): any {}
+  ): AnyValue {}
 
   /**
    * Hydrate the given attribute on the model based on the incoming request.
@@ -203,7 +207,7 @@ export default class BelongsToMany extends Relation {
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | void {
+  ): Optional<FilledCallback> {
     const defaults = this.resolveDefaultValue(request);
     const shouldSetDefaults =
       request.isCreateOrAttachRequest() &&
@@ -245,8 +249,8 @@ export default class BelongsToMany extends Relation {
   protected async clearAttachments(
     request: AvonRequest,
     resource: Model,
-    transaction: Transaction,
-  ): Promise<any> {
+    transaction?: Transaction,
+  ): Promise<AnyValue> {
     const allowedDetachments = await this.allowedDetachments(
       request,
       resource,
@@ -266,7 +270,7 @@ export default class BelongsToMany extends Relation {
   protected async allowedDetachments(
     request: AvonRequest,
     model: Model,
-    transaction: Transaction,
+    transaction?: Transaction,
   ) {
     const authorizedResources = [];
     const resource = request.newResource(model);
@@ -338,7 +342,8 @@ export default class BelongsToMany extends Relation {
     for (const attachment of attachments) {
       const relatable = relatables.find(
         (relatable) => relatable.getKey() === attachment.id,
-      )!;
+      );
+      assert(relatable, `Missing relatable for id ${attachment.id}`);
       if (await resource.authorizedTo(request, Ability.attach, [relatable])) {
         authorizedResources.push(attachment);
       }
@@ -393,7 +398,7 @@ export default class BelongsToMany extends Relation {
   async resolveRelatables(
     request: AvonRequest,
     resources: Model[],
-  ): Promise<any> {
+  ): Promise<AnyValue> {
     const relatables = await this.searchRelatables(request, resources);
     const foreignKeyName = this.resourceForeignKeyName(request);
     const ownerKeyName = this.resourceOwnerKeyName(request);
@@ -402,7 +407,7 @@ export default class BelongsToMany extends Relation {
       resource.setAttribute(
         this.attribute,
         relatables.filter((relatable) => {
-          const pivot = relatable.getAttribute<Record<string, any>>('pivot');
+          const pivot = relatable.getAttribute<AnyRecord>('pivot');
 
           return (
             pivot.getAttribute(foreignKeyName) ===
@@ -489,7 +494,7 @@ export default class BelongsToMany extends Relation {
   public formatRelatedResource(
     request: AvonRequest,
     resource: Model & { pivot?: Model },
-  ): Record<string, any> {
+  ): AnyRecord {
     const formattedResource = super.formatRelatedResource(request, resource);
     const pivotFields = this.pivotFields(request);
 
@@ -551,7 +556,7 @@ export default class BelongsToMany extends Relation {
   /**
    * Get the value considered as null.
    */
-  public nullValue(): any {
+  public nullValue(): AnyValue {
     return [];
   }
 

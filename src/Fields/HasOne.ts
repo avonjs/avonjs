@@ -1,13 +1,13 @@
-import AvonRequest from '../Http/Requests/AvonRequest';
-import HasManyOrOne from './HasManyOrOne';
-import { OpenApiSchema } from '../Contracts';
 import FieldCollection from '../Collections/FieldCollection';
+import type { AnyValue, OpenApiSchema } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import HasManyOrOne from './HasManyOrOne';
 
 export default class HasOne extends HasManyOrOne {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): any {
+  public getMutatedValue(request: AvonRequest, value: AnyValue): AnyValue {
     return super.getMutatedValue(request, value)[0];
   }
 

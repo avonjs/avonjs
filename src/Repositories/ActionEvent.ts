@@ -1,13 +1,13 @@
-import { Fluent } from '../Models';
 import {
-  Model,
-  Where,
+  type ActionEventRepository,
+  type Model,
   Operator,
-  Searchable,
-  ActionEventRepository,
+  type Searchable,
+  type Where,
 } from '../Contracts';
-import CollectionRepository from './CollectionRepository';
 import FillsActionEvents from '../Mixins/FillsActionEvents';
+import type { Fluent } from '../Models';
+import CollectionRepository from './CollectionRepository';
 
 export default class ActionEvent
   extends FillsActionEvents(CollectionRepository)
@@ -39,10 +39,9 @@ export default class ActionEvent
     switch (where.operator) {
       case Operator.in:
       case Operator.eq:
-        // eslint-disable-next-line no-case-declarations
-        const values = Array.isArray(where.value) ? where.value : [where.value];
-
-        return values.some((value) => value === resourceValue);
+        return (Array.isArray(where.value) ? where.value : [where.value]).some(
+          (value) => value === resourceValue,
+        );
       case Operator.lte:
         return resourceValue <= value;
       case Operator.gte:

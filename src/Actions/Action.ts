@@ -1,27 +1,29 @@
-import Joi, { AnySchema } from 'joi';
+import collect from 'collect.js';
+import Joi, { type AnySchema } from 'joi';
+import type { OpenAPIV3 } from 'openapi-types';
+import Avon from '../Avon';
 import FieldCollection from '../Collections/FieldCollection';
-import ValidationException from '../Exceptions/ValidationException';
-import { Field } from '../Fields';
-import ActionRequest from '../Http/Requests/ActionRequest';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import AuthorizedToSee from '../Mixins/AuthorizedToSee';
-import { Fluent } from '../Models';
-import {
-  HasSchema,
-  RunCallback,
-  Model,
-  SerializedAction,
+import type {
+  AnyValue,
   BulkActionResult,
+  HasSchema,
+  Model,
   OpenApiSchema,
-  SeeCallback,
+  Optional,
   Rules,
+  RunCallback,
+  SeeCallback,
+  SerializedAction,
   UnknownRecord,
 } from '../Contracts';
+import ValidationException from '../Exceptions/ValidationException';
+import type { Field } from '../Fields';
+import type ActionRequest from '../Http/Requests/ActionRequest';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import { AvonResponse, SuccessfulResponse } from '../Http/Responses';
-import Avon from '../Avon';
-import collect from 'collect.js';
-import { OpenAPIV3 } from 'openapi-types';
 import ActionResponse from '../Http/Responses/ActionResponse';
+import AuthorizedToSee from '../Mixins/AuthorizedToSee';
+import { Fluent } from '../Models';
 
 export default abstract class Action
   extends AuthorizedToSee(class {})
@@ -35,17 +37,17 @@ export default abstract class Action
   /**
    * Indicates if the action can be run without any models.
    */
-  public standaloneAction: boolean = false;
+  public standaloneAction = false;
 
   /**
    * Indicates the response status code.
    */
-  protected responseCode: number = 200;
+  protected responseCode = 200;
 
   /**
    * Indicates the response content type.
    */
-  protected responseType: string = 'application/json';
+  protected responseType = 'application/json';
 
   /**
    * Execute the action for the given request.
@@ -92,7 +94,7 @@ export default abstract class Action
    * Resolve the creation fields.
    */
   public resolveFields(request: AvonRequest): Fluent {
-    const model = new Fluent();
+    const model = Fluent.create();
 
     this.availableFields(request)
       .authorized(request)
@@ -130,7 +132,7 @@ export default abstract class Action
   protected abstract handle(
     fields: Fluent,
     models: Model[],
-  ): Promise<AvonResponse | void>;
+  ): Promise<Optional<AvonResponse>>;
 
   /**
    * Determine if the action is executable for the given request.
@@ -146,7 +148,7 @@ export default abstract class Action
    *
    * @throws {ValidationException}
    */
-  public async validate(request: AvonRequest): Promise<any> {
+  public async validate(request: AvonRequest): Promise<void> {
     await this.validator(request)
       .validateAsync(this.dataForValidation(request), {
         abortEarly: false,
@@ -208,7 +210,10 @@ export default abstract class Action
   /**
    * Handle any post-validation processing.
    */
-  protected afterValidation(request: AvonRequest, validator: any): any {
+  protected afterValidation(
+    request: AvonRequest,
+    validator: AnyValue,
+  ): AnyValue {
     //
   }
 

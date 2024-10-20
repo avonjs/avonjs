@@ -1,7 +1,7 @@
-import ModelNotFoundException from '../../Exceptions/ModelNotFoundException';
 import { Ability } from '../../Contracts';
-import ResourceReviewRequest from '../Requests/ResourceReviewRequest';
-import { AvonResponse } from '../Responses';
+import ModelNotFoundException from '../../Exceptions/ModelNotFoundException';
+import type ResourceReviewRequest from '../Requests/ResourceReviewRequest';
+import type { AvonResponse } from '../Responses';
 import ResourceReviewResponse from '../Responses/ResourceReviewResponse';
 import Controller from './Controller';
 
@@ -23,9 +23,9 @@ export default class ResourceReviewController extends Controller {
 
     await Promise.all(
       resource
-        .reviewFields(request, model!)
+        .reviewFields(request, model)
         .onlyLoadedLazyFields()
-        .map((field) => field.resolveForResources(request, [model!])),
+        .map((field) => field.resolveForResources(request, [model])),
     );
 
     return new ResourceReviewResponse(

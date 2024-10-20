@@ -1,6 +1,6 @@
 import { Ability } from '../../Contracts';
-import ResourceForceDeleteRequest from '../Requests/ResourceForceDeleteRequest';
-import { AvonResponse, EmptyResponse } from '../Responses';
+import type ResourceForceDeleteRequest from '../Requests/ResourceForceDeleteRequest';
+import { type AvonResponse, EmptyResponse } from '../Responses';
 import Controller from './Controller';
 
 export default class ResourceForceDeleteController extends Controller {

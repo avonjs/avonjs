@@ -1,32 +1,32 @@
-import collect, { Collection } from 'collect.js';
-import { OpenAPIV3 } from 'openapi-types';
+import collect, { type Collection } from 'collect.js';
+import type { OpenAPIV3 } from 'openapi-types';
 import { plural } from 'pluralize';
-import { Action } from '../Actions';
+import type { Action } from '../Actions';
 import FieldCollection from '../Collections/FieldCollection';
-import { Field } from '../Fields';
-import Relation from '../Fields/Relation';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Ordering } from '../Orderings';
 import {
-  AbstractMixable,
-  Model,
-  OpenApiSchema,
-  RequestBodyContent,
+  type AbstractMixable,
+  type Model,
+  type OpenApiSchema,
+  type RequestBodyContent,
   TrashedStatus,
-  UnknownRecord,
+  type UnknownRecord,
 } from '../Contracts';
+import type { Field } from '../Fields';
+import type Relation from '../Fields/Relation';
+import { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import { Ordering } from '../Orderings';
+import type { Repository } from '../Repositories';
 import {
   authorizationResponses,
   errorsResponses,
   slugify,
   validationResponses,
 } from '../helpers';
-import { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class ResourceSchema extends Parent {
-    public resource: any;
+    public abstract resource: Model;
     /**
      * Indicates resource is available for `index` API.
      */
@@ -105,7 +105,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           get: {
             tags: [this.uriKey()],
             description: `Get list of available ${this.label()}`,
-            operationId: `index`,
+            operationId: 'index',
             parameters: [
               ...this.searchParameters(request),
               ...this.paginationParameters(request),
@@ -363,8 +363,8 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
         return {
           post: {
             tags: [this.uriKey()],
-            description: `Create new record for the given payload`,
-            operationId: `store`,
+            description: 'Create new record for the given payload',
+            operationId: 'store',
             requestBody: {
               content: collect(this.accepts())
                 .mapWithKeys((content: string) => [content, { schema }])
@@ -397,7 +397,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           get: {
             tags: [this.uriKey()],
             description: `Get detail of resource by the given ${this.label()} key`,
-            operationId: `detail`,
+            operationId: 'detail',
             parameters: [...this.singleResourcePathParameters(request)],
             responses: {
               ...this.authorizationResponses(),
@@ -423,7 +423,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           get: {
             tags: [this.uriKey()],
             description: `Get detail of resource by the given ${this.label()} key`,
-            operationId: `review`,
+            operationId: 'review',
             parameters: [...this.singleResourcePathParameters(request)],
             responses: {
               ...this.authorizationResponses(),
@@ -462,8 +462,8 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
         return {
           put: {
             tags: [this.uriKey()],
-            description: `Update resource by the given payload`,
-            operationId: `update`,
+            description: 'Update resource by the given payload',
+            operationId: 'update',
             parameters: [...this.singleResourcePathParameters(request)],
             requestBody: {
               content: collect(this.accepts())
@@ -497,7 +497,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           delete: {
             tags: [this.uriKey()],
             description: `Delete ${this.label()} by the given id`,
-            operationId: `delete`,
+            operationId: 'delete',
             parameters: [...this.singleResourcePathParameters(request)],
             responses: {
               ...this.authorizationResponses(),
@@ -520,7 +520,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           delete: {
             tags: [this.uriKey()],
             description: `Delete ${this.label()} by the given id`,
-            operationId: `forceDelete`,
+            operationId: 'forceDelete',
             parameters: [...this.singleResourcePathParameters(request)],
             responses: {
               ...this.authorizationResponses(),
@@ -543,7 +543,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           put: {
             tags: [this.uriKey()],
             description: `Restore deleted ${this.label()} by id`,
-            operationId: `restore`,
+            operationId: 'restore',
             parameters: [...this.singleResourcePathParameters(request)],
             responses: {
               ...this.authorizationResponses(),

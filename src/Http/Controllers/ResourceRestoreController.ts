@@ -1,7 +1,7 @@
 import Avon from '../../Avon';
 import { Ability } from '../../Contracts';
-import ResourceRestoreRequest from '../Requests/ResourceRestoreRequest';
-import { AvonResponse, EmptyResponse } from '../Responses';
+import type ResourceRestoreRequest from '../Requests/ResourceRestoreRequest';
+import { type AvonResponse, EmptyResponse } from '../Responses';
 import Controller from './Controller';
 
 export default class ResourceRestoreController extends Controller {
@@ -20,17 +20,15 @@ export default class ResourceRestoreController extends Controller {
 
     await resource.authorizeTo(request, Ability.restore);
 
-    await request
-      .repository()
-      .transaction<any>(async (repository, transaction) => {
-        await resource.beforeRestore(request, transaction);
+    await request.repository().transaction(async (repository, transaction) => {
+      await resource.beforeRestore(request, transaction);
 
-        await repository.restore(request.route('resourceId') as string);
+      await repository.restore(request.route('resourceId') as string);
 
-        await resource.afterRestore(request, transaction);
+      await resource.afterRestore(request, transaction);
 
-        await resource.recordRestoreEvent(transaction, Avon.userId(request));
-      });
+      await resource.recordRestoreEvent(transaction, Avon.userId(request));
+    });
 
     await resource.restored(request);
 

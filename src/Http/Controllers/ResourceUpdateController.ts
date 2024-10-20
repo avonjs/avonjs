@@ -1,7 +1,7 @@
 import Avon from '../../Avon';
 import { Ability } from '../../Contracts';
-import ResourceUpdateOrUpdateAttachedRequest from '../Requests/ResourceUpdateOrUpdateAttachedRequest';
-import { AvonResponse } from '../Responses';
+import type ResourceUpdateOrUpdateAttachedRequest from '../Requests/ResourceUpdateOrUpdateAttachedRequest';
+import type { AvonResponse } from '../Responses';
 import ResourceUpdateResponse from '../Responses/ResourceUpdateResponse';
 import Controller from './Controller';
 

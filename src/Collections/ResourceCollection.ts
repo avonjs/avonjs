@@ -1,4 +1,4 @@
 import { Collection } from 'collect.js';
-import Resource from '../Resource';
+import type Resource from '../Resource';
 
 export class ResourceCollection extends Collection<Resource> {}

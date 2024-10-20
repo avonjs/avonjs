@@ -1,14 +1,16 @@
-import AvonRequest from '../Http/Requests/AvonRequest';
-import {
+import Joi from 'joi';
+import type {
+  AnyValue,
   DefaultCallback,
   EnumValues,
+  Nullable,
   OpenApiSchema,
   ResolveCallback,
 } from '../Contracts';
-import Joi from 'joi';
-import EnumFilter from './Filters/EnumFilter';
-import { Filter } from '../Filters';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import Field from './Field';
+import EnumFilter from './Filters/EnumFilter';
 
 export default class Enum extends Field {
   /**
@@ -53,7 +55,10 @@ export default class Enum extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): string | null {
+  public getMutatedValue(
+    request: AvonRequest,
+    value: AnyValue,
+  ): Nullable<string> {
     return this.values.includes(value) ? value : this.nullValue();
   }
 

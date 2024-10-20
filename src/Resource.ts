@@ -1,29 +1,29 @@
 import { plural, singular } from 'pluralize';
-import AvonRequest from './Http/Requests/AvonRequest';
+import {
+  Ability,
+  type DetailSerializedResource,
+  type IndexSerializedResource,
+  type Model,
+  type ResourceMetaData,
+  type ReviewSerializedResource,
+  type SoftDeletes,
+  type StoreSerializedResource,
+  type UnknownRecord,
+  type UpdateSerializedResource,
+} from './Contracts';
+import type AvonRequest from './Http/Requests/AvonRequest';
 import Authorizable from './Mixins/Authorizable';
 import FillsFields from './Mixins/FillsFields';
 import HasLifecycleMethods from './Mixins/HasLifecycleMethods';
 import PerformsQueries from './Mixins/PerformsQueries';
 import PerformsValidation from './Mixins/PerformsValidation';
+import RecordsResourceEvents from './Mixins/RecordsResourceEvents';
 import ResolvesActions from './Mixins/ResolvesActions';
 import ResolvesFields from './Mixins/ResolvesFields';
 import ResolvesFilters from './Mixins/ResolvesFilters';
 import ResolvesOrderings from './Mixins/ResolvesOrderings';
 import ResourceSchema from './Mixins/ResourceSchema';
-import {
-  Model,
-  IndexSerializedResource,
-  Ability,
-  DetailSerializedResource,
-  ReviewSerializedResource,
-  SoftDeletes,
-  ResourceMetaData,
-  StoreSerializedResource,
-  UpdateSerializedResource,
-  UnknownRecord,
-} from './Contracts';
 import { slugify } from './helpers';
-import RecordsResourceEvents from './Mixins/RecordsResourceEvents';
 
 export default abstract class Resource extends ResourceSchema(
   RecordsResourceEvents(
@@ -45,7 +45,7 @@ export default abstract class Resource extends ResourceSchema(
   /**
    * The number of results to display when searching relatable resource.
    */
-  public relatableSearchResults: number = 10;
+  public relatableSearchResults = 10;
 
   constructor(resource?: Model) {
     super();
@@ -208,7 +208,7 @@ export default abstract class Resource extends ResourceSchema(
   /**
    * Determine whether a given resource is "soft-deleted".
    */
-  public isSoftDeleted(): Boolean {
+  public isSoftDeleted(): boolean {
     return (
       this.softDeletes() &&
       (this.repository() as unknown as SoftDeletes<Model>).isSoftDeleted(

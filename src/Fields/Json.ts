@@ -1,15 +1,17 @@
-import Joi, { ObjectSchema } from 'joi';
+import Joi, { type ObjectSchema } from 'joi';
 import FieldCollection from '../Collections/FieldCollection';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import {
+import type {
+  AnyValue,
+  FilledCallback,
+  Model,
+  OpenApiSchema,
+  Optional,
   ResolveCallback,
   Rules,
-  Model,
-  FilledCallback,
-  OpenApiSchema,
 } from '../Contracts';
-import Field from './Field';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import { Fluent } from '../Models';
+import Field from './Field';
 
 export default class Json extends Field {
   /**
@@ -90,9 +92,10 @@ export default class Json extends Field {
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | void {
+  ): Optional<FilledCallback> {
     if (!request.exists(requestAttribute)) {
-      return this.fillAttributeFromDefault(request, model, attribute);
+      this.fillAttributeFromDefault(request, model, attribute);
+      return;
     }
 
     const value = request.get(requestAttribute);
@@ -106,8 +109,8 @@ export default class Json extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): Record<any, any> {
-    const attributes = new Fluent(
+  public getMutatedValue(request: AvonRequest, value: AnyValue) {
+    const attributes = Fluent.create(
       typeof value === 'string' ? JSON.parse(value) : value,
     );
 

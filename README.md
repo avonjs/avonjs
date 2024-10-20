@@ -623,7 +623,7 @@ By default, Avon attempts to validate all fields in a request. However, there ar
 To define a DateTime field that is not required in the request, use the `optional` method as shown below:
 
 ```javascript
-new Fields.DateTime('publish_at').optional();
+new Fields.DateTime("publish_at").optional();
 ```
 
 #### Usage
@@ -633,7 +633,7 @@ This approach ensures that the `publish_at` field is not required during validat
 Here’s a more comprehensive example within a resource definition:
 
 ```javascript
-import Fields from 'avon';
+import Fields from "avon";
 
 export default class PostResource extends Resource {
   // Other field definitions...
@@ -642,7 +642,7 @@ export default class PostResource extends Resource {
     return [
       // Other fields...
 
-      new Fields.DateTime('publish_at').optional(),
+      new Fields.DateTime("publish_at").optional(),
     ];
   }
 }
@@ -705,18 +705,18 @@ export default class MessageCounter extends Fields.Lazy {
    */
   async resolveForResources(
     request: AvonRequest,
-    resources: Array<Contracts.Model & HasMessages>,
+    resources: Array<Contracts.Model & HasMessages>
   ): Promise<void> {
     // Fetch unread message counts for the given resources and user
     const counts = await this.countUnreadMessages(
       resources.map((resource) => resource.filterKey()),
-      [Number(request.user()?.userId)].filter((id) => id),
+      [Number(request.user()?.userId)].filter((id) => id)
     );
 
     // Set the message count attribute on each resource
     resources.forEach((resource) => {
       const count = counts.find(
-        ({ filter }) => resource.filterKey() === filter,
+        ({ filter }) => resource.filterKey() === filter
       );
 
       resource.setAttribute(this.attribute, count?.count ?? 0);
@@ -728,7 +728,7 @@ export default class MessageCounter extends Fields.Lazy {
    */
   async countUnreadMessages(
     filters: Array<string>,
-    userIds: Array<number>,
+    userIds: Array<number>
   ): Promise<Array<{ filter: string, count: number }>> {
     // Your implementation for counting unread messages
   }
@@ -742,7 +742,7 @@ In the `resolveForResources` method, you can fetch the necessary data and set it
 To use the `MessageCounter` field, simply include it in your resource definition and it will handle the lazy resolution of the message count for each resource.
 
 ```javascript
-import MessageCounter from './MessageCounter';
+import MessageCounter from "./MessageCounter";
 
 export default class UserResource extends Resource {
   // Other field definitions...
@@ -751,7 +751,7 @@ export default class UserResource extends Resource {
     return [
       // Other fields...
 
-      new MessageCounter('unreadMessages', 'Unread Messages'),
+      new MessageCounter("unreadMessages", "Unread Messages"),
     ];
   }
 }
@@ -1156,7 +1156,7 @@ Avon includes the `Timestamps` mixins for conveniently setting operation dates o
 
 ```javascript
 //@ts-check
-const { Repositories, Timestamps } = require('@avonjs/avonjs');
+const { Repositories, Timestamps } = require("@avonjs/avonjs");
 
 module.exports = class Categories extends Timestamps(Repositories.File) {
   // Your code here
@@ -1170,11 +1170,11 @@ To customize the timestamps columns, you can override the `getCreatedAtKey` and 
 ```javascript
 class MyRepository extends Timestamps(BaseRepository) {
   getCreatedAtKey() {
-    return 'my_created_at_column';
+    return "my_created_at_column";
   }
 
   getUpdatedAtKey() {
-    return 'my_updated_at_column';
+    return "my_updated_at_column";
   }
 }
 ```
@@ -1248,7 +1248,7 @@ export class FilterByRoles extends Filters.Select {
     /**
     * Get the possible filtering values.
     */
-    public options(): any[] {
+    public options(): AnyArray {
         return ['admin', 'user'];
     }
 }

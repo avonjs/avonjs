@@ -1,10 +1,15 @@
-import FilterableFields from '../../Mixins/FilterableFields';
-import { Filter } from '../../Filters';
-import Relation from '../Relation';
-import { Model, OpenApiSchema, Operator } from '../../Contracts';
-import AvonRequest from '../../Http/Requests/AvonRequest';
-import { Repository } from '../../Repositories';
 import collect from 'collect.js';
+import {
+  type AnyValue,
+  type Model,
+  type OpenApiSchema,
+  Operator,
+} from '../../Contracts';
+import { Filter } from '../../Filters';
+import type AvonRequest from '../../Http/Requests/AvonRequest';
+import FilterableFields from '../../Mixins/FilterableFields';
+import type { Repository } from '../../Repositories';
+import type Relation from '../Relation';
 
 export default class BelongsToFilter extends FilterableFields(Filter) {
   /**
@@ -22,8 +27,8 @@ export default class BelongsToFilter extends FilterableFields(Filter) {
   public async apply(
     request: AvonRequest,
     queryBuilder: Repository<Model>,
-    value: any,
-  ): Promise<any> {
+    value: AnyValue,
+  ): Promise<AnyValue> {
     if (typeof this.field.filterableCallback === 'function') {
       super.apply(request, queryBuilder, value);
     } else if (this.field.filterableCallback) {
@@ -39,7 +44,7 @@ export default class BelongsToFilter extends FilterableFields(Filter) {
     return this.field.foreignKeyName(request);
   }
 
-  public parseValue(value: any) {
+  public parseValue(value: AnyValue) {
     //@ts-ignore
     return collect(value).filter().all();
   }
@@ -55,7 +60,7 @@ export default class BelongsToFilter extends FilterableFields(Filter) {
     };
   }
 
-  public isValidNullValue(value: any): boolean {
+  public isValidNullValue(value: AnyValue): boolean {
     //@ts-ignore
     return collect(value).filter().isEmpty();
   }

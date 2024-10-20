@@ -1,5 +1,5 @@
-import { Repository } from '../../Repositories';
-import { Model, SoftDeletes } from '../../Contracts';
+import type { Model, SoftDeletes } from '../../Contracts';
+import type { Repository } from '../../Repositories';
 import AvonRequest from './AvonRequest';
 
 export default abstract class ResourceSoftDeleteRequest extends AvonRequest {

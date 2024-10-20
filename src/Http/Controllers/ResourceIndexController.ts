@@ -1,6 +1,6 @@
 import { Ability } from '../../Contracts';
-import ResourceIndexRequest from '../Requests/ResourceIndexRequest';
-import { AvonResponse } from '../Responses';
+import type ResourceIndexRequest from '../Requests/ResourceIndexRequest';
+import type { AvonResponse } from '../Responses';
 import ResourceIndexResponse from '../Responses/ResourceIndexResponse';
 import Controller from './Controller';
 

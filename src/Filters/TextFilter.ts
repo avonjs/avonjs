@@ -1,6 +1,6 @@
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Repository } from '../Repositories';
-import { OpenApiSchema, Operator } from '../Contracts';
+import { type OpenApiSchema, Operator } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Repository } from '../Repositories';
 
 import Filter from './Filter';
 
@@ -13,7 +13,7 @@ export default abstract class TextFilter extends Filter {
   /**
    * Apply the filter into the given repository.
    */
-  apply(request: AvonRequest, repository: Repository, value: string): any {
+  apply(request: AvonRequest, repository: Repository, value: string): void {
     repository.where({
       key: this.filterableAttribute(request),
       operator: this.isValidNullValue(value) ? Operator.eq : Operator.like,

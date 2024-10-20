@@ -1,12 +1,13 @@
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Ordering } from '../Orderings';
-import { Repository } from '../Repositories';
 import {
-  AbstractMixable,
-  OrderingCallback,
-  Model,
+  type AbstractMixable,
+  type AnyValue,
+  type Model,
   Operator,
+  type OrderingCallback,
 } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Ordering } from '../Orderings';
+import type { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class Orderable extends Parent {
@@ -21,8 +22,8 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public applyOrdering(
       request: AvonRequest,
       queryBuilder: Repository<Model>,
-      value: any,
-    ): any {
+      value: AnyValue,
+    ) {
       this.orderableCallback?.apply(this, [request, queryBuilder, value]);
     }
 
@@ -52,7 +53,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       return (
         request: AvonRequest,
         queryBuilder: Repository<Model>,
-        value: any,
+        value: AnyValue,
       ) => {
         queryBuilder.where({
           key: this.orderableAttribute(request),

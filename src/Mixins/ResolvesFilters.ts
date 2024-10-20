@@ -1,6 +1,6 @@
+import type { AbstractMixable } from '../Contracts';
 import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { AbstractMixable } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class ResolvesFilters extends Parent {

@@ -1,6 +1,6 @@
 import { pascalCase } from 'change-case-all';
-import { AbstractMixable } from '../Contracts';
 import collect from 'collect.js';
+import type { AbstractMixable } from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class HasAttributes extends Parent {
@@ -12,12 +12,16 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Set value for the given key.
      */
-    setAttributeValue(key: string, value: any): this {
+    setAttributeValue<T = never>(key: string, value: T): this {
       const mutator = `set${pascalCase(key)}Attribute` as keyof this;
 
+      // Check if the mutator method exists and is a function
       if (typeof this[mutator] === 'function') {
-        (this[mutator] as Function).apply(this, [value]);
+        // Use the correct function signature for the mutator
+        const mutatorFn = this[mutator] as (arg: T) => void;
+        mutatorFn.apply(this, [value]);
       } else {
+        // Fallback to setting the attribute directly if no mutator exists
         this.attributes[key] = value;
       }
 
@@ -27,13 +31,21 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Get value for the given key.
      */
-    getAttributeValue<T extends any = undefined>(key: string): T {
+    getAttributeValue<T = undefined>(key: string): T {
       const value = this.attributes[key] as T;
+
+      // Dynamically construct the mutator method name
       const mutator = `get${pascalCase(key)}Attribute` as keyof this;
 
-      return value !== undefined && typeof this[mutator] === 'function'
-        ? (this[mutator] as Function).apply(this, [value])
-        : value;
+      // Check if the mutator method exists and is a function
+      if (typeof this[mutator] === 'function') {
+        // Use correct typing for the mutator method instead of Function type
+        const mutatorFn = this[mutator] as (arg: T) => T;
+        return mutatorFn.apply(this, [value]);
+      }
+
+      // Return the attribute value directly if no mutator method exists
+      return value;
     }
 
     /**

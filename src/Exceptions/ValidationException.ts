@@ -1,8 +1,8 @@
-import ResponsableException from './ResponsableException';
-import Response from '../Http/Responses/AvonResponse';
 import { collect } from 'collect.js';
+import type { ValidationError, ValidationErrorItem } from 'joi';
+import type Response from '../Http/Responses/AvonResponse';
 import ErrorResponse from '../Http/Responses/ErrorResponse';
-import { ValidationError, ValidationErrorItem } from 'joi';
+import ResponsableException from './ResponsableException';
 
 export default class ValidationException extends ResponsableException {
   constructor(protected errors: ValidationError) {

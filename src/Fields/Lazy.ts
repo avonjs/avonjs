@@ -1,12 +1,12 @@
-import { Model } from '../Contracts';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { AnyValue, Model } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import Field from './Field';
 
 export default abstract class Lazy extends Field {
   /**
    * Indicates related resources have to load.
    */
-  public loaded: boolean = false;
+  public loaded = false;
 
   /**
    * Determine field is resolvable or not.
@@ -37,5 +37,5 @@ export default abstract class Lazy extends Field {
   abstract resolveForResources(
     request: AvonRequest,
     resources: Model[],
-  ): Promise<any>;
+  ): Promise<AnyValue>;
 }

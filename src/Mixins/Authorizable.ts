@@ -1,6 +1,6 @@
+import type { Ability, AbstractMixable, AnyArray, Model } from '../Contracts';
 import { ForbiddenException } from '../Exceptions';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { AbstractMixable, Ability, Model } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class Authorizable extends Parent {
@@ -11,7 +11,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public async authorizeTo(
       request: AvonRequest,
       ability: Ability,
-      args: any[] = [],
+      args: AnyArray = [],
     ): Promise<void> {
       ForbiddenException.unless(
         await this.authorizedTo(request, ability, args),
@@ -24,7 +24,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public async authorizedTo(
       request: AvonRequest,
       ability: Ability,
-      args: any[] = [],
+      args: AnyArray = [],
     ): Promise<boolean> {
       const authorizationCallback =
         this[this.makeAuthorizationCallback(ability) as keyof this];

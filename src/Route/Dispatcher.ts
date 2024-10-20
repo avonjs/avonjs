@@ -1,33 +1,33 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
-import ActionIndexController from '../Http/Controllers/ActionIndexController';
-import ActionRequest from '../Http/Requests/ActionRequest';
-import ActionStoreController from '../Http/Controllers/ActionStoreController';
-import AvonResponse from '../Http/Responses/AvonResponse';
-import Controller from '../Http/Controllers/Controller';
-import ResourceDeleteController from '../Http/Controllers/ResourceDeleteController';
-import ResourceDeleteRequest from '../Http/Requests/ResourceDeleteRequest';
-import ResourceDetailController from '../Http/Controllers/ResourceDetailController';
-import ResourceDetailRequest from '../Http/Requests/ResourceDetailRequest';
-import ResourceForceDeleteController from '../Http/Controllers/ResourceForceDeleteController';
-import ResourceForceDeleteRequest from '../Http/Requests/ResourceForceDeleteRequest';
-import ResourceIndexController from '../Http/Controllers/ResourceIndexController';
-import ResourceIndexRequest from '../Http/Requests/ResourceIndexRequest';
-import ResourceRestoreController from '../Http/Controllers/ResourceRestoreController';
-import ResourceRestoreRequest from '../Http/Requests/ResourceRestoreRequest';
-import ResourceReviewController from '../Http/Controllers/ResourceReviewController';
-import ResourceReviewRequest from '../Http/Requests/ResourceReviewRequest';
-import ResourceStoreController from '../Http/Controllers/ResourceStoreController';
-import ResourceStoreOrAttachRequest from '../Http/Requests/ResourceCreateOrAttachRequest';
-import ResourceUpdateController from '../Http/Controllers/ResourceUpdateController';
-import ResourceUpdateOrUpdateAttachedRequest from '../Http/Requests/ResourceUpdateOrUpdateAttachedRequest';
-import ResponsableException from '../Exceptions/ResponsableException';
-import SchemaController from '../Http/Controllers/SchemaController';
-import SchemaRequest from '../Http/Requests/SchemaRequest';
-import AssociableController from '../Http/Controllers/AssociableController';
-import AssociableRequest from '../Http/Requests/AssociableRequest';
 import Avon from '../Avon';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import ResponsableException from '../Exceptions/ResponsableException';
+import ActionIndexController from '../Http/Controllers/ActionIndexController';
+import ActionStoreController from '../Http/Controllers/ActionStoreController';
+import AssociableController from '../Http/Controllers/AssociableController';
+import type Controller from '../Http/Controllers/Controller';
+import ResourceDeleteController from '../Http/Controllers/ResourceDeleteController';
+import ResourceDetailController from '../Http/Controllers/ResourceDetailController';
+import ResourceForceDeleteController from '../Http/Controllers/ResourceForceDeleteController';
+import ResourceIndexController from '../Http/Controllers/ResourceIndexController';
+import ResourceRestoreController from '../Http/Controllers/ResourceRestoreController';
+import ResourceReviewController from '../Http/Controllers/ResourceReviewController';
+import ResourceStoreController from '../Http/Controllers/ResourceStoreController';
+import ResourceUpdateController from '../Http/Controllers/ResourceUpdateController';
+import SchemaController from '../Http/Controllers/SchemaController';
+import ActionRequest from '../Http/Requests/ActionRequest';
+import AssociableRequest from '../Http/Requests/AssociableRequest';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import ResourceStoreOrAttachRequest from '../Http/Requests/ResourceCreateOrAttachRequest';
+import ResourceDeleteRequest from '../Http/Requests/ResourceDeleteRequest';
+import ResourceDetailRequest from '../Http/Requests/ResourceDetailRequest';
+import ResourceForceDeleteRequest from '../Http/Requests/ResourceForceDeleteRequest';
+import ResourceIndexRequest from '../Http/Requests/ResourceIndexRequest';
+import ResourceRestoreRequest from '../Http/Requests/ResourceRestoreRequest';
+import ResourceReviewRequest from '../Http/Requests/ResourceReviewRequest';
+import ResourceUpdateOrUpdateAttachedRequest from '../Http/Requests/ResourceUpdateOrUpdateAttachedRequest';
+import SchemaRequest from '../Http/Requests/SchemaRequest';
+import type AvonResponse from '../Http/Responses/AvonResponse';
 import { send } from '../helpers';
 
 const controllers: Record<
@@ -87,7 +87,8 @@ const controllers: Record<
     request: (request: Request) => new SchemaRequest(request),
   },
 };
-
+// TODO: may i have to export new class instance instead of static method
+// biome-ignore lint/complexity/noStaticOnlyClass:
 export default class Dispatcher {
   /**
    * Dispatch incoming request to correspond controller.

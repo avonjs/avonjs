@@ -1,6 +1,6 @@
-import { Model, AbstractMixable } from '../Contracts';
-import Repository from '../Repositories/Repository';
 import { DateTime } from 'luxon';
+import type { AbstractMixable, Model } from '../Contracts';
+import type Repository from '../Repositories/Repository';
 
 export default <
   TModel extends Model,

@@ -1,4 +1,4 @@
-import Response from '../Http/Responses/AvonResponse';
+import type Response from '../Http/Responses/AvonResponse';
 import ErrorResponse from '../Http/Responses/ErrorResponse';
 import Exception from './Exception';
 

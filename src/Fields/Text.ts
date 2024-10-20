@@ -1,8 +1,8 @@
 import Joi from 'joi';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
-import { DefaultCallback } from '../Contracts';
+import type { AnyValue, DefaultCallback } from '../Contracts';
 import Field from './Field';
 import TextFilter from './Filters/TextFilter';
 
@@ -32,7 +32,7 @@ export default class Text extends Field {
   /**
    * Specifies the minimum number of string characters.
    */
-  public min(min: number = 0) {
+  public min(min = 0) {
     this.rules(Joi.string().min(min));
 
     return this;
@@ -41,7 +41,7 @@ export default class Text extends Field {
   /**
    * Specifies the maximum number of string characters.
    */
-  public max(min: number = 0) {
+  public max(min = 0) {
     this.rules(Joi.string().max(min));
 
     return this;
@@ -50,7 +50,7 @@ export default class Text extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): string | null {
+  public getMutatedValue(request: AvonRequest, value: AnyValue): string | null {
     return String(value);
   }
 

@@ -1,6 +1,6 @@
-import { ResolveCallback } from '../Contracts';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { ResolveCallback } from '../Contracts';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import ResourceIdFilter from './Filters/ResourceIdFilter';
 import Integer from './Integer';
 

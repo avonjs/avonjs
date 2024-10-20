@@ -1,9 +1,9 @@
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Repository } from '../Repositories';
-import { OpenApiSchema } from '../Contracts';
+import type { OpenApiSchema, PrimaryKey } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Repository } from '../Repositories';
 
-import Filter from './Filter';
 import collect from 'collect.js';
+import Filter from './Filter';
 
 export default class ResourceId extends Filter {
   /**
@@ -19,9 +19,9 @@ export default class ResourceId extends Filter {
   /**
    * Apply the filter into the given repository.
    */
-  apply(request: AvonRequest, repository: Repository, value: any): any {
+  apply(request: AvonRequest, repository: Repository, value: PrimaryKey): void {
     if (!this.isValidNullValue(value)) {
-      return repository.whereKeys(collect<string | number>(value).all());
+      repository.whereKeys(collect<PrimaryKey>(value).all());
     }
   }
 

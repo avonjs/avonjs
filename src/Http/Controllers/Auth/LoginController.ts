@@ -1,5 +1,5 @@
-import ActionRequest from '../../Requests/ActionRequest';
-import { AvonResponse } from '../../Responses';
+import type ActionRequest from '../../Requests/ActionRequest';
+import type { AvonResponse } from '../../Responses';
 import Controller from '../Controller';
 
 export default class LoginController extends Controller {

@@ -1,7 +1,7 @@
-import Resource from '../../Resource';
-import { SearchCollection, Model, Ability } from '../../Contracts';
-import AssociableRequest from '../Requests/AssociableRequest';
-import { AvonResponse } from '../Responses';
+import { Ability, type Model, type SearchCollection } from '../../Contracts';
+import type Resource from '../../Resource';
+import type AssociableRequest from '../Requests/AssociableRequest';
+import type { AvonResponse } from '../Responses';
 import ResourceAssociationResponse from '../Responses/ResourceAssociationResponse';
 import Controller from './Controller';
 

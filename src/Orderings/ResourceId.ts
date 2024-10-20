@@ -1,7 +1,7 @@
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Repository } from '../Repositories';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Repository } from '../Repositories';
 
-import { Direction, Model } from '../Contracts';
+import { Direction, type Model } from '../Contracts';
 import Ordering from './Ordering';
 
 export default class PrimaryKey extends Ordering {
@@ -12,7 +12,7 @@ export default class PrimaryKey extends Ordering {
     request: AvonRequest,
     repository: Repository<Model>,
     direction: Direction,
-  ): any {
+  ) {
     return repository.order({
       key: request.model().getKeyName(),
       direction: Direction.ASC === direction ? direction : Direction.DESC,

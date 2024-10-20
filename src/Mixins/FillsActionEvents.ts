@@ -1,16 +1,17 @@
+import { randomUUID } from 'node:crypto';
 import collect from 'collect.js';
-import { randomUUID } from 'crypto';
-import { Fluent } from '../Models';
-import { Repository } from '../Repositories';
 import {
-  AbstractMixable,
-  Model,
+  type AbstractMixable,
+  type AnyRecord,
+  type Model,
   Operator,
-  ResourceActionEvent,
-  ResourceActionEventForAction,
-  ResourceStoreActionEvent,
-  ResourceUpdateActionEvent,
+  type ResourceActionEvent,
+  type ResourceActionEventForAction,
+  type ResourceStoreActionEvent,
+  type ResourceUpdateActionEvent,
 } from '../Contracts';
+import { Fluent } from '../Models';
+import type { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable<Repository>>(Parent: T) => {
   abstract class FillsActionEvents extends Parent {
@@ -25,7 +26,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful resource store.
      */
     public forResourceStore(params: ResourceStoreActionEvent): Fluent {
-      return new Fluent({
+      return Fluent.create({
         ...this.defaultAttributes(params),
         name: 'Create',
         changes: params.resource.getAttributes(),
@@ -36,7 +37,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful resource update.
      */
     public forResourceUpdate(params: ResourceUpdateActionEvent): Fluent {
-      return new Fluent({
+      return Fluent.create({
         ...this.defaultAttributes(params),
         name: 'Update',
         changes: collect(params.resource.getAttributes())
@@ -50,7 +51,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful resource destroy.
      */
     public forResourceDelete(params: ResourceActionEvent): Fluent {
-      return new Fluent({
+      return Fluent.create({
         ...this.defaultAttributes(params),
         name: 'Delete',
         changes: {},
@@ -62,7 +63,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful resource restore.
      */
     public forResourceRestore(params: ResourceActionEvent): Fluent {
-      return new Fluent({
+      return Fluent.create({
         ...this.defaultAttributes(params),
         name: 'Restore',
         changes: {},
@@ -73,7 +74,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful action ran.
      */
     public forActionRan(params: ResourceActionEventForAction): Fluent {
-      return new Fluent({
+      return Fluent.create({
         ...this.defaultAttributes(params),
         batch_id: params.batchId ?? randomUUID(),
         name: params.action.name(),
@@ -87,7 +88,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
     /**
      * Get the default attributes for creating a new action event.
      */
-    public defaultAttributes(params: ResourceActionEvent): Record<string, any> {
+    public defaultAttributes(params: ResourceActionEvent): AnyRecord {
       return {
         payload: params.payload ?? {},
         resource_name: params.resourceName,

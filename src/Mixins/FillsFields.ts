@@ -1,11 +1,11 @@
-import FieldCollection from '../Collections/FieldCollection';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import {
+import type FieldCollection from '../Collections/FieldCollection';
+import type {
   AbstractMixable,
-  Model,
   CallbackStack,
   FilledCallback,
+  Model,
 } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class FillsFields extends Parent {
@@ -55,7 +55,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
         model,
         fields
           .map((field) => field.fill(request, model))
-          .filter((callback: any) => typeof callback === 'function')
+          .filter((callback: unknown) => typeof callback === 'function')
           .values()
           .all() as Array<FilledCallback>,
       ];

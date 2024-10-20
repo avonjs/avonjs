@@ -1,8 +1,14 @@
-import { OpenAPIV3 } from 'openapi-types';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { OpenApiFieldSchema, OpenApiSchema, Payload } from './types';
-import { Action } from '../Actions';
-import { UUID } from 'crypto';
+import type { UUID } from 'node:crypto';
+import type { OpenAPIV3 } from 'openapi-types';
+import type { Action } from '../Actions';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type {
+  AnyRecord,
+  AnyValue,
+  OpenApiFieldSchema,
+  OpenApiSchema,
+  Payload,
+} from './types';
 
 export interface SearchCollection<TModel extends Model = Model> {
   items: TModel[];
@@ -33,12 +39,12 @@ export interface Model {
   /**
    * Set value for the given key.
    */
-  setAttribute: (key: string, value: any) => Model;
+  setAttribute: (key: string, value: AnyValue) => Model;
 
   /**
    * Get value for the given key.
    */
-  getAttribute: <T extends any = undefined>(key: string) => T;
+  getAttribute: <T = undefined>(key: string) => T;
 
   /**
    * Get the model key.
@@ -53,7 +59,7 @@ export interface Model {
   /**
    * Get all of the model attributes.
    */
-  getAttributes: () => Record<string, any>;
+  getAttributes: () => AnyRecord;
 }
 
 export interface SoftDeletes<TModel extends Model> {
@@ -84,7 +90,7 @@ export interface SoftDeletes<TModel extends Model> {
   /**
    * Determine whether a given resource is "soft-deleted".
    */
-  isSoftDeleted(resource: Model): Boolean;
+  isSoftDeleted(resource: Model): boolean;
 }
 
 export interface ResourceActionEvent {
@@ -148,6 +154,6 @@ export interface ActionEventRepository<TModel extends Model> {
 }
 
 export interface Transaction {
-  commit(value?: any): Promise<any>;
-  rollback(error?: any): Promise<any>;
+  commit(value?: AnyValue): Promise<AnyValue>;
+  rollback(error?: AnyValue): Promise<AnyValue>;
 }

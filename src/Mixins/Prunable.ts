@@ -1,9 +1,9 @@
-import { AbstractMixable, PruneCallback } from '../Contracts';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { AbstractMixable, AnyValue, PruneCallback } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class Prunable extends Parent {
-    attribute: any;
+    attribute: AnyValue;
 
     /**
      * Indicates if the underlying field is prunable.

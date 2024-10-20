@@ -1,5 +1,5 @@
-import Dispatcher from './Dispatcher';
 import type { Router } from 'express';
+import Dispatcher from './Dispatcher';
 
 export default class {
   constructor(protected router: Router) {}

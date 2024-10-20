@@ -1,13 +1,21 @@
-import collect from 'collect.js';
-import { Model } from '../Contracts';
+import type { AnyRecord, Model, PrimaryKey, UnknownRecord } from '../Contracts';
 import HasAttributes from '../Mixins/HasAttributes';
 
 export default class Fluent extends HasAttributes(class {}) implements Model {
-  constructor(public attributes: Record<string, unknown> = {}) {
+  private constructor(public attributes: UnknownRecord = {}) {
     super();
-    return new Proxy(this, {
-      get: function (parent, property, receiver): any {
-        // handle exists method
+  }
+
+  /**
+   * Wrap the current instance in a Proxy and return it.
+   */
+  static create(attributes: UnknownRecord = {}): Fluent {
+    // TODO: its not possible to use `this` in static methods
+    // biome-ignore lint/complexity/noThisInStatic:
+    const instance = new this(attributes);
+
+    return new Proxy(instance, {
+      get: (parent, property, receiver) => {
         if (property in parent) {
           return parent[property as keyof typeof parent];
         }
@@ -16,7 +24,6 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
       },
       set: (model, key: string, value) => {
         model.setAttribute(key, value ?? true);
-
         return true;
       },
     });
@@ -25,7 +32,7 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
   /**
    * Set the attributes.
    */
-  setAttributes(attributes: Record<string, unknown>): this {
+  setAttributes(attributes: UnknownRecord) {
     for (const key in attributes) {
       this.setAttribute(key, attributes[key]);
     }
@@ -36,7 +43,7 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
   /**
    * Set value for the given key.
    */
-  setAttribute(key: string, value: any): Fluent {
+  setAttribute(key: string, value: unknown) {
     super.setAttributeValue(key, value);
 
     return this;
@@ -45,15 +52,15 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
   /**
    * Get value for the given key.
    */
-  getAttribute<T extends any = undefined>(key: string): T {
+  getAttribute<T = undefined>(key: string): T {
     return super.getAttributeValue<T>(key);
   }
 
   /**
    * Get the model key.
    */
-  getKey(): string | number {
-    return this.getAttribute(this.getKeyName())!;
+  getKey(): PrimaryKey {
+    return this.getAttribute<PrimaryKey>(this.getKeyName());
   }
 
   /**
@@ -66,7 +73,7 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
   /**
    * Return all the attributes.
    */
-  public getAttributes(): Record<string, any> {
+  public getAttributes(): AnyRecord {
     return this.attributes;
   }
 

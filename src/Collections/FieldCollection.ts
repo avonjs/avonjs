@@ -1,8 +1,14 @@
 import { Collection } from 'collect.js';
-import { Field, Lazy } from '../Fields';
+import type {
+  AnyRecord,
+  AnyValue,
+  Model,
+  OpenApiSchema,
+  Optional,
+} from '../Contracts';
+import { type Field, Lazy } from '../Fields';
 import Relation from '../Fields/Relation';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Model, OpenApiSchema } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
 export default class FieldCollection<
   TItem extends Field = Field,
@@ -12,8 +18,8 @@ export default class FieldCollection<
    */
   public findFieldByAttribute(
     attribute: string,
-    defaultValue?: any,
-  ): TItem | undefined {
+    defaultValue?: AnyValue,
+  ): Optional<TItem> {
     return this.first<TItem>(
       (field) => field.attribute === attribute,
       defaultValue,
@@ -229,7 +235,7 @@ export default class FieldCollection<
   /**
    * Transform fields to object by values.
    */
-  public fieldValues(request: AvonRequest): Record<string, any> {
+  public fieldValues(request: AvonRequest): AnyRecord {
     return this.mapWithKeys((field: Field) => [
       field.attribute,
       field.getValue(request),

@@ -1,23 +1,24 @@
+import { snakeCase } from 'change-case-all';
 import collect from 'collect.js';
 import Avon from '../Avon';
 import FieldCollection from '../Collections/FieldCollection';
+import {
+  type AnyValue,
+  type DisplayFieldCallback,
+  type Model,
+  type OpenApiSchema,
+  type RelatableQueryCallback,
+  TrashedStatus,
+} from '../Contracts';
 import { RuntimeException } from '../Exceptions';
 import { Filter } from '../Filters';
-import AssociableRequest from '../Http/Requests/AssociableRequest';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import Resource from '../Resource';
-import {
-  RelatableQueryCallback,
-  DisplayFieldCallback,
-  Model,
-  TrashedStatus,
-  OpenApiSchema,
-} from '../Contracts';
-import { guessRelation } from './ResourceRelationshipGuesser';
-import { Repository } from '../Repositories';
-import { snakeCase } from 'change-case-all';
+import type AssociableRequest from '../Http/Requests/AssociableRequest';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import { Ordering } from '../Orderings';
+import type { Repository } from '../Repositories';
+import type Resource from '../Resource';
 import Lazy from './Lazy';
+import { guessRelation } from './ResourceRelationshipGuesser';
 
 export default abstract class Relation extends Lazy {
   /**
@@ -51,7 +52,7 @@ export default abstract class Relation extends Lazy {
   ) => this.relatedResource.relatableQuery(request, repository) ?? repository;
 
   constructor(resource: string, relation?: string) {
-    const relatedResource = Avon.resourceForKey(resource);
+    const relatedResource = Avon.resourceForKey(resource) as Resource;
 
     RuntimeException.when(
       relatedResource === undefined,
@@ -60,11 +61,9 @@ export default abstract class Relation extends Lazy {
       }`,
     );
 
-    relation = relation ?? guessRelation(relatedResource as Resource);
-    // init parent
-    super(relation);
-    this.relation = relation;
-    this.relatedResource = relatedResource as Resource;
+    super(relation ?? guessRelation(relatedResource));
+    this.relation = this.attribute;
+    this.relatedResource = relatedResource;
     this.ownerKey = this.relatedResource.repository().model().getKeyName();
     this.foreignKey = snakeCase(`${this.relation}_${this.ownerKey}`);
   }
@@ -111,7 +110,7 @@ export default abstract class Relation extends Lazy {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): any {
+  public getMutatedValue(request: AvonRequest, value: AnyValue): AnyValue {
     return collect(value as Model[])
       .map((relatable) => this.formatRelatedResource(request, relatable))
       .values()
@@ -121,10 +120,7 @@ export default abstract class Relation extends Lazy {
   /**
    * Format the given related resource.
    */
-  public formatRelatedResource(
-    request: AvonRequest,
-    resource: Model,
-  ): Record<string, any> {
+  public formatRelatedResource(request: AvonRequest, resource: Model) {
     return new FieldCollection(this.relatableFields(request))
       .resolve(resource)
       .fieldValues(request);
@@ -174,20 +170,14 @@ export default abstract class Relation extends Lazy {
   /**
    * Resolve value for given resources.
    */
-  async resolveForResources(
-    request: AvonRequest,
-    resources: Model[],
-  ): Promise<any> {
+  async resolveForResources(request: AvonRequest, resources: Model[]) {
     return this.resolveRelatables(request, resources);
   }
 
   /**
    * Resolve related value for given resources.
    */
-  async resolveRelatables(
-    request: AvonRequest,
-    resources: Model[],
-  ): Promise<any> {
+  async resolveRelatables(request: AvonRequest, resources: Model[]) {
     const relatables = await this.searchRelatables(request, resources);
 
     resources.forEach((resource) => {
@@ -195,7 +185,7 @@ export default abstract class Relation extends Lazy {
         this.attribute,
         relatables.filter((relatable) => {
           return (
-            // eslint-disable-next-line eqeqeq
+            // biome-ignore lint/suspicious/noDoubleEquals:
             relatable.getAttribute(this.ownerKeyName(request)) ==
             resource.getAttribute(this.foreignKeyName(request))
           );
@@ -217,7 +207,7 @@ export default abstract class Relation extends Lazy {
    */
   public async searchAssociable(
     request: AssociableRequest,
-    withTrashed: boolean = false,
+    withTrashed = false,
   ): Promise<Repository<Model>> {
     const repository = await this.relatedResource.search(
       request,
@@ -255,7 +245,7 @@ export default abstract class Relation extends Lazy {
   /**
    * Resolve the field's value.
    */
-  public resolve(resource: Model, attribute?: string): any {
+  public resolve(resource: Model, attribute?: string): AnyValue {
     super.resolve(
       resource,
       this.isLoaded() || this.foreignKey === '' ? attribute : this.foreignKey,

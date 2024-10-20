@@ -1,9 +1,12 @@
-import { ParsedUrlQuery } from 'querystring';
-import { MatchesQueryParameters } from '../../Contracts';
-import QueryParameter from './QueryParameter';
+import type { ParsedUrlQuery } from 'node:querystring';
+import type { MatchesQueryParameters } from '../../Contracts';
+import type QueryParameter from './QueryParameter';
 
 export default class QueryParser<T extends QueryParameter> {
-  constructor(protected query: ParsedUrlQuery, protected handlers: T[]) {}
+  constructor(
+    protected query: ParsedUrlQuery,
+    protected handlers: T[],
+  ) {}
 
   /**
    * Get pair of handlers and matched values.

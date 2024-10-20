@@ -1,12 +1,12 @@
 import { Action } from '../Actions';
 import FieldCollection from '../Collections/FieldCollection';
-import { Field, Json, Text } from '../Fields';
+import { type Field, Json, Text } from '../Fields';
 import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import { Ordering } from '../Orderings';
 import {
-  Repository,
   ActionEvent as ActionEventRepository,
+  type Repository,
 } from '../Repositories';
 import Resource from '../Resource';
 

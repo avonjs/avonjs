@@ -1,5 +1,5 @@
-import { Repository } from '../../Repositories';
-import { Model, RequestTypes, SoftDeletes } from '../../Contracts';
+import { type Model, RequestTypes, type SoftDeletes } from '../../Contracts';
+import type { Repository } from '../../Repositories';
 import ResourceSoftDeleteRequest from './ResourceSoftDeleteRequest';
 
 export default class ResourceForceDeleteRequest extends ResourceSoftDeleteRequest {

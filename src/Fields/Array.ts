@@ -1,10 +1,17 @@
 import collect from 'collect.js';
-import Joi, { AnySchema } from 'joi';
-import { OpenAPIV3 } from 'openapi-types';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { FilledCallback, Model, OpenApiSchema } from '../Contracts';
+import Joi, { type AnySchema } from 'joi';
+import type { OpenAPIV3 } from 'openapi-types';
+import type {
+  AnyValue,
+  FilledCallback,
+  Model,
+  OpenApiSchema,
+  Optional,
+} from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import Field from './Field';
-
+// TODO: Should be removed or renamed.
+// biome-ignore lint/suspicious/noShadowRestrictedNames:
 export default class Array extends Field {
   /**
    * The validation rules callback for creation and updates.
@@ -37,9 +44,11 @@ export default class Array extends Field {
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | void {
+  ): Optional<FilledCallback> {
     if (!request.exists(requestAttribute)) {
-      return this.fillAttributeFromDefault(request, model, attribute);
+      this.fillAttributeFromDefault(request, model, attribute);
+
+      return;
     }
 
     const value = request.array(requestAttribute);
@@ -55,7 +64,7 @@ export default class Array extends Field {
   /**
    * Specifies the exact number of items in the array.
    */
-  public length(limit: number = 0) {
+  public length(limit = 0) {
     this.rules(Joi.string().length(limit));
 
     return this;
@@ -64,7 +73,7 @@ export default class Array extends Field {
   /**
    * Specifies the minimum number of items in the array.
    */
-  public min(min: number = 0) {
+  public min(min = 0) {
     this.rules(Joi.array().min(min));
 
     return this;
@@ -73,7 +82,7 @@ export default class Array extends Field {
   /**
    * Specifies the maximum number of items in the array.
    */
-  public max(min: number = 0) {
+  public max(min = 0) {
     this.rules(Joi.array().max(min));
 
     return this;
@@ -82,7 +91,7 @@ export default class Array extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): any[] {
+  public getMutatedValue(request: AvonRequest, value: AnyValue): AnyValue[] {
     return collect(value).values().all();
   }
 
@@ -112,7 +121,7 @@ export default class Array extends Field {
   /**
    * Get the value considered as null.
    */
-  public nullValue(): any {
+  public nullValue(): AnyValue {
     return [];
   }
 

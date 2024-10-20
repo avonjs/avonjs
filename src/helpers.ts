@@ -1,18 +1,20 @@
-import { NextFunction, Request, Response } from 'express';
-import AvonRequest from './Http/Requests/AvonRequest';
-import {
+import type { NextFunction, Request, Response } from 'express';
+import type { OpenAPIV3 } from 'openapi-types';
+import type {
+  AnyValue,
   EvaluatorCallback,
-  ResourceEvaluatorCallback,
   Model,
+  ResourceEvaluatorCallback,
 } from './Contracts';
-import { AvonResponse } from './Http/Responses';
 import AuthenticationException from './Exceptions/AuthenticationException';
-import { OpenAPIV3 } from 'openapi-types';
+import type AvonRequest from './Http/Requests/AvonRequest';
+import type { AvonResponse } from './Http/Responses';
+import Resource from './Resource';
 
 /**
  * Convert given string in to slugify version.
  */
-export const slugify = (string: string, separator: string = '-'): string => {
+export const slugify = (string: string, separator = '-'): string => {
   return String(string).replace(
     /[A-Z]/g,
     (matched, offset) => (offset > 0 ? separator : '') + matched.toLowerCase(),
@@ -49,8 +51,8 @@ export const reverseEvaluatorCallback = (
 /**
  * Checks if the input value is nullish, which includes empty string, undefined, NaN, or null.
  */
-export const isNullish = (value: any) => {
-  return ['', undefined, NaN, null].includes(value);
+export const isNullish = (value: AnyValue) => {
+  return ['', undefined, Number.NaN, null].includes(value);
 };
 
 /**

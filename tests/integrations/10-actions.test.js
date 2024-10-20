@@ -1,18 +1,18 @@
 //@ts-check
-const express = require('express');
-const request = require('supertest');
-const bodyParser = require('body-parser');
-const fs = require('fs');
+const express = require("express");
+const request = require("supertest");
+const bodyParser = require("body-parser");
+const fs = require("fs");
 
-const { Repositories, Resource, Fields, Actions } = require('../../dist');
-const { join } = require('path');
-const { default: collect } = require('collect.js');
-const { randomUUID } = require('crypto');
-const { Fluent } = require('../../dist/Models');
-const { Operator } = require('../../dist/Contracts');
+const { Repositories, Resource, Fields, Actions } = require("../../dist");
+const { join } = require("path");
+const { default: collect } = require("collect.js");
+const { randomUUID } = require("crypto");
+const { Fluent } = require("../../dist/Models");
+const { Operator } = require("../../dist/Contracts");
 
-const stores = join(__dirname, 'stores.json');
-const events = join(__dirname, 'events.json');
+const stores = join(__dirname, "stores.json");
+const events = join(__dirname, "events.json");
 
 class ActionEvent extends Repositories.File {
   filepath() {
@@ -26,7 +26,7 @@ class ActionEvent extends Repositories.File {
    * makeIdentifier
    */
   makeIdentifier() {
-    return new Date().toISOString().substring(0, 10) + ':' + String(Date.now());
+    return new Date().toISOString().substring(0, 10) + ":" + String(Date.now());
   }
 
   /**
@@ -37,9 +37,9 @@ class ActionEvent extends Repositories.File {
     return Promise.all(
       models.map(async (model) => {
         return this.store(
-          model.setAttribute(model.getKeyName(), this.makeIdentifier()),
+          model.setAttribute(model.getKeyName(), this.makeIdentifier())
         );
-      }),
+      })
     );
   }
 
@@ -47,9 +47,9 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful resource store.
    */
   forResourceStore(params) {
-    return new Fluent({
+    return Fluent.create({
       ...this.defaultAttributes(params),
-      name: 'Create',
+      name: "Create",
       changes: params.resource.getAttributes(),
     });
   }
@@ -58,9 +58,9 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful resource update.
    */
   forResourceUpdate(params) {
-    return new Fluent({
+    return Fluent.create({
       ...this.defaultAttributes(params),
-      name: 'Update',
+      name: "Update",
       changes: collect(params.resource.getAttributes())
         .diffAssoc(collect(params.previous.getAttributes()))
         .all(),
@@ -72,9 +72,9 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful resource destroy.
    */
   forResourceDelete(params) {
-    return new Fluent({
+    return Fluent.create({
       ...this.defaultAttributes(params),
-      name: 'Delete',
+      name: "Delete",
       changes: {},
       original: params.resource.getAttributes(),
     });
@@ -84,9 +84,9 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful resource restore.
    */
   forResourceRestore(params) {
-    return new Fluent({
+    return Fluent.create({
       ...this.defaultAttributes(params),
-      name: 'Restore',
+      name: "Restore",
       changes: {},
     });
   }
@@ -95,7 +95,7 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful action ran.
    */
   forActionRan(params) {
-    return new Fluent({
+    return Fluent.create({
       ...this.defaultAttributes(params),
       batch_id: params.batchId ?? randomUUID(),
       name: params.action.name(),
@@ -118,7 +118,7 @@ class ActionEvent extends Repositories.File {
       model_id: params.resource.getKey(),
       changes: {},
       original: {},
-      status: 'finished',
+      status: "finished",
       user_id: params.userId,
       batch_id: params.batchId ?? randomUUID(),
     };
@@ -141,12 +141,12 @@ class ActionEvent extends Repositories.File {
   scopeResource(resourceName, key) {
     return this.where([
       {
-        key: 'resource_id',
+        key: "resource_id",
         value: key,
         operator: Operator.eq,
       },
       {
-        key: 'resource_name',
+        key: "resource_name",
         value: resourceName,
         operator: Operator.eq,
       },
@@ -167,8 +167,8 @@ const activate = new (class Activate extends Actions.Action {
   async handle(fields, models) {
     await Promise.all(
       models.map((model) => {
-        new StoreRepository().update(model.setAttribute('active', true));
-      }),
+        new StoreRepository().update(model.setAttribute("active", true));
+      })
     );
   }
 })();
@@ -185,8 +185,8 @@ class Store extends Resource {
   fields() {
     return [
       new Fields.ID(),
-      new Fields.Text('name'),
-      new Fields.Binary('active').default(() => false),
+      new Fields.Text("name"),
+      new Fields.Binary("active").default(() => false),
     ];
   }
 
@@ -207,16 +207,16 @@ beforeAll(() => {
   fs.writeFileSync(
     stores,
     JSON.stringify([
-      { id: 1, name: 'Name 1', active: false },
-      { id: 2, name: 'Name 2', active: true },
-    ]),
+      { id: 1, name: "Name 1", active: false },
+      { id: 2, name: "Name 2", active: true },
+    ])
   );
   fs.writeFileSync(events, JSON.stringify([]));
-  const { Avon } = require('../../dist');
+  const { Avon } = require("../../dist");
   // configure Avon
   Avon.resources([new Store()]);
 
-  app.use('/api', Avon.routes(express.Router()));
+  app.use("/api", Avon.routes(express.Router()));
 });
 // create storage
 afterAll(() => {
@@ -224,29 +224,29 @@ afterAll(() => {
   fs.unlinkSync(events);
 });
 
-describe('POST resources api', () => {
-  test('Could run action for single resource', () => {
+describe("POST resources api", () => {
+  test("Could run action for single resource", () => {
     return request(app)
       .post(
-        `/api/resources/${new Store().uriKey()}/actions/${activate.uriKey()}`,
+        `/api/resources/${new Store().uriKey()}/actions/${activate.uriKey()}`
       )
       .send({ resources: [1] })
-      .expect('Content-Type', /json/)
+      .expect("Content-Type", /json/)
       .expect(200)
       .then(async ({ body }) => {
         const event = await new ActionEvent().first([
-          { key: 'resource_id', value: 1, operator: Operator.eq },
+          { key: "resource_id", value: 1, operator: Operator.eq },
           {
-            key: 'resource_name',
+            key: "resource_name",
             value: new Store().uriKey(),
             operator: Operator.eq,
           },
-          { key: 'name', value: activate.name(), operator: Operator.eq },
+          { key: "name", value: activate.name(), operator: Operator.eq },
         ]);
 
         expect(event.original).toEqual({
           id: 1,
-          name: 'Name 1',
+          name: "Name 1",
           active: false,
         });
         expect(event.changes).toEqual({
@@ -255,21 +255,21 @@ describe('POST resources api', () => {
       });
   });
 
-  test('Could log standalone action', () => {
+  test("Could log standalone action", () => {
     return request(app)
       .post(
-        `/api/resources/${new Store().uriKey()}/actions/${standAlone.uriKey()}`,
+        `/api/resources/${new Store().uriKey()}/actions/${standAlone.uriKey()}`
       )
-      .expect('Content-Type', /json/)
+      .expect("Content-Type", /json/)
       .expect(200)
       .then(async ({ body }) => {
         const event = await new ActionEvent().first([
           {
-            key: 'resource_name',
+            key: "resource_name",
             value: new Store().uriKey(),
             operator: Operator.eq,
           },
-          { key: 'name', value: standAlone.name(), operator: Operator.eq },
+          { key: "name", value: standAlone.name(), operator: Operator.eq },
         ]);
 
         expect(event).not.toBeUndefined();

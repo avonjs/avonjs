@@ -1,8 +1,8 @@
+import fs from 'node:fs';
 import collect, { Collection } from 'collect.js';
-import { Fluent } from '../Models';
-import fs from 'fs';
+import type { CollectionRecord } from '../Contracts';
+import type { Fluent } from '../Models';
 import CollectionRepository from './CollectionRepository';
-import { CollectionRecord } from '../Contracts';
 
 export default abstract class FileRepository extends CollectionRepository {
   /**
@@ -11,7 +11,7 @@ export default abstract class FileRepository extends CollectionRepository {
   protected resolveItems(): CollectionRecord[] {
     const data = fs.readFileSync(this.filepath()).toString();
 
-    return JSON.parse(data).filter((item: any) => collect(item).isNotEmpty());
+    return JSON.parse(data).filter((item: never) => collect(item).isNotEmpty());
   }
 
   /**
@@ -59,7 +59,7 @@ export default abstract class FileRepository extends CollectionRepository {
   /**
    * Write given items to storage.
    */
-  protected write(items: Fluent[]): any {
+  protected write(items: Fluent[]) {
     fs.writeFileSync(
       this.filepath(),
       JSON.stringify(items.map((item) => item.getAttributes())),

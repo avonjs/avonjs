@@ -1,30 +1,31 @@
-import collect, { Collection } from 'collect.js';
-import { OpenAPIV3 } from 'openapi-types';
-import RouteRegistrar from './Route/RouteRegistrar';
-import { Request, Response, Router } from 'express';
-import { extname, join } from 'path';
-import { readdirSync, statSync } from 'fs';
-import Resource from './Resource';
-import AvonRequest from './Http/Requests/AvonRequest';
-import { AttemptCallback, Auth, ErrorHandler } from './Contracts';
+import { readdirSync, statSync } from 'node:fs';
+import { extname, join } from 'node:path';
+import collect, { type Collection } from 'collect.js';
+import type { Request, Response, Router } from 'express';
 import { expressjwt } from 'express-jwt';
+import Joi, { type AnySchema } from 'joi';
+import { type SignOptions, sign } from 'jsonwebtoken';
+import type { OpenAPIV3 } from 'openapi-types';
+import FieldCollection from './Collections/FieldCollection';
+import type { AttemptCallback, Auth, ErrorHandler } from './Contracts';
+import { NotFoundException, ResponsableException } from './Exceptions';
+import ValidationException from './Exceptions/ValidationException';
+import { Email, type Field, Text } from './Fields';
+import LoginRequest from './Http/Requests/Auth/LoginRequest';
+import type AvonRequest from './Http/Requests/AvonRequest';
+import type { AvonResponse } from './Http/Responses';
+import LoginResponse from './Http/Responses/Auth/LoginResponse';
+import { Fluent } from './Models';
+import Resource from './Resource';
+import RouteRegistrar from './Route/RouteRegistrar';
 import {
   errorsResponses,
   handleAuthenticationError,
   send,
   validationResponses,
 } from './helpers';
-import FieldCollection from './Collections/FieldCollection';
-import { Email, Field, Text } from './Fields';
-import LoginRequest from './Http/Requests/Auth/LoginRequest';
-import Joi, { AnySchema } from 'joi';
-import ValidationException from './Exceptions/ValidationException';
-import { Fluent } from './Models';
-import { AvonResponse } from './Http/Responses';
-import { NotFoundException, ResponsableException } from './Exceptions';
-import LoginResponse from './Http/Responses/Auth/LoginResponse';
-import { sign, SignOptions } from 'jsonwebtoken';
-
+// TODO: may i have to export new class instance instead of static method
+// biome-ignore lint/complexity/noStaticOnlyClass:
 export default class Avon {
   /**
    * Indicates application current version.
@@ -44,7 +45,7 @@ export default class Avon {
   /**
    * The error handler callback.
    */
-  protected static errorHandler: ErrorHandler = (error) => console.log(error);
+  protected static errorHandler: ErrorHandler = (error) => console.error(error);
 
   /**
    * Extended swagger paths.
@@ -67,12 +68,12 @@ export default class Avon {
   /**
    * The login attempt callback.
    */
-  protected static attemptCallback: AttemptCallback = async () => {};
+  protected static attemptCallback: AttemptCallback = async () => undefined;
 
   /**
    * Set application secret key.
    */
-  protected static appKey: string = 'Avon';
+  protected static appKey = 'Avon';
 
   /**
    * The login attempt callback.
@@ -294,7 +295,7 @@ export default class Avon {
    */
   public static async login(req: Request, res: Response) {
     const request = new LoginRequest(req);
-    const payload = new Fluent();
+    const payload = Fluent.create();
     // validate credentials
     await Avon.performValidation(request)
       .then(() => {
@@ -355,12 +356,7 @@ export default class Avon {
       openapi: '3.0.0',
       security: [{ BearerAuth: [] }],
       paths: Avon.resourceCollection().reduce(
-        (paths, resource) => {
-          return {
-            ...paths,
-            ...resource.schema(request),
-          };
-        },
+        (paths, resource) => Object.assign({}, paths, resource.schema(request)),
         { ...Avon.paths, ...Avon.loginSchema(request) },
       ),
       info: Avon.info,
@@ -538,7 +534,7 @@ export default class Avon {
       [`${request.getRequest().baseUrl}/login`]: {
         post: {
           tags: ['auth'],
-          description: `Login to get JWT token`,
+          description: 'Login to get JWT token',
           operationId: 'attempt',
           requestBody: {
             content: {
@@ -555,7 +551,7 @@ export default class Avon {
             ...errorsResponses(),
             ...validationResponses(),
             200: {
-              description: `Get JWT token`,
+              description: 'Get JWT token',
               content: {
                 'application/json': {
                   schema: {

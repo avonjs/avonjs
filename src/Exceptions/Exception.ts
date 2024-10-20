@@ -1,3 +1,5 @@
+import type { AnyValue } from '../Contracts';
+
 export default class Exception extends Error {
   constructor(message?: string, ...args: readonly unknown[]) {
     super(message ?? 'Something went wrong.');
@@ -7,6 +9,8 @@ export default class Exception extends Error {
    * Throw the Exception.
    */
   static throw(message?: string, ...args: readonly unknown[]): void {
+    //TODO: should fix this.
+    // biome-ignore lint/complexity/noThisInStatic: This is a static method.
     throw new this(message, ...args);
   }
 
@@ -19,6 +23,8 @@ export default class Exception extends Error {
     ...args: readonly unknown[]
   ): void {
     if (condition) {
+      //TODO: should fix this.
+      // biome-ignore lint/complexity/noThisInStatic: This is a static method.
       this.throw(message, ...args);
     }
   }
@@ -27,11 +33,13 @@ export default class Exception extends Error {
    * Generate an Exception if the given condition is not satisfied.
    */
   static unless(
-    condition: any,
+    condition: AnyValue,
     message?: string,
     ...args: readonly unknown[]
   ): asserts condition {
     if (!condition) {
+      //TODO: should fix this.
+      // biome-ignore lint/complexity/noThisInStatic: This is a static method.
       this.throw(message, ...args);
     }
   }

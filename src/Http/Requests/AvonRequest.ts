@@ -1,9 +1,14 @@
 import Avon from '../../Avon';
+import {
+  type Attributes,
+  type Model,
+  RequestTypes,
+  TrashedStatus,
+} from '../../Contracts';
 import ModelNotFoundException from '../../Exceptions/ModelNotFoundException';
 import ResourceNotFoundException from '../../Exceptions/ResourceNotFoundException';
-import { Repository } from '../../Repositories';
-import Resource from '../../Resource';
-import { RequestTypes, Model, TrashedStatus } from '../../Contracts';
+import type { Repository } from '../../Repositories';
+import type Resource from '../../Resource';
 import FormRequest from './FormRequest';
 
 export default abstract class AvonRequest extends FormRequest {
@@ -115,7 +120,7 @@ export default abstract class AvonRequest extends FormRequest {
 
     ResourceNotFoundException.unless(resource);
 
-    return resource!;
+    return resource;
   }
 
   /**
@@ -135,7 +140,7 @@ export default abstract class AvonRequest extends FormRequest {
   /**
    * Make a new model for given attributes.
    */
-  public newModel(attributes: Record<string, any>): Model {
+  public newModel(attributes: Attributes): Model {
     const Constructor = this.model().constructor.prototype.constructor;
 
     return new Constructor(attributes);

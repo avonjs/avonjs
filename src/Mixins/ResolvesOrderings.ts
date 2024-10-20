@@ -1,5 +1,5 @@
-import { AbstractMixable } from '../Contracts';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { AbstractMixable } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import { Ordering } from '../Orderings';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {

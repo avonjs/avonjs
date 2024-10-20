@@ -1,9 +1,9 @@
-import { Filter } from '../../Filters';
-import { Ordering } from '../../Orderings';
-import { RequestTypes, MatchesQueryParameters } from '../../Contracts';
-import ResourceIndexRequest from './ResourceIndexRequest';
-import FieldNotFoundException from '../../Exceptions/FieldNotFoundException';
 import FieldCollection from '../../Collections/FieldCollection';
+import { MatchesQueryParameters, RequestTypes } from '../../Contracts';
+import FieldNotFoundException from '../../Exceptions/FieldNotFoundException';
+import type { Filter } from '../../Filters';
+import type { Ordering } from '../../Orderings';
+import ResourceIndexRequest from './ResourceIndexRequest';
 
 export default class AssociableRequest extends ResourceIndexRequest {
   /**
