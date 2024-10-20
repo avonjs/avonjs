@@ -1,3 +1,4 @@
+import Rules from 'joi';
 import * as Actions from './Actions';
 import Avon from './Avon';
 import * as Contracts from './Contracts';
@@ -43,4 +44,5 @@ export {
   Helpers,
   Resources,
   FilterableFields,
+  Rules,
 };
