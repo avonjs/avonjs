@@ -470,11 +470,10 @@ new Fields.Array('title').length(3)
 
 The `Binary` field may be used to represent a boolean / "tiny integer" column in your database. For example, assuming your database has a boolean column named `active`, you may attach a `Binary` field to your resource like so:
 
-```
-import { Fields } from '@avonjs/avonjs';
+```ts
+import { Rules, Fields } from "@avonjs/avonjs";
 
-
-new Fields.Binary('active').rules(Joi.required()).nullable(false)
+new Fields.Binary("active").rules(Rules.required()).nullable(false);
 ```
 
 ### DateTime
@@ -519,7 +518,7 @@ The `Json` field provides a convenient interface to edit, `key-value` data store
 import { Fields } from '@avonjs/avonjs';
 
 new Fields.Json('meta', [
-    new Fields.Text('title').creationRules(Joi.required()),
+    new Fields.Text('title').creationRules(Rules.required()),
 ])
 ```
 
@@ -533,8 +532,8 @@ The `List` field offers a user-friendly interface for editing arrays of `key-val
 import { Fields } from '@avonjs/avonjs';
 
 new Fields.List('comments', [
-    new Fields.Text('name').creationRules(Joi.required()),
-    new Fields.Text('comment').creationRules(Joi.required()),
+    new Fields.Text('name').creationRules(Rules.required()),
+    new Fields.Text('comment').creationRules(Rules.required()),
 ])
 ```
 
@@ -976,28 +975,54 @@ relatableSearchResults = 5;
 
 Unless you like to live dangerously, any Avon fields that are displayed on the Avon creation / update pages will need some validation. Thankfully, it's a cinch to attach all of the [Joi](https://joi.dev/api) validation rules you're familiar with to your Avon resource fields. Let's get started.
 
+## Rules
+
+To avoid errors caused by merging different versions of Joi, **Avon.js** provides a `Rules` class, which acts as an alias for the Joi package. This ensures compatibility and simplifies validation without requiring you to install Joi as a separate dependency.
+
+You can easily use the `Rules` class in your project as follows:
+
+```ts
+import { Rules } from "@avonjs/avonjs";
+
+// Example usage of Rules (Joi) for schema validation
+new Fields.Text("name").rules(Rules.string());
+
+const result = schema.validate({ name: "John", age: 25 });
+```
+
+By using `Rules`, you can avoid version conflicts and maintain consistent validation logic throughout your application.
+
 ## Attaching Rules
 
 When defining a field on a resource, you may use the `rules` method to attach validation rules to the field:
 
-```
-new Fields.Text('name').rules(Joi.string())
+```ts
+import { Rules } from "@avonjs/avonjs";
+
+new Fields.Text("name").rules(Rules.string());
 ```
 
 ## Creation Rules
 
 If you would like to define rules that only apply when a resource is being created, you may use the `creationRules` method:
 
-```
-new Fields.Text('name').rules(Joi.string()).creationRules(Joi.required())
+```ts
+import { Rules } from "@avonjs/avonjs";
+
+new Fields.Text("name").rules(Rules.string()).creationRules(Rules.required());
 ```
 
 ## Update Rules
 
 Likewise, if you would like to define rules that only apply when a resource is being updated, you may use the `updateRules` method:
 
-```
-new Fields.Text('name').rules(Joi.string()).creationRules(Joi.required()).updateRules(Joi.optional())
+```ts
+import { Rules } from "@avonjs/avonjs";
+
+new Fields.Text("name")
+  .rules(Rules.string())
+  .creationRules(Rules.required())
+  .updateRules(Rules.optional());
 ```
 
 ## Authorization
