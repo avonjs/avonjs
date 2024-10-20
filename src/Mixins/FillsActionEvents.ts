@@ -26,7 +26,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful resource store.
      */
     public forResourceStore(params: ResourceStoreActionEvent): Fluent {
-      return Fluent.create({
+      return new Fluent({
         ...this.defaultAttributes(params),
         name: 'Create',
         changes: params.resource.getAttributes(),
@@ -37,7 +37,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful resource update.
      */
     public forResourceUpdate(params: ResourceUpdateActionEvent): Fluent {
-      return Fluent.create({
+      return new Fluent({
         ...this.defaultAttributes(params),
         name: 'Update',
         changes: collect(params.resource.getAttributes())
@@ -51,7 +51,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful resource destroy.
      */
     public forResourceDelete(params: ResourceActionEvent): Fluent {
-      return Fluent.create({
+      return new Fluent({
         ...this.defaultAttributes(params),
         name: 'Delete',
         changes: {},
@@ -63,7 +63,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful resource restore.
      */
     public forResourceRestore(params: ResourceActionEvent): Fluent {
-      return Fluent.create({
+      return new Fluent({
         ...this.defaultAttributes(params),
         name: 'Restore',
         changes: {},
@@ -74,7 +74,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
      * Fill event model for successful action ran.
      */
     public forActionRan(params: ResourceActionEventForAction): Fluent {
-      return Fluent.create({
+      return new Fluent({
         ...this.defaultAttributes(params),
         batch_id: params.batchId ?? randomUUID(),
         name: params.action.name(),

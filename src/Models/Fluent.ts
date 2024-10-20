@@ -2,20 +2,13 @@ import type { AnyRecord, Model, PrimaryKey, UnknownRecord } from '../Contracts';
 import HasAttributes from '../Mixins/HasAttributes';
 
 export default class Fluent extends HasAttributes(class {}) implements Model {
-  private constructor(public attributes: UnknownRecord = {}) {
+  constructor(public attributes: UnknownRecord = {}) {
     super();
-  }
-
-  /**
-   * Wrap the current instance in a Proxy and return it.
-   */
-  static create(attributes: UnknownRecord = {}): Fluent {
-    // TODO: its not possible to use `this` in static methods
-    // biome-ignore lint/complexity/noThisInStatic:
-    const instance = new this(attributes);
-
-    return new Proxy(instance, {
+    // i tested some approach but it have problem with private member assignments
+    // biome-ignore lint/correctness/noConstructorReturn: i don't have any solution for it
+    return new Proxy(this, {
       get: (parent, property, receiver) => {
+        // handle exists method
         if (property in parent) {
           return parent[property as keyof typeof parent];
         }
@@ -24,6 +17,7 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
       },
       set: (model, key: string, value) => {
         model.setAttribute(key, value ?? true);
+
         return true;
       },
     });

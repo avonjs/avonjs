@@ -234,7 +234,7 @@ export default abstract class KnexRepository<
    * Create new instance of model.
    */
   model(): TModel {
-    return Fluent.create() as unknown as TModel;
+    return new Fluent() as unknown as TModel;
   }
 
   /**

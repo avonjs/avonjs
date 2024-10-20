@@ -113,8 +113,8 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       await this.makeActionRepository().store(
         this.actionRepository().forActionRan({
           resourceName: this.resourceName(),
-          resource: Fluent.create(),
-          previous: Fluent.create(),
+          resource: new Fluent(),
+          previous: new Fluent(),
           batchId: randomUUID(),
           payload,
           action,

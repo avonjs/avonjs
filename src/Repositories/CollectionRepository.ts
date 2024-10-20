@@ -26,7 +26,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    */
   protected prepareItems(items: AnyArray): Fluent[] {
     return items.map((item) => {
-      return item instanceof Fluent ? item : Fluent.create(item);
+      return item instanceof Fluent ? item : new Fluent(item);
     });
   }
 
@@ -212,7 +212,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
    * Create new instance of model.
    */
   model(): Fluent {
-    return Fluent.create();
+    return new Fluent();
   }
 
   /**

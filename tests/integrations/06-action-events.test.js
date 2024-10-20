@@ -203,7 +203,7 @@ describe("action event logs", () => {
   test("Could flush logs for deleted resources", async () => {
     await new ActionEvent().store(
       new ActionEvent().forResourceStore({
-        resource: Fluent.create({ id: 2, name: "Post 2" }),
+        resource: new Fluent({ id: 2, name: "Post 2" }),
         resourceName: resource.resourceName(),
         payload: {},
       })

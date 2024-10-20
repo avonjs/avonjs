@@ -195,12 +195,9 @@ export default abstract class Repository<TModel extends Model = Model> {
    * Fill data into model.
    */
   public fillModel(result: AnyRecord): TModel {
-    const model = this.model();
-    const Constructor = model.constructor.prototype.constructor;
+    const Constructor = this.model().constructor.prototype.constructor;
 
-    return model instanceof Fluent
-      ? Constructor.create(result)
-      : new Constructor(result);
+    return new Constructor(result);
   }
 
   /**

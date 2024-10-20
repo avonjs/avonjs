@@ -94,7 +94,7 @@ export default abstract class Action
    * Resolve the creation fields.
    */
   public resolveFields(request: AvonRequest): Fluent {
-    const model = Fluent.create();
+    const model = new Fluent();
 
     this.availableFields(request)
       .authorized(request)

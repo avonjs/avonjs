@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 const { Repositories, Resource, Fields } = require("../../dist");
 const { Fluent } = require("../../dist/Models");
 const targetData = { id: Date.now(), name: Date.now() + " NAME" };
-const items = [Fluent.create(Object.assign({}, targetData))];
+const items = [new Fluent(Object.assign({}, targetData))];
 const repository = new (class extends Repositories.Collection {
   searchableColumns() {
     return [];

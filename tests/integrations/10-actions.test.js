@@ -47,7 +47,7 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful resource store.
    */
   forResourceStore(params) {
-    return Fluent.create({
+    return new Fluent({
       ...this.defaultAttributes(params),
       name: "Create",
       changes: params.resource.getAttributes(),
@@ -58,7 +58,7 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful resource update.
    */
   forResourceUpdate(params) {
-    return Fluent.create({
+    return new Fluent({
       ...this.defaultAttributes(params),
       name: "Update",
       changes: collect(params.resource.getAttributes())
@@ -72,7 +72,7 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful resource destroy.
    */
   forResourceDelete(params) {
-    return Fluent.create({
+    return new Fluent({
       ...this.defaultAttributes(params),
       name: "Delete",
       changes: {},
@@ -84,7 +84,7 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful resource restore.
    */
   forResourceRestore(params) {
-    return Fluent.create({
+    return new Fluent({
       ...this.defaultAttributes(params),
       name: "Restore",
       changes: {},
@@ -95,7 +95,7 @@ class ActionEvent extends Repositories.File {
    * Fill event model for successful action ran.
    */
   forActionRan(params) {
-    return Fluent.create({
+    return new Fluent({
       ...this.defaultAttributes(params),
       batch_id: params.batchId ?? randomUUID(),
       name: params.action.name(),

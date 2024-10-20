@@ -295,7 +295,7 @@ export default class Avon {
    */
   public static async login(req: Request, res: Response) {
     const request = new LoginRequest(req);
-    const payload = Fluent.create();
+    const payload = new Fluent();
     // validate credentials
     await Avon.performValidation(request)
       .then(() => {

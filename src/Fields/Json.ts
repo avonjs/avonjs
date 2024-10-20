@@ -110,7 +110,7 @@ export default class Json extends Field {
    * Mutate the field value for response.
    */
   public getMutatedValue(request: AvonRequest, value: AnyValue) {
-    const attributes = Fluent.create(
+    const attributes = new Fluent(
       typeof value === 'string' ? JSON.parse(value) : value,
     );
 
