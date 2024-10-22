@@ -29,6 +29,7 @@ import ResourceUpdateOrUpdateAttachedRequest from '../Http/Requests/ResourceUpda
 import SchemaRequest from '../Http/Requests/SchemaRequest';
 import type AvonResponse from '../Http/Responses/AvonResponse';
 import { send } from '../helpers';
+import { dump } from '../support/debug';
 
 const controllers: Record<
   string,
@@ -109,6 +110,7 @@ export default class Dispatcher {
     }
 
     return (req: Request, res: Response) => {
+      dump(`Dispatching request "${req.method}:${req.url}" to "${controller}"`);
       const request = controllers[controller].request(req);
 
       controllerInstance[method as keyof Controller](request)
