@@ -11,11 +11,12 @@ export type SerializedAction = {
   fields: AnyRecord[];
 };
 
-// extends QueryParameter
-export type MatchesQueryParameters<T> = Array<{
+export type QueryHandler<T> = {
   handler: T;
   value: AnyValue;
-}>;
+};
+
+export type MatchedQueryHandlers<T> = QueryHandler<T>[];
 
 export type ResourceMetaData = {
   softDeletes: boolean;

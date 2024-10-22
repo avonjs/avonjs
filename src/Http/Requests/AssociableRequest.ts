@@ -1,5 +1,5 @@
 import FieldCollection from '../../Collections/FieldCollection';
-import { MatchesQueryParameters, RequestTypes } from '../../Contracts';
+import { MatchedQueryHandlers, RequestTypes } from '../../Contracts';
 import FieldNotFoundException from '../../Exceptions/FieldNotFoundException';
 import type { Filter } from '../../Filters';
 import type { Ordering } from '../../Orderings';

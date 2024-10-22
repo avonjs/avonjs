@@ -1,5 +1,5 @@
 import type { ParsedUrlQuery } from 'node:querystring';
-import type { MatchesQueryParameters } from '../../Contracts';
+import type { MatchedQueryHandlers } from '../../Contracts';
 import type QueryParameter from './QueryParameter';
 
 export default class QueryParser<T extends QueryParameter> {
@@ -11,7 +11,7 @@ export default class QueryParser<T extends QueryParameter> {
   /**
    * Get pair of handlers and matched values.
    */
-  matches(): MatchesQueryParameters<T> {
+  matches(): MatchedQueryHandlers<T> {
     return this.handlers
       .filter((handler) => this.query[handler.key()] !== undefined)
       .map((handler) => {
