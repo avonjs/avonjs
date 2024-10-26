@@ -26,7 +26,7 @@ export type ResourceMetaData = {
 export type SerializedResource = {
   fields: AnyRecord;
   metadata: ResourceMetaData;
-  authorization: Record<string, Optional<boolean>>;
+  authorization: Dictionary<Optional<boolean>>;
 };
 
 export type IndexSerializedResource = SerializedResource & {
@@ -74,15 +74,15 @@ export type Where = { key: string; value: AnyValue; operator: Operator };
 
 export type Order = { key: string; direction: Direction };
 
-export type Rules = Record<string, AnySchema>;
+export type Rules = Dictionary<AnySchema>;
 
 export type Searchable = RegExp | ((search: string, item: Fluent) => boolean);
 
-export type Payload = Record<string, unknown>;
+export type Payload = Dictionary<unknown>;
 
 export type BulkActionResult = Array<{ resource: Model; previous: Model }>;
 
-export type Attachable = { id: string | number } & AnyRecord;
+export type Attachable = { id: PrimaryKey } & AnyRecord;
 
 export type OpenApiSchema = OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject;
 
@@ -97,16 +97,17 @@ export type CollectionRecord = AnyRecord;
 
 export type EnumValues = unknown[];
 
-export type RequestBodyContent = Record<string, OpenAPIV3.MediaTypeObject>;
-
-export type UnknownRecord = Record<string, unknown>;
 // TODO: Should fix later
 // biome-ignore lint/suspicious/noExplicitAny: Should fix later
 export type AnyValue = any;
-export type AnyRecord = Record<string, AnyValue>;
 export type AnyArray = Array<AnyValue>;
 export type Args = AnyArray;
 export type Optional<T> = T | undefined;
 export type Nullable<T = undefined> = T | null;
 export type PrimaryKey = string | number;
 export type Attributes = AnyRecord;
+
+export type Dictionary<T> = Record<string, T>;
+export type UnknownRecord = Dictionary<unknown>;
+export type RequestBodyContent = Dictionary<OpenAPIV3.MediaTypeObject>;
+export type AnyRecord = Dictionary<AnyValue>;

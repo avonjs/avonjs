@@ -8,7 +8,14 @@ import { type SignOptions, sign } from 'jsonwebtoken';
 import type { OpenAPIV3 } from 'openapi-types';
 import FieldCollection from './Collections/FieldCollection';
 import { ResourceCollection } from './Collections/ResourceCollection';
-import type { AttemptCallback, Auth, ErrorHandler } from './Contracts';
+import type {
+  AttemptCallback,
+  Auth,
+  Dictionary,
+  ErrorHandler,
+  Optional,
+  PrimaryKey,
+} from './Contracts';
 import { NotFoundException, ResponsableException } from './Exceptions';
 import ValidationException from './Exceptions/ValidationException';
 import { Email, type Field, Text } from './Fields';
@@ -42,7 +49,7 @@ export default class Avon {
   /**
    * Map of available resources.
    */
-  protected static resourceMap: Record<string, Resource> = {};
+  protected static resourceMap: Dictionary<Resource> = {};
 
   /**
    * The error handler callback.
@@ -122,7 +129,7 @@ export default class Avon {
   /**
    * Find resource for given uriKey.
    */
-  public static resourceForKey(key: string): Resource | undefined {
+  public static resourceForKey(key: string): Optional<Resource> {
     if (Avon.resourceMap[key] === undefined) {
       Avon.resourceMap[key] = Avon.resourceCollection().first(
         (resource: Resource) => resource.uriKey() === key,
@@ -193,8 +200,7 @@ export default class Avon {
   /**
    * Get the user id.
    */
-  public static userId(request: AvonRequest): string | number | undefined {
-    //@ts-ignore
+  public static userId(request: AvonRequest): Optional<PrimaryKey> {
     return (request.getRequest().auth as Auth)?.id;
   }
 
@@ -353,7 +359,7 @@ export default class Avon {
    * Set attempt callback.
    */
   public static async attempt(
-    payload: Record<string, unknown>,
+    payload: Dictionary<unknown>,
   ): Promise<AvonResponse> {
     const user = await Avon.attemptCallback(payload);
 
