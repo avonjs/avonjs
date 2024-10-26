@@ -18,7 +18,8 @@
     "build": "npx tsc --build",
     "watch": "npx tsc --watch",
     "test": "jest --runInBand",
-    "test:debug": "jest --runInBand --verbose"
+    "test:debug": "jest --runInBand --verbose",
+    "format": "npx @biomejs/biome check --write --verbose"
   },
   "keywords": [
     "express",
