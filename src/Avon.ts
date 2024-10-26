@@ -24,7 +24,7 @@ import {
   send,
   validationResponses,
 } from './helpers';
-import { dump } from './support/debug';
+import Logger from './support/debug';
 // TODO: may i have to export new class instance instead of static method
 // biome-ignore lint/complexity/noStaticOnlyClass:
 export default class Avon {
@@ -108,7 +108,7 @@ export default class Avon {
    * Register array of new resources.
    */
   public static resources(resources: Resource[] = []): Avon {
-    dump(
+    Logger.dump(
       `Registering resources: ${resources
         .map((resource) => resource.uriKey())
         .join(', ')}`,
@@ -201,7 +201,7 @@ export default class Avon {
    * Register resource from given path.
    */
   public static resourceIn(path: string) {
-    dump(`Searching resources in directory: ${path}`);
+    Logger.dump(`Searching resources in directory: ${path}`);
     const files = readdirSync(path);
     const resources: Resource[] = [];
     // check paths
@@ -226,10 +226,10 @@ export default class Avon {
     }
     // register resources
     if (resources.length) {
-      dump(`Registering resources from directory: ${path}`);
+      Logger.dump(`Registering resources from directory: ${path}`);
       Avon.resources(resources);
     } else {
-      dump(`No resources found in directory: ${path}`);
+      Logger.dump(`No resources found in directory: ${path}`);
     }
 
     return Avon;

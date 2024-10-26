@@ -157,3 +157,22 @@ export interface Transaction {
   commit(value?: AnyValue): Promise<AnyValue>;
   rollback(error?: AnyValue): Promise<AnyValue>;
 }
+
+export interface Logger {
+  /**
+   * Log the "error" level messages.
+   */
+  error(formatter: string, ...args: unknown[]): Logger;
+  /**
+   * Log the "info" level messages.
+   */
+  info(formatter: string, ...args: unknown[]): Logger;
+  /**
+   * Log the "warn" level messages.
+   */
+  warn(formatter: string, ...args: unknown[]): Logger;
+  /**
+   * Log the "debug" level messages.
+   */
+  dump(formatter: string, ...args: unknown[]): Logger;
+}
