@@ -49,7 +49,7 @@ class Debug implements Logger {
    * Log the "error" level messages.
    */
   dump(formatter: string, ...args: unknown[]) {
-    this.logger('dump')(formatter, ...args);
+    this.logger('debug')(formatter, ...args);
     return this;
   }
 
