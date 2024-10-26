@@ -7,6 +7,7 @@ import Joi, { type AnySchema } from 'joi';
 import { type SignOptions, sign } from 'jsonwebtoken';
 import type { OpenAPIV3 } from 'openapi-types';
 import FieldCollection from './Collections/FieldCollection';
+import { ResourceCollection } from './Collections/ResourceCollection';
 import type { AttemptCallback, Auth, ErrorHandler } from './Contracts';
 import { NotFoundException, ResponsableException } from './Exceptions';
 import ValidationException from './Exceptions/ValidationException';
@@ -108,12 +109,12 @@ export default class Avon {
    * Register array of new resources.
    */
   public static resources(resources: Resource[] = []): Avon {
-    Logger.dump(
-      `Registering resources: ${resources
-        .map((resource) => resource.uriKey())
-        .join(', ')}`,
-    );
     Avon.resourceInstances = [...Avon.resourceInstances, ...resources];
+
+    Logger.dump(
+      'Resources registered: %O',
+      Avon.resourceCollection().keys().implode(', '),
+    );
 
     return Avon;
   }
@@ -134,8 +135,8 @@ export default class Avon {
   /**
    * Get collection of available resources.
    */
-  public static resourceCollection(): Collection<Resource> {
-    return collect(Avon.resourceInstances);
+  public static resourceCollection() {
+    return new ResourceCollection(Avon.resourceInstances);
   }
 
   /**
