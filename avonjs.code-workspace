@@ -3,6 +3,13 @@
   "settings": {
     "editor.fontFamily": "JetBrains Mono, Regular",
     "editor.formatOnSave": true,
-    "[*]": { "editor.defaultFormatter": "biomejs.biome" }
+    "editor.defaultFormatter": "biomejs.biome",
+    "prettier.enable": false,
+    "sort-imports.cache-package-json-config-checks": false,
+    "sort-imports.on-save": false,
+    "sort-imports.ignore-type-defs": false
+  },
+  "extensions": {
+    "recommendations": ["biomejs.biome"]
   }
 }
