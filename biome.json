@@ -3,8 +3,14 @@
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
-    "include": ["src/**", "test/**"],
-    "ignore": []
+    "ignore": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/tests/**",
+      "**/package-lock.json",
+      "**/yarn.lock",
+      "**/.vscode/**"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -15,13 +21,7 @@
     "lineEnding": "lf",
     "lineWidth": 80,
     "attributePosition": "auto",
-    "bracketSpacing": true,
-    "ignore": [
-      "**/node_modules/",
-      "**/dist/",
-      "**/package-lock.json",
-      "**/yarn.lock"
-    ]
+    "bracketSpacing": true
   },
   "organizeImports": { "enabled": true },
   "linter": {
