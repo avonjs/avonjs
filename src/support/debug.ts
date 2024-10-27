@@ -2,6 +2,8 @@ import debug from 'debug';
 import type { Logger } from '../Contracts';
 
 class Debug implements Logger {
+  private debuggers: Map<string, debug.Debugger> = new Map();
+
   constructor(
     protected namespace = 'avonjs',
     protected suffix?: string,
@@ -13,16 +15,14 @@ class Debug implements Logger {
    * Extend the log namespace.
    */
   extend(namespace: string) {
-    this.suffix = namespace;
-
-    return this;
+    return new Debug(this.namespace, namespace);
   }
 
   /**
    * Log the "error" level messages.
    */
-  error(formatter: string, ...args: unknown[]) {
-    this.logger('error')(formatter, ...args);
+  error(formatter: unknown, ...args: unknown[]) {
+    this.resolve('error')(formatter, ...args);
 
     return this;
   }
@@ -30,8 +30,8 @@ class Debug implements Logger {
   /**
    * Log the "info" level messages.
    */
-  info(formatter: string, ...args: unknown[]) {
-    this.logger('info')(formatter, ...args);
+  info(formatter: unknown, ...args: unknown[]) {
+    this.resolve('info')(formatter, ...args);
 
     return this;
   }
@@ -39,8 +39,8 @@ class Debug implements Logger {
   /**
    * Log the "warn" level messages.
    */
-  warn(formatter: string, ...args: unknown[]) {
-    this.logger('warn')(formatter, ...args);
+  warn(formatter: unknown, ...args: unknown[]) {
+    this.resolve('warn')(formatter, ...args);
 
     return this;
   }
@@ -48,18 +48,37 @@ class Debug implements Logger {
   /**
    * Log the "error" level messages.
    */
-  dump(formatter: string, ...args: unknown[]) {
-    this.logger('debug')(formatter, ...args);
+  dump(formatter: unknown, ...args: unknown[]) {
+    this.resolve('debug')(formatter, ...args);
+
     return this;
   }
 
   /**
-   * Make the logger instance.
+   * Resolve the logger instance with LRU management.
    */
-  private logger(level: string) {
-    const logger = debug(this.namespace).extend(level);
+  private resolve(level: string) {
+    const namespaces = [level, this.suffix ?? ''];
+    const cacheKey = namespaces.join(':');
 
-    return this.suffix ? logger.extend(this.suffix) : logger;
+    if (!this.debuggers.has(cacheKey)) {
+      // Limit cache size to avoid memory leaks
+      if (this.debuggers.size >= 1000) {
+        // Remove the oldest entry to keep cache within limit
+        const oldestKey = this.debuggers.keys().next().value as string;
+        this.debuggers.delete(oldestKey);
+      }
+
+      this.debuggers.set(
+        cacheKey,
+        namespaces.reduce(
+          (debug, namespace) => (namespace ? debug.extend(namespace) : debug),
+          debug(this.namespace),
+        ),
+      );
+    }
+
+    return this.debuggers.get(cacheKey) as debug.Debugger;
   }
 }
 
