@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 
+import { DateTime } from 'luxon';
 import Avon from '../Avon';
 import ResponsableException from '../Exceptions/ResponsableException';
 import ActionIndexController from '../Http/Controllers/ActionIndexController';
@@ -29,7 +30,7 @@ import ResourceUpdateOrUpdateAttachedRequest from '../Http/Requests/ResourceUpda
 import SchemaRequest from '../Http/Requests/SchemaRequest';
 import type AvonResponse from '../Http/Responses/AvonResponse';
 import { send } from '../helpers';
-import { dump } from '../support/debug';
+import Debug from '../support/debug';
 
 const controllers: Record<
   string,
@@ -110,12 +111,21 @@ export default class Dispatcher {
     }
 
     return (req: Request, res: Response) => {
-      dump(`Dispatching request "${req.method}:${req.url}" to "${controller}"`);
+      const logger = Debug.extend(Dispatcher.generateRequestId());
+      logger.dump(
+        `Dispatching request "${req.method}:${req.url}" to "${controller}"`,
+      );
       const request = controllers[controller].request(req);
-
+      // set the unique logger for incoming request
+      request.setLogger(logger);
+      // dispatch request to the controller
       controllerInstance[method as keyof Controller](request)
-        .then((response: AvonResponse) => send(res, response))
+        .then((response: AvonResponse) => {
+          send(res, response);
+          logger.dump('Response sent.');
+        })
         .catch((error: Error) => {
+          logger.dump(error);
           if (error instanceof ResponsableException) {
             send(res, error.toResponse());
           } else {
@@ -126,5 +136,26 @@ export default class Dispatcher {
           }
         });
     };
+  }
+
+  protected static generateRequestId(): string {
+    // Generate the current date with Luxon
+    const date = DateTime.now().toFormat('yyLLdd'); // e.g., "20241026"
+    const time = DateTime.now().toFormat('HHmmss'); // e.g., "153023"
+
+    // Generate microsecond-like precision by combining millisecond precision with a random number
+    const microseconds = Math.floor(
+      DateTime.now().millisecond * 1000 + Math.random() * 1000,
+    )
+      .toString()
+      .padStart(6, '0'); // e.g., "456789"
+
+    // Generate a short random suffix for extra uniqueness
+    const randomSuffix = Math.ceil(Math.random() * 10000)
+      .toString()
+      .padEnd(4, '0'); // e.g., "07"
+
+    // Combine to form the final ID
+    return `${date}-${time}-${microseconds}-${randomSuffix}`;
   }
 }
