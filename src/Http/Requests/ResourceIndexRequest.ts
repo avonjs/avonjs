@@ -1,16 +1,12 @@
-import collect from 'collect.js';
 import {
   type IndexSerializedResource,
   type MatchedQueryHandlers,
   type Model,
-  type QueryHandler,
   RequestTypes,
   type SearchCollection,
-  TrashedStatus,
 } from '../../Contracts';
 import type { Filter } from '../../Filters';
 import type { Ordering } from '../../Orderings';
-import { dump } from '../../support/debug';
 import AvonRequest from './AvonRequest';
 import QueryParser from './QueryParser';
 
