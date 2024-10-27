@@ -1,9 +1,30 @@
 import type { Request } from 'express';
 import Collection from '../../Collections/Collection';
-import type { AnyRecord, AnyValue } from '../../Contracts';
+import type { AnyRecord, AnyValue, Logger } from '../../Contracts';
 
 export default abstract class FormRequest {
-  constructor(protected request: Request) {}
+  /**
+   * The logger instance.
+   */
+  protected _logger?: Logger;
+
+  constructor(protected request: Request) {
+    //
+  }
+
+  /**
+   * Set the request logger.
+   */
+  public setLogger(logger: Logger) {
+    this._logger = logger;
+  }
+
+  /**
+   * Get the logger instance.
+   */
+  public logger() {
+    return this._logger;
+  }
 
   /**
    * Get params from route.
