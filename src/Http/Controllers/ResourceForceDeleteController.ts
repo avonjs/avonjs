@@ -10,9 +10,21 @@ export default class ResourceForceDeleteController extends Controller {
   public async __invoke(
     request: ResourceForceDeleteRequest,
   ): Promise<AvonResponse> {
+    request
+      .logger()
+      ?.dump(`Searching on "${request.resourceName()}" repository ...`);
+
     const resource = await request.findResourceOrFail();
 
+    request
+      .logger()
+      ?.dump(
+        `Authorizing user for "${Ability.forceDelete}" access on "${request.resourceName()}".`,
+      );
+
     await resource.authorizeTo(request, Ability.forceDelete);
+
+    request.logger()?.dump(`Force deleting "${request.resourceName()}" ...`);
 
     await request
       .repository()
@@ -33,7 +45,15 @@ export default class ResourceForceDeleteController extends Controller {
         await resource.flushActionEvents(transaction);
       });
 
+    request
+      .logger()
+      ?.dump(
+        `Resource "${request.resourceName()}" by id "${request.resourceId()}" "force deleted".`,
+      );
+
     await resource.deleted(request);
+
+    request.logger()?.dump('Preparing response ...');
 
     return new EmptyResponse();
   }

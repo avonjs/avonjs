@@ -13,6 +13,12 @@ export default class AssociableController extends Controller {
     const resource = request.resource();
     const relationship = request.relatedField();
 
+    request
+      .logger()
+      ?.dump(
+        `Searching "${request.resourceName()}" for relation-ship "${relationship.attribute}" ...`,
+      );
+
     const repository = await relationship.searchAssociable(
       request,
       request.query('withTrashed') === 'true',
@@ -29,13 +35,22 @@ export default class AssociableController extends Controller {
         resource,
       );
     };
+
     const resources = await Promise.all(
       items
         .map((item: Model) => relatedResource(item))
         .filter((associable: Resource) => {
+          request
+            .logger()
+            ?.dump(
+              `Authorizing "${associable.resourceName()}" to allow adding to "${request.resourceName()}" ...`,
+            );
+
           return resource.authorizedTo(request, Ability.add, [associable]);
         }),
     );
+
+    request.logger()?.dump('Preparing response ...');
 
     return new ResourceAssociationResponse(
       await Promise.all(

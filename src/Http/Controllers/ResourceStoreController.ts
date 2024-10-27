@@ -15,8 +15,19 @@ export default class ResourceStoreController extends Controller {
     const resourceClass = request.resource();
     const resourceModel = request.model();
 
+    request
+      .logger()
+      ?.dump(
+        `Authorizing user for "${Ability.create}" access on "${request.resourceName()}".`,
+      );
+
     await resourceClass.authorizeTo(request, Ability.create);
+
+    request.logger()?.dump('Validating request payload for creation ...');
+
     await resourceClass.validateForCreation(request);
+
+    request.logger()?.dump(`Storing "${request.resourceName()}" ...`);
 
     const resource = await request
       .repository()
@@ -51,7 +62,11 @@ export default class ResourceStoreController extends Controller {
         return newResource;
       });
 
+    request.logger()?.dump(`Stored new "${request.resourceName()}" ...`);
+
     await resource.created(request);
+
+    request.logger()?.dump('Preparing response ...');
 
     return new ResourceStoreResponse(await resource.serializeForStore(request));
   }

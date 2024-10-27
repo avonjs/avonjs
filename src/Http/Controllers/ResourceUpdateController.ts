@@ -12,11 +12,26 @@ export default class ResourceUpdateController extends Controller {
   public async __invoke(
     request: ResourceUpdateOrUpdateAttachedRequest,
   ): Promise<AvonResponse> {
+    request
+      .logger()
+      ?.dump(`Searching on "${request.resourceName()}" repository ...`);
+
     const resource = await request.findResourceOrFail();
     const previous = request.newModel({ ...resource.resource.getAttributes() });
 
+    request
+      .logger()
+      ?.dump(
+        `Authorizing user for "${Ability.update}" access on "${request.resourceName()}".`,
+      );
+
     await resource.authorizeTo(request, Ability.update);
+
+    request.logger()?.dump('Validating request payload for update ...');
+
     await resource.validateForUpdate(request, resource);
+
+    request.logger()?.dump(`Updating "${request.resourceName()}" ...`);
 
     const newResource = await request
       .repository()
@@ -50,7 +65,11 @@ export default class ResourceUpdateController extends Controller {
         return newResource;
       });
 
+    request.logger()?.dump(`Updated "${request.resourceName()}" ...`);
+
     await newResource.updated(request, previous);
+
+    request.logger()?.dump('Preparing response ...');
 
     return new ResourceUpdateResponse(
       await newResource.serializeForUpdate(request),

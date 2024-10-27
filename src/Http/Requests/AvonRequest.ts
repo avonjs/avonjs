@@ -116,7 +116,7 @@ export default abstract class AvonRequest extends FormRequest {
    * Get the resource instance for the request or abort.
    */
   public resource(): Resource {
-    const resource = Avon.resourceForKey(this.route('resourceName'));
+    const resource = Avon.resourceForKey(this.resourceName());
 
     ResourceNotFoundException.unless(resource);
 
@@ -127,6 +127,10 @@ export default abstract class AvonRequest extends FormRequest {
    * Get the repository for resource being requested.
    */
   public repository(): Repository<Model> {
+    this.logger()?.dump(
+      `Resolving the "${this.resourceName()} repository ..."`,
+    );
+
     return this.resource().resolveRepository(this);
   }
 
@@ -134,6 +138,8 @@ export default abstract class AvonRequest extends FormRequest {
    * Get the model for resource being requested.
    */
   public model(): Model {
+    this.logger()?.dump(`Resolving the "${this.resourceName()} model ..."`);
+
     return this.repository().model();
   }
 
@@ -186,6 +192,10 @@ export default abstract class AvonRequest extends FormRequest {
    * Find the model instance for the request.
    */
   public async findModel(resourceId?: number): Promise<Model | undefined> {
+    this.logger()?.dump(
+      `Searching repository "${this.resourceName()} by id ..."`,
+    );
+
     return this.findModelQuery(resourceId).first();
   }
 
@@ -193,9 +203,21 @@ export default abstract class AvonRequest extends FormRequest {
    * Find the model instance for the request.
    */
   public findModelQuery(resourceId?: number) {
-    return this.repository().whereKey(
-      resourceId ?? this.route('resourceId') ?? this.query('resourceId'),
-    );
+    return this.repository().whereKey(resourceId ?? this.resourceId());
+  }
+
+  /**
+   * Get resource "id" from route or query.
+   */
+  public resourceId() {
+    return this.route('resourceId') ?? this.query('resourceId');
+  }
+
+  /**
+   * Get resource "name" from route or query.
+   */
+  public resourceName() {
+    return this.route('resourceName') ?? this.query('resourceName');
   }
 
   /**

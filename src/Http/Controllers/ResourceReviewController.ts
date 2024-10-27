@@ -10,6 +10,10 @@ export default class ResourceReviewController extends Controller {
    * Default route handler
    */
   public async __invoke(request: ResourceReviewRequest): Promise<AvonResponse> {
+    request
+      .logger()
+      ?.dump(`Searching on "${request.resourceName()}" repository ...`);
+
     const model = await request
       .resource()
       .reviewQuery(request, request.findModelQuery())
@@ -19,7 +23,15 @@ export default class ResourceReviewController extends Controller {
 
     const resource = request.newResource(model);
 
+    request
+      .logger()
+      ?.dump(
+        `Authorizing user for "${Ability.review}" access on "${request.resourceName()}".`,
+      );
+
     await resource.authorizeTo(request, Ability.review);
+
+    request.logger()?.dump('Resolving resource fields ...');
 
     await Promise.all(
       resource
@@ -27,6 +39,8 @@ export default class ResourceReviewController extends Controller {
         .onlyLoadedLazyFields()
         .map((field) => field.resolveForResources(request, [model])),
     );
+
+    request.logger()?.dump('Preparing response ...');
 
     return new ResourceReviewResponse(
       await resource.serializeForReview(request),

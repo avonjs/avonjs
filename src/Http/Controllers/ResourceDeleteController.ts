@@ -9,10 +9,26 @@ export default class ResourceDeleteController extends Controller {
    * Default route handler
    */
   public async __invoke(request: ResourceDeleteRequest): Promise<AvonResponse> {
+    request
+      .logger()
+      ?.dump(`Searching on "${request.resourceName()}" repository ...`);
+
     const resource = await request.findResourceOrFail();
     const model = await request.findModelOrFail();
 
+    request
+      .logger()
+      ?.dump(
+        `Authorizing user for "${Ability.delete}" access on "${request.resourceName()}".`,
+      );
+
     await resource.authorizeTo(request, Ability.delete);
+
+    if (resource.softDeletes()) {
+      request.logger()?.dump(`Soft deleting "${request.resourceName()}" ...`);
+    } else {
+      request.logger()?.dump(`Deleting "${request.resourceName()}" ...`);
+    }
 
     await request.repository().transaction(async (repository, transaction) => {
       // handle prunable fields
@@ -36,8 +52,20 @@ export default class ResourceDeleteController extends Controller {
     });
 
     if (!resource.softDeletes()) {
+      request
+        .logger()
+        ?.dump(
+          `Resource "${request.resourceName()}" by id "${request.resourceId()}" "deleted".`,
+        );
+
       await resource.deleted(request);
+    } else {
+      request
+        .logger()
+        ?.dump(`Resource "${request.resourceName()}" "soft deleted".`);
     }
+
+    request.logger()?.dump('Preparing response ...');
 
     return new EmptyResponse();
   }
