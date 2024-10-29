@@ -11,7 +11,9 @@ import type Repository from '../Repositories/Repository';
 
 export default <
   TModel extends Model,
-  TBase extends AbstractMixable<Repository<TModel>>,
+  TBase extends AbstractMixable<Repository<TModel>> = AbstractMixable<
+    Repository<TModel>
+  >,
 >(
   Parent: TBase,
 ) => {
