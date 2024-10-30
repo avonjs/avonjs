@@ -216,7 +216,7 @@ export default abstract class Relation extends Lazy {
       withTrashed ? TrashedStatus.WITH : TrashedStatus.DEFAULT,
     );
 
-    const query = this.relatableQueryCallback.apply(this, [
+    const query = this.relatableQueryCallback.apply(repository, [
       request,
       repository,
     ]);

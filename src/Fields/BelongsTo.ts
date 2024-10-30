@@ -99,13 +99,17 @@ export default class BelongsTo extends Relation {
     request: AvonRequest,
     resources: Model[],
   ): Promise<Model[]> {
-    const query = this.relatedResource.resolveRepository(request).where({
+    const repository = this.relatedResource.resolveRepository(request).where({
       key: this.ownerKeyName(request),
       value: resources
         .map((resource) => resource.getAttribute(this.foreignKeyName(request)))
         .filter((value) => value),
       operator: Operator.in,
     });
+
+    const query =
+      this.relatableQueryCallback.apply(repository, [request, repository]) ??
+      repository;
 
     return this.softDeletes() //@ts-ignore
       ? query.withTrashed().all()
@@ -214,9 +218,11 @@ export default class BelongsTo extends Relation {
         value: id,
       });
     // to ensure only valid data attached
-    this.relatableQueryCallback.apply(this, [request, repository]);
+    const query =
+      this.relatableQueryCallback.apply(repository, [request, repository]) ??
+      repository;
 
-    return repository.first();
+    return query.first();
   }
 
   /**

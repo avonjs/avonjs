@@ -144,9 +144,13 @@ export default class BelongsToMany extends Relation {
             value,
           });
         // to ensure only valid data attached
-        this.relatableQueryCallback.apply(this, [request, repository]);
+        const query =
+          this.relatableQueryCallback.apply(repository, [
+            request,
+            repository,
+          ]) ?? repository;
 
-        const resources = await repository.all();
+        const resources = await query.all();
 
         if (resources.length !== value.length) {
           return error('any.custom', {
@@ -483,9 +487,11 @@ export default class BelongsToMany extends Relation {
       operator: Operator.in,
     });
 
-    this.relatableQueryCallback.apply(this, [request, repository]);
+    const query =
+      this.relatableQueryCallback.apply(repository, [request, repository]) ??
+      repository;
 
-    return repository.all();
+    return query.all();
   }
 
   /**
