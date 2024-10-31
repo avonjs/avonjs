@@ -25,7 +25,9 @@ import ResolvesOrderings from './Mixins/ResolvesOrderings';
 import ResourceSchema from './Mixins/ResourceSchema';
 import { slugify } from './helpers';
 
-export default abstract class Resource extends ResourceSchema(
+export default abstract class Resource<
+  TModel extends Model = Model,
+> extends ResourceSchema(
   RecordsResourceEvents(
     HasLifecycleMethods(
       FillsFields(
@@ -43,13 +45,17 @@ export default abstract class Resource extends ResourceSchema(
   ),
 ) {
   /**
+   * The resource model instance.
+   */
+  public resource: TModel;
+  /**
    * The number of results to display when searching relatable resource.
    */
   public relatableSearchResults = 10;
 
-  constructor(resource?: Model) {
+  constructor(resource?: TModel) {
     super();
-    this.resource = resource ?? this.repository().model();
+    this.resource = resource ?? (this.repository().model() as TModel);
   }
 
   /**
@@ -211,7 +217,7 @@ export default abstract class Resource extends ResourceSchema(
   public isSoftDeleted(): boolean {
     return (
       this.softDeletes() &&
-      (this.repository() as unknown as SoftDeletes<Model>).isSoftDeleted(
+      (this.repository() as unknown as SoftDeletes<TModel>).isSoftDeleted(
         this.resource,
       )
     );

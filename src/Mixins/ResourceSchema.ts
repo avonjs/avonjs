@@ -24,7 +24,9 @@ import {
   validationResponses,
 } from '../helpers';
 
-export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
+export default <TModel, T extends AbstractMixable = AbstractMixable>(
+  Parent: T,
+) => {
   abstract class ResourceSchema extends Parent {
     public abstract resource: Model;
     /**
