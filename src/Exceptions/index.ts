@@ -2,6 +2,7 @@ import AuthenticationException from './AuthenticationException';
 import BadRequestException from './BadRequestException';
 import Exception from './Exception';
 import ForbiddenException from './ForbiddenException';
+import InternalServerErrorException from './InternalServerErrorException';
 import NotFoundException from './NotFoundException';
 import ResponsableException from './ResponsableException';
 import RuntimeException from './RuntimeException';
@@ -14,4 +15,5 @@ export {
   RuntimeException,
   AuthenticationException,
   BadRequestException,
+  InternalServerErrorException,
 };

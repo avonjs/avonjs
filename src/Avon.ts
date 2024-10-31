@@ -16,7 +16,11 @@ import type {
   Optional,
   PrimaryKey,
 } from './Contracts';
-import { NotFoundException, ResponsableException } from './Exceptions';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+  ResponsableException,
+} from './Exceptions';
 import ValidationException from './Exceptions/ValidationException';
 import { Email, type Field, Text } from './Fields';
 import LoginRequest from './Http/Requests/Auth/LoginRequest';
@@ -361,13 +365,19 @@ export default class Avon {
   public static async attempt(
     payload: Dictionary<unknown>,
   ): Promise<AvonResponse> {
-    const user = await Avon.attemptCallback(payload);
+    try {
+      const user = await Avon.attemptCallback(payload);
 
-    NotFoundException.unless(user);
+      NotFoundException.unless(user);
 
-    return new LoginResponse({
-      token: sign(user, Avon.appKey, Avon.jwtSignOptions),
-    });
+      return new LoginResponse({
+        token: sign(user, Avon.appKey, Avon.jwtSignOptions),
+      });
+    } catch (err) {
+      Logger.error(err);
+
+      throw new InternalServerErrorException();
+    }
   }
 
   /**
