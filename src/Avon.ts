@@ -1,8 +1,7 @@
 import { readdirSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
-import collect, { type Collection } from 'collect.js';
 import type { Request, Response, Router } from 'express';
-import { expressjwt } from 'express-jwt';
+import { type Params, expressjwt } from 'express-jwt';
 import Joi, { type AnySchema } from 'joi';
 import { type SignOptions, sign } from 'jsonwebtoken';
 import type { OpenAPIV3 } from 'openapi-types';
@@ -66,11 +65,6 @@ export default class Avon {
   protected static paths: OpenAPIV3.PathsObject = {};
 
   /**
-   * Indicates JWT params.
-   */
-  protected static jwtSignOptions: SignOptions = {};
-
-  /**
    * List of routes without authorization.
    */
   protected static excepts: Array<string | RegExp> = [
@@ -87,6 +81,18 @@ export default class Avon {
    * Set application secret key.
    */
   protected static appKey = 'Avon';
+
+  /**
+   * Indicates JWT params.
+   */
+  protected static jwtSignOptions: SignOptions = {
+    algorithm: 'HS256',
+  };
+
+  /**
+   * Indicates JWT verify params.
+   */
+  protected static jwtVerifyOptions: Params;
 
   /**
    * The login attempt callback.
@@ -169,18 +175,12 @@ export default class Avon {
   }
 
   public static expressjwt() {
-    return expressjwt({
-      secret: Avon.appKey,
-      algorithms: [Avon.jwtSignOptions.algorithm ?? 'HS256'],
-      audience: Avon.jwtSignOptions.audience,
-      issuer: Avon.jwtSignOptions.issuer,
-      jwtid: Avon.jwtSignOptions.jwtid,
-      subject: Avon.jwtSignOptions.subject,
-      allowInvalidAsymmetricKeyTypes:
-        Avon.jwtSignOptions.allowInvalidAsymmetricKeyTypes,
-    }).unless({
-      path: Avon.excepts,
-    });
+    const verifyOptions = Object.assign(
+      { secret: Avon.appKey, algorithms: ['HS256'] },
+      Avon.jwtVerifyOptions,
+    );
+
+    return expressjwt(verifyOptions).unless({ path: Avon.excepts });
   }
 
   /**
@@ -294,6 +294,15 @@ export default class Avon {
    */
   public static signOptions(signOptions: SignOptions) {
     Avon.jwtSignOptions = { ...Avon.jwtSignOptions, ...signOptions };
+
+    return Avon;
+  }
+
+  /**
+   * Set the JWT verify options.
+   */
+  public static verifyOptions(verifyOptions: Params) {
+    Avon.jwtVerifyOptions = { ...Avon.jwtVerifyOptions, ...verifyOptions };
 
     return Avon;
   }
