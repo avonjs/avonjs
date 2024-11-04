@@ -2,9 +2,11 @@ import type Field from '../Fields/Field';
 import type AvonRequest from '../Http/Requests/AvonRequest';
 import type { Repository } from '../Repositories';
 import type { Model, Transaction } from './interfaces';
-import type { AnyValue, Nullable } from './types';
+import type { AnyValue, Nullable, Optional } from './types';
 
-export type UserResolver = (request: AvonRequest) => Model | undefined;
+export type UserResolver = (
+  request: AvonRequest,
+) => Promise<Nullable<Model>> | Nullable<Model>;
 
 export type ErrorHandler = (error: Error) => void;
 
@@ -15,7 +17,6 @@ export type SeeCallback = (request: AvonRequest) => boolean;
 export type FilledCallback = <TModel extends Model>(
   request: AvonRequest,
   model: TModel,
-  transaction?: Transaction,
 ) => unknown;
 
 export type CallbackStack = [Model, Array<FilledCallback>];
@@ -80,7 +81,7 @@ export type AttemptCallback = (
 
 export type TransactionCallback<V, R extends Repository> = (
   repository: R,
-  transacting?: Transaction,
+  transacting: Transaction,
 ) => Promise<V>;
 
 export type QueryModifierCallback<T = AnyValue> = (query: T) => T;

@@ -110,7 +110,7 @@ export default class Dispatcher {
       throw Error(`AvonError: Invalid route handler ${controller}@${method}`);
     }
 
-    return (req: Request, res: Response) => {
+    return async (req: Request, res: Response) => {
       const logger = Debug.extend(Dispatcher.generateRequestId());
       logger.dump(
         `Dispatching request "${req.method}:${req.url}" to "${controller}"`,
@@ -118,6 +118,8 @@ export default class Dispatcher {
       const request = controllers[controller].request(req);
       // set the unique logger for incoming request
       request.setLogger(logger);
+      // set the unique logger for incoming request
+      request.setUser(await Avon.resolveUser(request));
       // dispatch request to the controller
       controllerInstance[method as keyof Controller](request)
         .then((response: AvonResponse) => {

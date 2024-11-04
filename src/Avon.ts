@@ -12,8 +12,11 @@ import type {
   Auth,
   Dictionary,
   ErrorHandler,
+  Model,
+  Nullable,
   Optional,
   PrimaryKey,
+  UserResolver,
 } from './Contracts';
 import {
   InternalServerErrorException,
@@ -58,6 +61,11 @@ export default class Avon {
    * The error handler callback.
    */
   protected static errorHandler: ErrorHandler = (error) => console.error(error);
+
+  /**
+   * The user resolver callback.
+   */
+  protected static userResolver: UserResolver = () => null;
 
   /**
    * Extended swagger paths.
@@ -206,6 +214,22 @@ export default class Avon {
    */
   public static userId(request: AvonRequest): Optional<PrimaryKey> {
     return (request.getRequest().auth as Auth)?.id;
+  }
+
+  /**
+   * Resolve the user for incoming request to share in the app.
+   */
+  public static resolveUser(request: AvonRequest) {
+    return Avon.userResolver(request);
+  }
+
+  /**
+   * Set the user resolver callback.
+   */
+  public static resolveUserUsing(userResolver: UserResolver) {
+    Avon.userResolver = userResolver;
+
+    return Avon;
   }
 
   /**
