@@ -57,7 +57,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      * Resolve the resource repository.
      */
     public resolveRepository(request: AvonRequest): Repository<Model> {
-      return this.repository();
+      return this.repository().setTransaction(request.getTransaction());
     }
 
     /**

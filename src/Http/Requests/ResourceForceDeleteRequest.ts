@@ -9,13 +9,11 @@ export default class ResourceForceDeleteRequest extends ResourceSoftDeleteReques
   type(): RequestTypes {
     return RequestTypes.ResourceForceDeleteRequest;
   }
+
   /**
    * Find the model instance for the request.
    */
   public findModelQuery(resourceId?: number) {
-    const repository = super.findModelQuery(resourceId) as Repository<Model> &
-      SoftDeletes<Model>;
-
-    return repository.withTrashed();
+    return super.findModelQuery(resourceId).withTrashed();
   }
 }

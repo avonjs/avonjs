@@ -30,7 +30,7 @@ export default class ResourceDeleteController extends Controller {
       request.logger()?.dump(`Deleting "${request.resourceName()}" ...`);
     }
 
-    await request.repository().transaction(async (repository, transaction) => {
+    await request.transaction(async (repository, transaction) => {
       // handle prunable fields
       // await Promise.all(
       //   resource
@@ -38,11 +38,11 @@ export default class ResourceDeleteController extends Controller {
       //     .map((field) => field.forRequest(request)),
       // );
 
-      await resource.beforeDelete(request, transaction);
+      await resource.beforeDelete(request);
 
       await repository.delete(model.getKey());
 
-      await resource.afterDelete(request, transaction);
+      await resource.afterDelete(request);
 
       if (resource.softDeletes()) {
         await resource.recordDeletionEvent(transaction, Avon.userId(request));

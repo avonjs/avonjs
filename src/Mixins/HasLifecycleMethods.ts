@@ -6,14 +6,14 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Register a callback to be called before the resource create.
      */
-    public beforeCreate(request: AvonRequest, transaction?: Transaction): void {
+    public beforeCreate(request: AvonRequest): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is created.
      */
-    public afterCreate(request: AvonRequest, transaction?: Transaction): void {
+    public afterCreate(request: AvonRequest): void {
       //
     }
 
@@ -27,18 +27,14 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Register a callback to be called before the resource update.
      */
-    public beforeUpdate(request: AvonRequest, transaction?: Transaction): void {
+    public beforeUpdate(request: AvonRequest): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is updated.
      */
-    public afterUpdate(
-      request: AvonRequest,
-      resource: Model,
-      transaction?: Transaction,
-    ): void {
+    public afterUpdate(request: AvonRequest, resource: Model): void {
       //
     }
 
@@ -52,34 +48,28 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Register a callback to be called before the resource delete.
      */
-    public beforeDelete(request: AvonRequest, transaction?: Transaction): void {
+    public beforeDelete(request: AvonRequest): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is destroyed.
      */
-    public afterDelete(request: AvonRequest, transaction?: Transaction): void {
+    public afterDelete(request: AvonRequest): void {
       //
     }
 
     /**
      * Register a callback to be called before the resource force-destroyed.
      */
-    public beforeForceDelete(
-      request: AvonRequest,
-      transaction?: Transaction,
-    ): void {
+    public beforeForceDelete(request: AvonRequest): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is force-destroyed.
      */
-    public afterForceDelete(
-      request: AvonRequest,
-      transaction?: Transaction,
-    ): void {
+    public afterForceDelete(request: AvonRequest): void {
       //
     }
 
@@ -93,17 +83,14 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Register a callback to be called before the resource restore.
      */
-    public beforeRestore(
-      request: AvonRequest,
-      transaction?: Transaction,
-    ): void {
+    public beforeRestore(request: AvonRequest): void {
       //
     }
 
     /**
      * Register a callback to be called after the resource is restored.
      */
-    public afterRestore(request: AvonRequest, transaction?: Transaction): void {
+    public afterRestore(request: AvonRequest): void {
       //
     }
 

@@ -33,16 +33,15 @@ export default class ResourceUpdateController extends Controller {
 
     request.logger()?.dump(`Updating "${request.resourceName()}" ...`);
 
-    const newResource = await request
-      .repository()
-      .transaction<typeof resource>(async (repository, transaction) => {
+    const newResource = await request.transaction<typeof resource>(
+      async (repository, transaction) => {
         const [model, callbacks] = request
           .resource()
           .fillForUpdate<typeof resource.resource>(request, resource.resource);
 
         const newResource = request.newResource(model);
 
-        await newResource.beforeUpdate(request, transaction);
+        await newResource.beforeUpdate(request);
 
         await repository.update(model);
 
@@ -50,10 +49,9 @@ export default class ResourceUpdateController extends Controller {
         // Here we have to run the "callbacks" in order
         // To avoid update/insert at the same time
         // Using "Promise.all" here will give the wrong result in some scenarios
-        for (const callback of callbacks)
-          await callback(request, model, transaction);
+        for (const callback of callbacks) await callback(request, model);
 
-        await newResource.afterUpdate(request, previous, transaction);
+        await newResource.afterUpdate(request, previous);
 
         await newResource.recordUpdateEvent(
           previous,
@@ -63,7 +61,8 @@ export default class ResourceUpdateController extends Controller {
         );
 
         return newResource;
-      });
+      },
+    );
 
     request.logger()?.dump(`Updated "${request.resourceName()}" ...`);
 

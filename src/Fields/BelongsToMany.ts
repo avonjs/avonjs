@@ -15,7 +15,6 @@ import {
   type PivotFieldCallback,
   type RelatableQueryCallback,
   type Rules,
-  type Transaction,
 } from '../Contracts';
 import { RuntimeException } from '../Exceptions';
 import type AvonRequest from '../Http/Requests/AvonRequest';
@@ -206,11 +205,9 @@ export default class BelongsToMany extends Relation {
   /**
    * Hydrate the given attribute on the model based on the incoming request.
    */
-  protected fillAttributeFromRequest<TModel extends Model>(
+  protected fillAttributeFromRequest(
     request: AvonRequest,
     requestAttribute: string,
-    model: TModel,
-    attribute: string,
   ): Optional<FilledCallback> {
     const defaults = this.resolveDefaultValue(request);
     const shouldSetDefaults =
@@ -219,18 +216,15 @@ export default class BelongsToMany extends Relation {
       defaults.length > 0;
 
     if (request.exists(requestAttribute) || shouldSetDefaults) {
-      return async (request, model, transaction) => {
+      return async (request, model) => {
         // first we clear old attachments
-        await this.clearAttachments(request, model, transaction);
+        await this.clearAttachments(request, model);
         // then fill with new attachments
-        const repository = this.pivotResource
-          .resolveRepository(request)
-          .setTransaction(transaction);
+        const repository = this.pivotResource.resolveRepository(request);
         const attachments = await this.prepareAttachments(
           request,
           model,
           requestAttribute,
-          transaction,
         );
 
         await Promise.all(
@@ -253,34 +247,23 @@ export default class BelongsToMany extends Relation {
   protected async clearAttachments(
     request: AvonRequest,
     resource: Model,
-    transaction?: Transaction,
   ): Promise<AnyValue> {
-    const allowedDetachments = await this.allowedDetachments(
-      request,
-      resource,
-      transaction,
-    );
+    const allowedDetachments = await this.allowedDetachments(request, resource);
 
     await Promise.all(
       allowedDetachments.map((relatedResource) => {
         return this.pivotResource
           .resolveRepository(request)
-          .setTransaction(transaction)
           .delete(relatedResource.getKey());
       }),
     );
   }
 
-  protected async allowedDetachments(
-    request: AvonRequest,
-    model: Model,
-    transaction?: Transaction,
-  ) {
+  protected async allowedDetachments(request: AvonRequest, model: Model) {
     const authorizedResources = [];
     const resource = request.newResource(model);
     const relatedResources = await this.pivotResource
       .resolveRepository(request)
-      .setTransaction(transaction)
       .where({
         key: this.foreignKeyName(request),
         value: model.getAttribute(this.ownerKeyName(request)),
@@ -301,7 +284,6 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     resource: Model,
     requestAttribute: string,
-    transaction?: Transaction,
   ): Promise<Model[]> {
     return this.fillPivotFromRequest(
       request,
@@ -310,7 +292,6 @@ export default class BelongsToMany extends Relation {
         request,
         resource,
         this.getAttachments(request, requestAttribute),
-        transaction,
       ),
     );
   }
@@ -333,14 +314,12 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     model: Model,
     attachments: Attachable[],
-    transaction?: Transaction,
   ): Promise<Attachable[]> {
     const authorizedResources: Attachable[] = [];
     const resource = request.newResource(model);
     const relatables = await this.getRelatedResources(
       request,
       attachments.map(({ id }) => id),
-      transaction,
     );
 
     for (const attachment of attachments) {
@@ -359,11 +338,9 @@ export default class BelongsToMany extends Relation {
   protected async getRelatedResources(
     request: AvonRequest,
     resourceIds: Array<string | number>,
-    transaction?: Transaction,
   ) {
     return this.relatedResource
       .resolveRepository(request)
-      .setTransaction(transaction)
       .whereKeys(resourceIds)
       .all();
   }

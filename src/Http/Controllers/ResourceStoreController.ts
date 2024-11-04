@@ -29,16 +29,15 @@ export default class ResourceStoreController extends Controller {
 
     request.logger()?.dump(`Storing "${request.resourceName()}" ...`);
 
-    const resource = await request
-      .repository()
-      .transaction<typeof resourceClass>(async (repository, transaction) => {
+    const resource = await request.transaction<typeof resourceClass>(
+      async (repository, transaction) => {
         const [data, callbacks] = request
           .resource()
           .fillForCreation<typeof resourceModel>(request, resourceModel);
 
         const resource = request.newResource(data);
 
-        await resource.beforeCreate(request, transaction);
+        await resource.beforeCreate(request);
 
         const model = await repository.store(data);
 
@@ -46,12 +45,11 @@ export default class ResourceStoreController extends Controller {
         // Here we have to run the "callbacks" in order
         // To avoid update/insert at the same time
         // Using "Promise.all" here will give the wrong result in some scenarios
-        for (const callback of callbacks)
-          await callback(request, model, transaction);
+        for (const callback of callbacks) await callback(request, model);
 
         const newResource = request.newResource(model);
 
-        await newResource.afterCreate(request, transaction);
+        await newResource.afterCreate(request);
 
         await newResource.recordCreationEvent(
           request.all(),
@@ -60,7 +58,8 @@ export default class ResourceStoreController extends Controller {
         );
 
         return newResource;
-      });
+      },
+    );
 
     request.logger()?.dump(`Stored new "${request.resourceName()}" ...`);
 

@@ -32,12 +32,12 @@ export default class ResourceRestoreController extends Controller {
 
     request.logger()?.dump(`Restoring "${request.resourceName()}" ...`);
 
-    await request.repository().transaction(async (repository, transaction) => {
-      await resource.beforeRestore(request, transaction);
+    await request.transaction(async (repository, transaction) => {
+      await resource.beforeRestore(request);
 
       await repository.restore(request.route('resourceId') as string);
 
-      await resource.afterRestore(request, transaction);
+      await resource.afterRestore(request);
 
       await resource.recordRestoreEvent(transaction, Avon.userId(request));
     });

@@ -26,24 +26,22 @@ export default class ResourceForceDeleteController extends Controller {
 
     request.logger()?.dump(`Force deleting "${request.resourceName()}" ...`);
 
-    await request
-      .repository()
-      .transaction<void>(async (repository, transaction) => {
-        // handle prunable fields
-        // await Promise.all(
-        //   resource
-        //     .prunableFields(request, false)
-        //     .map((field) => field.forRequest(request)),
-        // );
+    await request.transaction(async (repository, transaction) => {
+      // handle prunable fields
+      // await Promise.all(
+      //   resource
+      //     .prunableFields(request, false)
+      //     .map((field) => field.forRequest(request)),
+      // );
 
-        await resource.beforeForceDelete(request, transaction);
+      await resource.beforeForceDelete(request);
 
-        await repository.forceDelete(resource.resource.getKey());
+      await repository.forceDelete(resource.resource.getKey());
 
-        await resource.afterForceDelete(request, transaction);
+      await resource.afterForceDelete(request);
 
-        await resource.flushActionEvents(transaction);
-      });
+      await resource.flushActionEvents(transaction);
+    });
 
     request
       .logger()

@@ -9,9 +9,9 @@ import {
   type OpenApiSchema,
   Operator,
   type Optional,
+  type PrimaryKey,
   type Rules,
   type SoftDeletes,
-  type Transaction,
 } from '../Contracts';
 import type { Filter } from '../Filters';
 import type AvonRequest from '../Http/Requests/AvonRequest';
@@ -83,11 +83,11 @@ export default class BelongsTo extends Relation {
       this.isValidNullValue(value) ? this.nullValue() : value,
     );
 
-    return async (request, model, transaction) => {
+    return async (request, model) => {
       await request
         .newResource(model)
         .authorizeTo(request, Ability.add, [
-          await this.getRelatedResource(request, value, transaction),
+          await this.getRelatedResource(request, value),
         ]);
     };
   }
@@ -204,19 +204,12 @@ export default class BelongsTo extends Relation {
     };
   }
 
-  protected async getRelatedResource(
-    request: AvonRequest,
-    id: string | number,
-    transaction?: Transaction,
-  ) {
-    const repository = this.relatedResource
-      .resolveRepository(request)
-      .setTransaction(transaction)
-      .where({
-        key: this.ownerKeyName(request),
-        operator: Operator.eq,
-        value: id,
-      });
+  protected async getRelatedResource(request: AvonRequest, id: PrimaryKey) {
+    const repository = this.relatedResource.resolveRepository(request).where({
+      key: this.ownerKeyName(request),
+      operator: Operator.eq,
+      value: id,
+    });
     // to ensure only valid data attached
     const query =
       this.relatableQueryCallback.apply(repository, [request, repository]) ??

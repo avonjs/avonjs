@@ -2,7 +2,10 @@ import Avon from '../../Avon';
 import {
   type Attributes,
   type Model,
+  type Nullable,
   RequestTypes,
+  type Transaction,
+  type TransactionCallback,
   TrashedStatus,
 } from '../../Contracts';
 import ModelNotFoundException from '../../Exceptions/ModelNotFoundException';
@@ -11,11 +14,45 @@ import type { Repository } from '../../Repositories';
 import type Resource from '../../Resource';
 import FormRequest from './FormRequest';
 
-export default abstract class AvonRequest extends FormRequest {
+export default abstract class AvonRequest<
+  R extends Repository<Model> = Repository<Model>,
+> extends FormRequest {
   /**
    * Indicates type of the request instance.
    */
   abstract type(): RequestTypes;
+
+  /**
+   * The repository transaction instance.
+   */
+  protected _trx?: Transaction;
+
+  /**
+   * The user instance.
+   */
+  protected _user: Nullable<Model> = null;
+
+  /**
+   * Get the transaction instance.
+   */
+  getTransaction() {
+    return this._trx;
+  }
+
+  /**
+   * Get the transaction instance.
+   */
+  transaction<V>(callback: TransactionCallback<V, R>): Promise<V> {
+    return this.repository().transaction(async (repository, transaction) => {
+      this._trx = transaction;
+
+      const value = await callback(repository, transaction);
+
+      this._trx = undefined;
+
+      return value;
+    });
+  }
 
   /**
    * Determine if this request is a create or attach request.
@@ -126,12 +163,12 @@ export default abstract class AvonRequest extends FormRequest {
   /**
    * Get the repository for resource being requested.
    */
-  public repository(): Repository<Model> {
+  public repository(): R {
     this.logger()?.dump(
       `Resolving the "${this.resourceName()} repository ..."`,
     );
 
-    return this.resource().resolveRepository(this);
+    return this.resource().resolveRepository(this) as R;
   }
 
   /**
@@ -228,9 +265,25 @@ export default abstract class AvonRequest extends FormRequest {
   }
 
   /**
-   * Get authenticated user.
+   * Get jwt payload.
    */
-  public user() {
+  public auth() {
     return this.getRequest().auth;
+  }
+
+  /**
+   * Get the user instance.
+   */
+  public user<TModel extends Model>(): Nullable<TModel> {
+    return this._user as TModel;
+  }
+
+  /**
+   * Set the user instance.
+   */
+  public setUser(user: Nullable<Model>) {
+    this._user = user;
+
+    return this;
   }
 }
