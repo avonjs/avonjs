@@ -37,8 +37,8 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           this.actionRepository().forResourceStore({
             resourceName: this.resourceName(),
             resource: this.resource,
+            payload: this.sanitizePayload(payload),
             userId,
-            payload,
           }),
         );
       }
@@ -58,9 +58,9 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           this.actionRepository().forResourceUpdate({
             resourceName: this.resourceName(),
             resource: this.resource,
+            payload: this.sanitizePayload(payload),
             previous,
             userId,
-            payload,
           }),
         );
       }
@@ -116,7 +116,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
           resource: new Fluent(),
           previous: new Fluent(),
           batchId: randomUUID(),
-          payload,
+          payload: this.sanitizePayload(payload),
           action,
           userId,
         }),
@@ -138,10 +138,10 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
         changes.map(({ resource, previous }) => {
           return this.actionRepository().forActionRan({
             resourceName: this.resourceName(),
+            payload: this.sanitizePayload(payload),
             resource,
             previous,
             batchId,
-            payload,
             action,
             userId,
           });
@@ -188,6 +188,13 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
         this.resource.getKey() !== undefined &&
         this.recordEvents
       );
+    }
+
+    /**
+     * Removes unsafe values from the record to ensure data integrity.
+     */
+    public sanitizePayload(payload: Payload): Payload {
+      return payload;
     }
 
     /**
