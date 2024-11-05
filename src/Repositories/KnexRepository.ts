@@ -177,7 +177,11 @@ export default abstract class KnexRepository<
   protected applyWheres(query: Knex.QueryBuilder): Knex.QueryBuilder {
     this.wheres.forEach(({ key, operator, value }) => {
       if (![null, undefined].includes(value)) {
-        query.where(this.getQualifiedColumnName(key), operator, value);
+        query.where(
+          this.getQualifiedColumnName(key),
+          operator,
+          Operator.in === operator && !Array.isArray(value) ? [value] : value,
+        );
       } else if ([Operator.eq, Operator.in].includes(operator)) {
         query.whereNull(this.getQualifiedColumnName(key));
       } else {
