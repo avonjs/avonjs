@@ -13,8 +13,10 @@ import {
   Operator,
   type Optional,
   type PivotFieldCallback,
+  type PrimaryKey,
   type RelatableQueryCallback,
   type Rules,
+  type SanitizeCallback,
 } from '../Contracts';
 import { RuntimeException } from '../Exceptions';
 import type AvonRequest from '../Http/Requests/AvonRequest';
@@ -53,6 +55,11 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     repository: Repository<Model>,
   ) => this.pivotResource.relatableQuery(request, repository) ?? repository;
+
+  /**
+   * The callback that should be run to sanitize related resources.
+   */
+  public sanitizeCallback: SanitizeCallback = (request, resources) => resources;
 
   constructor(resource: string, pivot: string, attribute?: string) {
     super(resource);
@@ -217,6 +224,11 @@ export default class BelongsToMany extends Relation {
 
     if (request.exists(requestAttribute) || shouldSetDefaults) {
       return async (request, model) => {
+        await request
+          .resource()
+          .authorizeTo(request, Ability.toggleAttachment, [
+            this.relatedResource,
+          ]);
         // first we clear old attachments
         await this.clearAttachments(request, model);
         // then fill with new attachments
@@ -260,9 +272,7 @@ export default class BelongsToMany extends Relation {
   }
 
   protected async allowedDetachments(request: AvonRequest, model: Model) {
-    const authorizedResources = [];
-    const resource = request.newResource(model);
-    const relatedResources = await this.pivotResource
+    return this.pivotResource
       .resolveRepository(request)
       .where({
         key: this.foreignKeyName(request),
@@ -270,14 +280,6 @@ export default class BelongsToMany extends Relation {
         operator: Operator.eq,
       })
       .all();
-
-    for (const related of relatedResources) {
-      if (await resource.authorizedTo(request, Ability.detach, [related])) {
-        authorizedResources.push(related);
-      }
-    }
-
-    return authorizedResources;
   }
 
   public async prepareAttachments(
@@ -315,34 +317,34 @@ export default class BelongsToMany extends Relation {
     model: Model,
     attachments: Attachable[],
   ): Promise<Attachable[]> {
-    const authorizedResources: Attachable[] = [];
-    const resource = request.newResource(model);
     const relatables = await this.getRelatedResources(
       request,
       attachments.map(({ id }) => id),
     );
 
-    for (const attachment of attachments) {
-      const relatable = relatables.find(
+    return attachments.filter((attachment) => {
+      return relatables.find(
         (relatable) => relatable.getKey() === attachment.id,
       );
-      assert(relatable, `Missing relatable for id ${attachment.id}`);
-      if (await resource.authorizedTo(request, Ability.attach, [relatable])) {
-        authorizedResources.push(attachment);
-      }
-    }
-
-    return authorizedResources;
+    });
   }
 
   protected async getRelatedResources(
     request: AvonRequest,
-    resourceIds: Array<string | number>,
+    resourceIds: Array<PrimaryKey>,
   ) {
-    return this.relatedResource
+    const relatedResources = await this.relatedResource
       .resolveRepository(request)
       .whereKeys(resourceIds)
       .all();
+
+    return this.sanitizeCallback.apply(this, [request, relatedResources]);
+  }
+
+  public sanitizeUsing(sanitizeCallback: SanitizeCallback) {
+    this.sanitizeCallback = sanitizeCallback;
+
+    return this;
   }
 
   /**

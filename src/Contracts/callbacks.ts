@@ -85,3 +85,8 @@ export type TransactionCallback<V, R extends Repository> = (
 ) => Promise<V>;
 
 export type QueryModifierCallback<T = AnyValue> = (query: T) => T;
+
+export type SanitizeCallback = (
+  request: AvonRequest,
+  resources: Model[],
+) => Model[];

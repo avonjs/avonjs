@@ -8,8 +8,7 @@ export enum Ability {
   restore = 'restore',
   review = 'review',
   add = 'add',
-  attach = 'attach',
-  detach = 'detach',
+  toggleAttachment = 'toggleAttachment',
 }
 
 export enum Direction {
