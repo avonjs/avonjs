@@ -193,9 +193,7 @@ export default abstract class AvonRequest<
    * Create new instance of the resource being requested for given item.
    */
   public newResource(resource?: Model): Resource {
-    const Constructor = this.resource().constructor.prototype.constructor;
-
-    return new Constructor(resource);
+    return this.resource().forModel(resource ?? this.model());
   }
 
   /**

@@ -59,6 +59,15 @@ export default abstract class Resource<
   }
 
   /**
+   * Create a new instance of the resource for the given model.
+   */
+  public forModel(resource: Model): Resource {
+    const Constructor = this.constructor.prototype.constructor;
+
+    return new Constructor(resource);
+  }
+
+  /**
    * Get the uri-key name of the resource
    */
   public uriKey(): string {
