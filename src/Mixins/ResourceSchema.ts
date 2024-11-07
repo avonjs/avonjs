@@ -449,9 +449,9 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
       request: AvonRequest,
     ): OpenAPIV3.PathItemObject | undefined {
       if (this.availableForUpdate) {
-        const fields = new FieldCollection(
-          this.fieldsForUpdate(request),
-        ).onlyCreationFields(request);
+        const fields = new FieldCollection(this.fieldsForUpdate(request))
+          .withoutUnfillableFields()
+          .onlyUpdateFields(request, this.repository().model());
         const schema = {
           type: 'object',
           required: fields
