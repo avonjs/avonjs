@@ -29,12 +29,18 @@ import Nullable from '../Mixins/Nullable';
 import Orderable from '../Mixins/Orderable';
 import Presentable from '../Mixins/Presentable';
 import type { Repository } from '../Repositories';
+import { mixin } from '../support/mixin';
 import TextFilter from './Filters/TextFilter';
 import Ordering from './Orderings/Ordering';
 
 export default abstract class Field
-  extends Nullable(
-    Filterable(Orderable(Presentable(AuthorizedToSee(class {})))),
+  extends mixin(
+    class {},
+    Nullable,
+    Filterable,
+    Orderable,
+    Presentable,
+    AuthorizedToSee,
   )
   implements FieldSchema, ParameterSerializable
 {

@@ -90,3 +90,5 @@ export type SanitizeCallback = (
   request: AvonRequest,
   resources: Model[],
 ) => Model[];
+
+export type UnaryFunction<T, R> = (source: T) => R;

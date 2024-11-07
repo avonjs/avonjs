@@ -20,6 +20,7 @@ import * as Repositories from './Repositories';
 import Resource from './Resource';
 import * as Resources from './Resources';
 import * as Helpers from './helpers';
+import { mixin } from './support/mixin';
 
 export {
   Avon as default,
@@ -45,4 +46,5 @@ export {
   Resources,
   FilterableFields,
   Rules,
+  mixin,
 };

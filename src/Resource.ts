@@ -24,25 +24,23 @@ import ResolvesFilters from './Mixins/ResolvesFilters';
 import ResolvesOrderings from './Mixins/ResolvesOrderings';
 import ResourceSchema from './Mixins/ResourceSchema';
 import { slugify } from './helpers';
+import { mixin } from './support/mixin';
 
 export default abstract class Resource<
   TModel extends Model = Model,
-> extends ResourceSchema(
-  RecordsResourceEvents(
-    HasLifecycleMethods(
-      FillsFields(
-        ResolvesFields(
-          Authorizable(
-            ResolvesActions(
-              ResolvesOrderings(
-                ResolvesFilters(PerformsQueries(PerformsValidation(class {}))),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  ),
+> extends mixin(
+  class {},
+  Authorizable,
+  ResolvesFields,
+  ResolvesFilters,
+  ResolvesOrderings,
+  ResolvesActions,
+  ResourceSchema,
+  FillsFields,
+  PerformsValidation,
+  PerformsQueries,
+  RecordsResourceEvents,
+  HasLifecycleMethods,
 ) {
   /**
    * The resource model instance.
