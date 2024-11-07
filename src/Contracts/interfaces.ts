@@ -162,17 +162,17 @@ export interface Logger {
   /**
    * Log the "error" level messages.
    */
-  error(formatter: string, ...args: unknown[]): Logger;
+  error(formatter: unknown, ...args: unknown[]): Logger;
   /**
    * Log the "info" level messages.
    */
-  info(formatter: string, ...args: unknown[]): Logger;
+  info(formatter: unknown, ...args: unknown[]): Logger;
   /**
    * Log the "warn" level messages.
    */
-  warn(formatter: string, ...args: unknown[]): Logger;
+  warn(formatter: unknown, ...args: unknown[]): Logger;
   /**
    * Log the "debug" level messages.
    */
-  dump(formatter: string, ...args: unknown[]): Logger;
+  dump(formatter: unknown, ...args: unknown[]): Logger;
 }
