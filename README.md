@@ -129,10 +129,10 @@ const app = express();
 app.use(bodyParser.json()).use(cors());
 
 // register Avon router without authentication
-app.use('/api', Avon.routes(express.Router()));
+app.use('/api', Avon.express());
 
 // or register Avon router with authentication
-app.use('/api', Avon.routes(express.Router(), true));
+app.use('/api', Avon.express(true));
 
 app.listen(3000, () => {
   console.log('running')
@@ -141,11 +141,11 @@ app.listen(3000, () => {
 
 ## Authentication
 
-Avon ships by JWT authentication approach but it's disabled by default. to enable authentication you have to pass the `true` value as a second argument of the "routes" method:
+Avon ships by JWT authentication approach but it's disabled by default. to enable authentication you have to pass the `true` value as a second argument of the "express" method:
 
 ```
 // register Avon router
-app.use('/api', Avon.routes(express.Router(), true));
+app.use('/api', Avon.express(true));
 ```
 
 By default, Avon using the [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) package to generate JWT tokens.

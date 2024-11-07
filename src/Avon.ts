@@ -1,6 +1,6 @@
 import { readdirSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
-import type { Request, Response, Router } from 'express';
+import express, { type Request, type Response, type Express } from 'express';
 import { type Params, expressjwt } from 'express-jwt';
 import Joi, { type AnySchema } from 'joi';
 import { type SignOptions, sign } from 'jsonwebtoken';
@@ -165,23 +165,34 @@ export default class Avon {
   }
 
   /**
-   * Register API routes.
+   * Get express instance.
    */
-  public static routes(router: Router, withAuthentication = false): Router {
+  public static routes(withAuthentication = false) {
+    return Avon.express(withAuthentication);
+  }
+
+  /**
+   * Get express instance.
+   */
+  public static express(withAuthentication = false) {
+    const app = express();
+    app.set('query parser', 'extended');
+
     if (withAuthentication) {
-      router
+      app
         .post('/login', Avon.login)
         .use(Avon.expressjwt())
         .use(handleAuthenticationError);
     }
 
-    const routes = new RouteRegistrar(router);
+    new RouteRegistrar(app).register();
 
-    routes.register();
-
-    return router;
+    return app;
   }
 
+  /**
+   * Get JWT middleware.
+   */
   public static expressjwt() {
     const verifyOptions = Object.assign(
       { secret: Avon.appKey, algorithms: ['HS256'] },

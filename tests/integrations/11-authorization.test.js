@@ -94,7 +94,7 @@ beforeAll(() => {
   // configure Avon
   Avon.resources([resource, new Other()]);
 
-  app.use('/api', Avon.routes(express.Router()));
+  app.use('/api', Avon.express());
   app.use('/unauthenticated/api', Avon.routes(express.Router(), true));
 });
 

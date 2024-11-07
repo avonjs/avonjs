@@ -71,7 +71,7 @@ beforeAll(() => {
   // configure Avon
   Avon.resources([parentResource, childResource]);
 
-  app.use('/api', Avon.routes(express.Router()));
+  app.use('/api', Avon.express());
 });
 // create storage
 afterAll(() => {

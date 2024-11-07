@@ -81,7 +81,7 @@ beforeAll(() => {
   // configure Avon
   Avon.resources([new Post()]);
 
-  app.use('/api', Avon.routes(express.Router()));
+  app.use('/api', Avon.express());
 });
 
 // create storage

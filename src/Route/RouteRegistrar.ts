@@ -1,8 +1,8 @@
-import type { Router } from 'express';
+import type { Express } from 'express';
 import Dispatcher from './Dispatcher';
 
 export default class {
-  constructor(protected router: Router) {}
+  constructor(protected router: Express) {}
 
   public register(): void {
     this.resourceRoutes();
