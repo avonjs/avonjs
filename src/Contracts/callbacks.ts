@@ -58,7 +58,7 @@ export type FillCallback = <TModel extends Model>(
   model: TModel,
   attribute: string,
   requestAttribute: string,
-) => FilledCallback | undefined;
+) => FilledCallback | unknown;
 
 export type DefaultCallback = (request: AvonRequest) => AnyValue;
 
