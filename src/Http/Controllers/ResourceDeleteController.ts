@@ -14,7 +14,6 @@ export default class ResourceDeleteController extends Controller {
       ?.dump(`Searching on "${request.resourceName()}" repository ...`);
 
     const resource = await request.findResourceOrFail();
-    const model = await request.findModelOrFail();
 
     request
       .logger()
@@ -40,7 +39,7 @@ export default class ResourceDeleteController extends Controller {
 
       await resource.beforeDelete(request);
 
-      await repository.delete(model.getKey());
+      await repository.delete(request.resourceId());
 
       await resource.afterDelete(request);
 
