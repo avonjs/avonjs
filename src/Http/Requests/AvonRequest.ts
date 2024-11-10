@@ -143,6 +143,16 @@ export default abstract class AvonRequest<
   }
 
   /**
+   * Determine if this request is an delete or force-delete request.
+   */
+  public isDeleteRequest(): boolean {
+    return [
+      RequestTypes.ResourceDeleteRequest,
+      RequestTypes.ResourceForceDeleteRequest,
+    ].includes(this.type());
+  }
+
+  /**
    * Determine if the requested resource is soft deleting.
    */
   public resourceSoftDeletes(): boolean {
