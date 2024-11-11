@@ -30,6 +30,11 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
   abstract class ResourceSchema extends Parent {
     public abstract resource: Model;
     /**
+     * Indicates resource is available to display in Swagger UI.
+     */
+    public availableForSwagger = true;
+
+    /**
      * Indicates resource is available for `index` API.
      */
     public availableForIndex = true;
@@ -73,6 +78,10 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
      * Get the Open API json schema.
      */
     public schema(request: AvonRequest): OpenAPIV3.PathsObject {
+      if (!this.availableForSwagger) {
+        return {};
+      }
+
       const paths = this.apis(request);
 
       return {
