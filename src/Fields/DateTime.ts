@@ -1,9 +1,9 @@
 import Joi from 'joi';
 import { DateTime as Formatter } from 'luxon';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
-import { ResolveCallback } from '../Contracts';
+import type { AnyValue, ResolveCallback } from '../Contracts';
 import Field from './Field';
 import DateTimeFilter from './Filters/DateTimeFilter';
 
@@ -26,7 +26,7 @@ export default class DateTime extends Field {
   /**
    * Indicates the date store / retrieve format.
    */
-  protected dateFormat: string = 'YYYY-MM-DD HH:mm:ss';
+  protected dateFormat = 'YYYY-MM-DD HH:mm:ss';
 
   constructor(attribute: string, resolveCallback?: ResolveCallback) {
     super(attribute, resolveCallback);
@@ -41,7 +41,7 @@ export default class DateTime extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): string {
+  public getMutatedValue(request: AvonRequest, value: AnyValue): string {
     return Formatter.fromFormat(value, this.dateFormat).toFormat(
       this.dateFormat,
     );

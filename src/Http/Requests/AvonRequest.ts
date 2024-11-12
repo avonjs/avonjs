@@ -1,16 +1,59 @@
 import Avon from '../../Avon';
+import {
+  type Attributes,
+  type Model,
+  type Nullable,
+  type Optional,
+  RequestTypes,
+  type Transaction,
+  type TransactionCallback,
+  TrashedStatus,
+} from '../../Contracts';
 import ModelNotFoundException from '../../Exceptions/ModelNotFoundException';
 import ResourceNotFoundException from '../../Exceptions/ResourceNotFoundException';
-import { Repository } from '../../Repositories';
-import Resource from '../../Resource';
-import { RequestTypes, Model, TrashedStatus } from '../../Contracts';
+import type { Repository } from '../../Repositories';
+import type Resource from '../../Resource';
 import FormRequest from './FormRequest';
 
-export default abstract class AvonRequest extends FormRequest {
+export default abstract class AvonRequest<
+  R extends Repository<Model> = Repository<Model>,
+> extends FormRequest {
   /**
    * Indicates type of the request instance.
    */
   abstract type(): RequestTypes;
+
+  /**
+   * The repository transaction instance.
+   */
+  protected _trx?: Transaction;
+
+  /**
+   * The user instance.
+   */
+  protected _user: Nullable<Model> = null;
+
+  /**
+   * Get the transaction instance.
+   */
+  getTransaction() {
+    return this._trx;
+  }
+
+  /**
+   * Get the transaction instance.
+   */
+  transaction<V>(callback: TransactionCallback<V, R>): Promise<V> {
+    return this.repository().transaction(async (repository, transaction) => {
+      this._trx = transaction;
+
+      const value = await callback(repository, transaction);
+
+      this._trx = undefined;
+
+      return value;
+    });
+  }
 
   /**
    * Determine if this request is a create or attach request.
@@ -101,6 +144,16 @@ export default abstract class AvonRequest extends FormRequest {
   }
 
   /**
+   * Determine if this request is an delete or force-delete request.
+   */
+  public isDeleteRequest(): boolean {
+    return [
+      RequestTypes.ResourceDeleteRequest,
+      RequestTypes.ResourceForceDeleteRequest,
+    ].includes(this.type());
+  }
+
+  /**
    * Determine if the requested resource is soft deleting.
    */
   public resourceSoftDeletes(): boolean {
@@ -111,31 +164,37 @@ export default abstract class AvonRequest extends FormRequest {
    * Get the resource instance for the request or abort.
    */
   public resource(): Resource {
-    const resource = Avon.resourceForKey(this.route('resourceName'));
+    const resource = Avon.resourceForKey(this.resourceName());
 
     ResourceNotFoundException.unless(resource);
 
-    return resource!;
+    return resource;
   }
 
   /**
    * Get the repository for resource being requested.
    */
-  public repository(): Repository<Model> {
-    return this.resource().resolveRepository(this);
+  public repository(): R {
+    this.logger()?.dump(
+      `Resolving the "${this.resourceName()} repository ..."`,
+    );
+
+    return this.resource().resolveRepository(this) as R;
   }
 
   /**
    * Get the model for resource being requested.
    */
   public model(): Model {
+    this.logger()?.dump(`Resolving the "${this.resourceName()} model ..."`);
+
     return this.repository().model();
   }
 
   /**
    * Make a new model for given attributes.
    */
-  public newModel(attributes: Record<string, any>): Model {
+  public newModel(attributes: Attributes): Model {
     const Constructor = this.model().constructor.prototype.constructor;
 
     return new Constructor(attributes);
@@ -145,9 +204,7 @@ export default abstract class AvonRequest extends FormRequest {
    * Create new instance of the resource being requested for given item.
    */
   public newResource(resource?: Model): Resource {
-    const Constructor = this.resource().constructor.prototype.constructor;
-
-    return new Constructor(resource);
+    return this.resource().forModel(resource ?? this.model());
   }
 
   /**
@@ -160,9 +217,7 @@ export default abstract class AvonRequest extends FormRequest {
   /**
    * Find the resource instance for the request.
    */
-  public async findResource(
-    resourceId?: number,
-  ): Promise<Resource | undefined> {
+  public async findResource(resourceId?: number): Promise<Optional<Resource>> {
     return this.newResource(await this.findModel(resourceId));
   }
 
@@ -180,7 +235,11 @@ export default abstract class AvonRequest extends FormRequest {
   /**
    * Find the model instance for the request.
    */
-  public async findModel(resourceId?: number): Promise<Model | undefined> {
+  public async findModel(resourceId?: number): Promise<Optional<Model>> {
+    this.logger()?.dump(
+      `Searching repository "${this.resourceName()} by id ..."`,
+    );
+
     return this.findModelQuery(resourceId).first();
   }
 
@@ -188,9 +247,21 @@ export default abstract class AvonRequest extends FormRequest {
    * Find the model instance for the request.
    */
   public findModelQuery(resourceId?: number) {
-    return this.repository().whereKey(
-      resourceId ?? this.route('resourceId') ?? this.query('resourceId'),
-    );
+    return this.repository().whereKey(resourceId ?? this.resourceId());
+  }
+
+  /**
+   * Get resource "id" from route or query.
+   */
+  public resourceId() {
+    return this.route('resourceId') ?? this.query('resourceId');
+  }
+
+  /**
+   * Get resource "name" from route or query.
+   */
+  public resourceName() {
+    return this.route('resourceName') ?? this.query('resourceName');
   }
 
   /**
@@ -201,9 +272,25 @@ export default abstract class AvonRequest extends FormRequest {
   }
 
   /**
-   * Get authenticated user.
+   * Get jwt payload.
    */
-  public user() {
+  public auth() {
     return this.getRequest().auth;
+  }
+
+  /**
+   * Get the user instance.
+   */
+  public user<TModel extends Model>(): Nullable<TModel> {
+    return this._user as TModel;
+  }
+
+  /**
+   * Set the user instance.
+   */
+  public setUser(user: Nullable<Model>) {
+    this._user = user;
+
+    return this;
   }
 }

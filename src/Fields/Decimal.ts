@@ -1,8 +1,13 @@
 import Joi from 'joi';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
-import { DefaultCallback, OpenApiSchema } from '../Contracts';
+import type {
+  AnyValue,
+  DefaultCallback,
+  OpenApiSchema,
+  Optional,
+} from '../Contracts';
 import Field from './Field';
 import NumberFilter from './Filters/NumberFilter';
 
@@ -32,13 +37,16 @@ export default class Decimal extends Field {
   /**
    * The maximum number of decimal places allowed.
    */
-  protected decimal: number = 2;
+  protected decimal = 2;
 
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): number | undefined {
-    return Number(parseFloat(value).toFixed(this.decimal));
+  public getMutatedValue(
+    request: AvonRequest,
+    value: AnyValue,
+  ): Optional<number> {
+    return Number(Number.parseFloat(value).toFixed(this.decimal));
   }
 
   /**

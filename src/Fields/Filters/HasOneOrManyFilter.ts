@@ -1,7 +1,7 @@
-import { Model, Operator } from '../../Contracts';
-import AvonRequest from '../../Http/Requests/AvonRequest';
-import { Repository } from '../../Repositories';
-import Relation from '../Relation';
+import { type AnyValue, type Model, Operator } from '../../Contracts';
+import type AvonRequest from '../../Http/Requests/AvonRequest';
+import type { Repository } from '../../Repositories';
+import type Relation from '../Relation';
 import BelongsToFilter from './BelongsToFilter';
 
 export default class HasOneOrManyFilter extends BelongsToFilter {
@@ -15,8 +15,8 @@ export default class HasOneOrManyFilter extends BelongsToFilter {
   public async apply(
     request: AvonRequest,
     queryBuilder: Repository<Model>,
-    value: any,
-  ): Promise<any> {
+    value: AnyValue,
+  ): Promise<AnyValue> {
     if (typeof this.field.filterableCallback === 'function') {
       this.field.applyFilter(request, queryBuilder, this.parseValue(value));
     } else if (this.field.filterableCallback) {

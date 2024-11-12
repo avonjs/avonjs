@@ -1,19 +1,21 @@
+import type { AnyRecord, AnyValue } from '../../Contracts';
+
 export default abstract class AvonResponse {
   /**
    * Indicates custom headers.
    */
-  protected headers: Record<string, any> = {};
+  protected headers: AnyRecord = {};
 
   constructor(
     public code: number,
-    public data: Record<string | number, any> = {},
-    public meta: Record<string, any> = {},
+    public data: Record<string | number, AnyValue> = {},
+    public meta: AnyRecord = {},
   ) {}
 
   /**
    * Merge the given meta into the response meta.
    */
-  public withMeta(meta: string | Record<string, any>, value?: any) {
+  public withMeta(meta: string | AnyRecord, value?: AnyValue) {
     const mergeValues = typeof meta === 'string' ? { [meta]: value } : meta;
 
     this.meta = {
@@ -27,7 +29,7 @@ export default abstract class AvonResponse {
   /**
    * Get content for response.
    */
-  public content(): Record<string, any> {
+  public content(): AnyRecord {
     return {
       code: this.code,
       data: this.data,
@@ -45,14 +47,14 @@ export default abstract class AvonResponse {
   /**
    * Get the response headers.
    */
-  public getHeaders(): Record<string, any> {
+  public getHeaders(): AnyRecord {
     return this.headers;
   }
 
   /**
    * Append header value to response.
    */
-  public withHeader(key: string, value: any): this {
+  public withHeader(key: string, value: AnyValue): this {
     this.headers[key] = value;
 
     return this;

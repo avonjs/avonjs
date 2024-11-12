@@ -1,8 +1,13 @@
-import { Field } from '../Fields';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Repository } from '../Repositories';
-import { AbstractMixable, Model, Operator } from '../Contracts';
+import {
+  type AbstractMixable,
+  type AnyValue,
+  type Model,
+  Operator,
+} from '../Contracts';
+import type { Field } from '../Fields';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable<Filter>>(Parent: T) => {
   abstract class FilterableFields extends Parent {
@@ -14,8 +19,8 @@ export default <T extends AbstractMixable<Filter>>(Parent: T) => {
     public async apply(
       request: AvonRequest,
       queryBuilder: Repository<Model>,
-      value: any,
-    ): Promise<any> {
+      value: AnyValue,
+    ) {
       if (typeof this.field.filterableCallback === 'function') {
         this.isValidNullValue(value)
           ? this.applyNullFilter(request, queryBuilder)
@@ -40,7 +45,7 @@ export default <T extends AbstractMixable<Filter>>(Parent: T) => {
     /**
      * Determine if the given value is considered a valid null value if the field supports them.
      */
-    public isValidNullValue(value: any): boolean {
+    public isValidNullValue(value: AnyValue): boolean {
       return this.field.isValidNullValue(value);
     }
 
@@ -57,7 +62,7 @@ export default <T extends AbstractMixable<Filter>>(Parent: T) => {
     public applyNullFilter(
       request: AvonRequest,
       queryBuilder: Repository<Model>,
-    ): any {
+    ) {
       return queryBuilder.where({
         key: this.field.filterableAttribute(request),
         operator: Operator.eq,
@@ -68,7 +73,7 @@ export default <T extends AbstractMixable<Filter>>(Parent: T) => {
     /**
      * Parse the value given from request.
      */
-    public parseValue(value: any) {
+    public parseValue(value: AnyValue) {
       return value;
     }
 
@@ -76,7 +81,7 @@ export default <T extends AbstractMixable<Filter>>(Parent: T) => {
      * Get the query parameter key for filter.
      */
     public key(): string {
-      return this.field.constructor.name + ':' + this.field.attribute;
+      return `${this.field.constructor.name}:${this.field.attribute}`;
     }
   }
 

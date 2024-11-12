@@ -1,13 +1,12 @@
-import { Filter } from '../../Filters';
-import { Ordering } from '../../Orderings';
 import {
+  type IndexSerializedResource,
+  type MatchedQueryHandlers,
+  type Model,
   RequestTypes,
-  IndexSerializedResource,
-  SearchCollection,
-  Model,
-  MatchesQueryParameters,
-  TrashedStatus,
+  type SearchCollection,
 } from '../../Contracts';
+import type { Filter } from '../../Filters';
+import type { Ordering } from '../../Orderings';
 import AvonRequest from './AvonRequest';
 import QueryParser from './QueryParser';
 
@@ -74,7 +73,7 @@ export default class ResourceIndexRequest extends AvonRequest {
   /**
    * Get the filters for the request.
    */
-  public filters(): MatchesQueryParameters<Filter> {
+  public filters(): MatchedQueryHandlers<Filter> {
     return new QueryParser<Filter>(
       this.query('filters', []),
       this.availableFilters(),
@@ -98,7 +97,7 @@ export default class ResourceIndexRequest extends AvonRequest {
   /**
    * Get the orderings for the request.
    */
-  public orderings(): MatchesQueryParameters<Ordering> {
+  public orderings(): MatchedQueryHandlers<Ordering> {
     return new QueryParser<Ordering>(
       this.query('orders', []),
       this.availableOrderings(),

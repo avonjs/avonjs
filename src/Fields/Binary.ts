@@ -1,16 +1,17 @@
 import Joi from 'joi';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
 import {
-  DefaultCallback,
-  FilterableCallback,
-  Model,
-  OpenApiSchema,
+  type AnyValue,
+  type DefaultCallback,
+  type FilterableCallback,
+  type Model,
+  type OpenApiSchema,
   Operator,
 } from '../Contracts';
+import type { Repository } from '../Repositories';
 import Field from './Field';
-import { Repository } from '../Repositories';
 import BinaryFilter from './Filters/BinaryFilter';
 
 export default class Binary extends Field {
@@ -39,7 +40,7 @@ export default class Binary extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): boolean {
+  public getMutatedValue(request: AvonRequest, value: AnyValue): boolean {
     return Boolean(value);
   }
 
@@ -71,7 +72,7 @@ export default class Binary extends Field {
     return (
       request: AvonRequest,
       repository: Repository<Model>,
-      value: any,
+      value: AnyValue,
     ) => {
       repository.where({
         key: this.filterableAttribute(request),

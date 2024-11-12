@@ -1,21 +1,25 @@
-import ModelNotFoundException from '../Exceptions/ModelNotFoundException';
 import {
-  Model,
-  AbstractMixable,
-  Where,
+  type AbstractMixable,
+  type Args,
+  type Model,
   Operator,
-  SoftDeletes as SoftDeletesContract,
+  type PrimaryKey,
+  type SoftDeletes as SoftDeletesContract,
+  type Where,
 } from '../Contracts';
-import Repository from '../Repositories/Repository';
+import ModelNotFoundException from '../Exceptions/ModelNotFoundException';
+import type Repository from '../Repositories/Repository';
 
 export default <
   TModel extends Model,
-  TBase extends AbstractMixable<Repository<TModel>>,
+  TBase extends AbstractMixable<Repository<TModel>> = AbstractMixable<
+    Repository<TModel>
+  >,
 >(
   Parent: TBase,
 ) => {
   abstract class SoftDeletes extends Parent {
-    constructor(...params: any[]) {
+    constructor(...params: Args) {
       super(params);
       this.applySoftDelete();
     }
@@ -38,7 +42,7 @@ export default <
     /**
      * Delete model for the given key.
      */
-    async delete(key: string | number): Promise<void> {
+    async delete(key: PrimaryKey): Promise<void> {
       const model = await this.find(key);
 
       if (model === undefined) {
@@ -72,7 +76,7 @@ export default <
     /**
      * Delete model for the given key.
      */
-    async forceDelete(key: string | number): Promise<void> {
+    async forceDelete(key: PrimaryKey): Promise<void> {
       this.removeSoftDeleteQueries();
       //@ts-ignore
       await super.delete(key);
@@ -81,7 +85,7 @@ export default <
     /**
      * Restore the delete model for given key.
      */
-    async restore(key: string | number): Promise<TModel> {
+    async restore(key: PrimaryKey): Promise<TModel> {
       const model = await this.onlyTrashed().find(key);
 
       ModelNotFoundException.unless(model);
@@ -163,7 +167,7 @@ export default <
     /**
      * Determine whether a given resource is "soft-deleted".
      */
-    isSoftDeleted(resource: Model): Boolean {
+    isSoftDeleted(resource: Model): boolean {
       const deleteAt = resource.getAttribute(this.getDeletedAtKey());
 
       return ![this.getDeletedAtValueOnRestore(), undefined].includes(deleteAt);

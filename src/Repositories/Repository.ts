@@ -1,12 +1,16 @@
 import {
-  Model,
-  Where,
-  Order,
+  type AnyRecord,
+  type AnyValue,
+  type Model,
   Operator,
-  SearchCollection,
-  TransactionCallback,
-  QueryModifierCallback,
-  Transaction,
+  type Optional,
+  type Order,
+  type PrimaryKey,
+  type QueryModifierCallback,
+  type SearchCollection,
+  type Transaction,
+  type TransactionCallback,
+  type Where,
 } from '../Contracts';
 
 export default abstract class Repository<TModel extends Model = Model> {
@@ -84,8 +88,15 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Start new transaction.
    */
-  public prepareTransaction(): any {
-    // nothing to do
+  public async prepareTransaction(): Promise<Transaction> {
+    return new (class implements Transaction {
+      commit(value?: AnyValue) {
+        return value;
+      }
+      rollback(error?: AnyValue) {
+        return error;
+      }
+    })();
   }
 
   /**
@@ -145,7 +156,7 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Modify underlying query before execute.
    */
-  public modify<T extends unknown>(modifier: QueryModifierCallback<T>) {
+  public modify<T>(modifier: QueryModifierCallback<T>) {
     this.modifiers.push(modifier);
 
     return this;
@@ -154,14 +165,14 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Find model for the given key.
    */
-  async find(key: string | number): Promise<TModel | undefined> {
+  async find(key: PrimaryKey): Promise<Optional<TModel>> {
     return this.whereKey(key).first();
   }
 
   /**
    * Apply primary key condition
    */
-  public whereKey(key: string | number): this {
+  public whereKey(key: PrimaryKey): this {
     return this.where({
       key: this.model().getKeyName(),
       value: key,
@@ -172,7 +183,7 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Apply primary key condition
    */
-  public whereKeys(keys: Array<string | number>): this {
+  public whereKeys(keys: Array<PrimaryKey>): this {
     return this.where({
       key: this.model().getKeyName(),
       value: keys,
@@ -183,7 +194,7 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Fill data into model.
    */
-  public fillModel(result: Record<string, any>): TModel {
+  public fillModel(result: AnyRecord): TModel {
     const Constructor = this.model().constructor.prototype.constructor;
 
     return new Constructor(result);
@@ -206,7 +217,7 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Find first model for the given conditions.
    */
-  abstract first(wheres?: Where[]): Promise<TModel | undefined>;
+  abstract first(wheres?: Where[]): Promise<Optional<TModel>>;
 
   /**
    * Store given model into the storage.
@@ -221,7 +232,7 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Delete model for the given key.
    */
-  abstract delete(key: string | number): Promise<void>;
+  abstract delete(key: PrimaryKey): Promise<void>;
 
   /**
    * Create new instance of model.

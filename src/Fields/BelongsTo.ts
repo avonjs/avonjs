@@ -1,19 +1,22 @@
 import Joi from 'joi';
 import FieldCollection from '../Collections/FieldCollection';
-import AvonRequest from '../Http/Requests/AvonRequest';
 import {
   Ability,
-  FilledCallback,
-  Model,
-  OpenApiSchema,
+  type AnyRecord,
+  type AnyValue,
+  type FilledCallback,
+  type Model,
+  type OpenApiSchema,
   Operator,
-  Rules,
-  SoftDeletes,
-  Transaction,
+  type Optional,
+  type PrimaryKey,
+  type Rules,
+  type SoftDeletes,
 } from '../Contracts';
-import Relation from './Relation';
-import { Filter } from '../Filters';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import BelongsToFilter from './Filters/BelongsToFilter';
+import Relation from './Relation';
 
 export default class BelongsTo extends Relation {
   /**
@@ -33,7 +36,7 @@ export default class BelongsTo extends Relation {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): any {
+  public getMutatedValue(request: AvonRequest, value: AnyValue): AnyValue {
     return this.isLoaded() ? super.getMutatedValue(request, value)[0] : value;
   }
 
@@ -43,7 +46,7 @@ export default class BelongsTo extends Relation {
   public fillForAction<TModel extends Model>(
     request: AvonRequest,
     model: TModel,
-  ): any {
+  ): AnyValue {
     if (request.exists(this.attribute)) {
       model.setAttribute(
         this.attribute,
@@ -62,13 +65,15 @@ export default class BelongsTo extends Relation {
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | void {
+  ): Optional<FilledCallback> {
     if (!request.exists(requestAttribute)) {
-      return this.fillAttributeFromDefault(
+      this.fillAttributeFromDefault(
         request,
         model,
         this.foreignKeyName(request),
       );
+
+      return;
     }
 
     const value = request.get(requestAttribute);
@@ -78,11 +83,11 @@ export default class BelongsTo extends Relation {
       this.isValidNullValue(value) ? this.nullValue() : value,
     );
 
-    return async (request, model, transaction) => {
+    return async (request, model) => {
       await request
         .newResource(model)
         .authorizeTo(request, Ability.add, [
-          await this.getRelatedResource(request, value, transaction),
+          await this.getRelatedResource(request, value),
         ]);
     };
   }
@@ -94,13 +99,17 @@ export default class BelongsTo extends Relation {
     request: AvonRequest,
     resources: Model[],
   ): Promise<Model[]> {
-    const query = this.relatedResource.resolveRepository(request).where({
+    const repository = this.relatedResource.resolveRepository(request).where({
       key: this.ownerKeyName(request),
       value: resources
         .map((resource) => resource.getAttribute(this.foreignKeyName(request)))
         .filter((value) => value),
       operator: Operator.in,
     });
+
+    const query =
+      this.relatableQueryCallback.apply(repository, [request, repository]) ??
+      repository;
 
     return this.softDeletes() //@ts-ignore
       ? query.withTrashed().all()
@@ -113,7 +122,7 @@ export default class BelongsTo extends Relation {
   public formatRelatedResource(
     request: AvonRequest,
     resource: Model,
-  ): Record<string, any> {
+  ): AnyRecord {
     const repository = this.relatedResource.resolveRepository(
       request,
     ) as unknown as SoftDeletes<Model>;
@@ -195,23 +204,18 @@ export default class BelongsTo extends Relation {
     };
   }
 
-  protected async getRelatedResource(
-    request: AvonRequest,
-    id: string | number,
-    transaction?: Transaction,
-  ) {
-    const repository = this.relatedResource
-      .resolveRepository(request)
-      .setTransaction(transaction)
-      .where({
-        key: this.ownerKeyName(request),
-        operator: Operator.eq,
-        value: id,
-      });
+  protected async getRelatedResource(request: AvonRequest, id: PrimaryKey) {
+    const repository = this.relatedResource.resolveRepository(request).where({
+      key: this.ownerKeyName(request),
+      operator: Operator.eq,
+      value: id,
+    });
     // to ensure only valid data attached
-    this.relatableQueryCallback.apply(this, [request, repository]);
+    const query =
+      this.relatableQueryCallback.apply(repository, [request, repository]) ??
+      repository;
 
-    return repository.first();
+    return query.first();
   }
 
   /**

@@ -1,20 +1,22 @@
+// TODO: should i rename it!
+// biome-ignore lint/suspicious/noShadowRestrictedNames:
 import Array from './Array';
 import BelongsTo from './BelongsTo';
 import BelongsToMany from './BelongsToMany';
 import Binary from './Binary';
 import DateTime from './DateTime';
+import Decimal from './Decimal';
 import Email from './Email';
+import Enum from './Enum';
+import Field from './Field';
 import HasMany from './HasMany';
 import HasOne from './HasOne';
 import ID from './ID';
 import Integer from './Integer';
 import Json from './Json';
-import Text from './Text';
-import Field from './Field';
-import Enum from './Enum';
-import List from './List';
-import Decimal from './Decimal';
 import Lazy from './Lazy';
+import List from './List';
+import Text from './Text';
 
 export {
   Array,

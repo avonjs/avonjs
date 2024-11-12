@@ -1,15 +1,16 @@
-import { OpenAPIV3 } from 'openapi-types';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import QueryParameter from '../Http/Requests/QueryParameter';
-import AuthorizedToSee from '../Mixins/AuthorizedToSee';
-import {
-  ParameterSerializable,
+import type { OpenAPIV3 } from 'openapi-types';
+import type {
+  AnyValue,
   HasSchema,
-  SeeCallback,
   Model,
   OpenApiSchema,
+  ParameterSerializable,
+  SeeCallback,
 } from '../Contracts';
-import { Repository } from '../Repositories';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import QueryParameter from '../Http/Requests/QueryParameter';
+import AuthorizedToSee from '../Mixins/AuthorizedToSee';
+import type { Repository } from '../Repositories';
 
 export default abstract class Filter
   extends AuthorizedToSee(QueryParameter)
@@ -42,8 +43,8 @@ export default abstract class Filter
   public abstract apply(
     request: AvonRequest,
     repository: Repository<Model>,
-    value: any,
-  ): any;
+    value: AnyValue,
+  ): void;
 
   /**
    * Serialize parameters for schema.

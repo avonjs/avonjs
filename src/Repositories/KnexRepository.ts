@@ -1,13 +1,16 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { plural, singular } from 'pluralize';
-import { Fluent } from '../Models';
 import {
-  Model,
-  SearchCollection,
-  Where,
+  type AnyRecord,
   Direction,
+  type Model,
   Operator,
+  type Optional,
+  type PrimaryKey,
+  type SearchCollection,
+  type Where,
 } from '../Contracts';
+import { Fluent } from '../Models';
 import { isNullish, slugify } from '../helpers';
 import Repository from './Repository';
 
@@ -22,7 +25,7 @@ export default abstract class KnexRepository<
   /**
    * The columns that should be searched.
    */
-  protected searches: Array<string | Knex.Raw<any>> = [];
+  protected searches: Array<string | Knex.Raw> = [];
 
   /**
    * Start new transaction.
@@ -36,8 +39,8 @@ export default abstract class KnexRepository<
    */
   async search(
     search: string,
-    page: number = 1,
-    perPage: number = 15,
+    page = 1,
+    perPage = 15,
   ): Promise<SearchCollection<Fluent>> {
     const query = this.performSearch(this.makeQuery(), search);
     const offset = (page - 1) * perPage > 0 ? (page - 1) * perPage : 0;
@@ -50,7 +53,7 @@ export default abstract class KnexRepository<
 
     return {
       ...count,
-      items: data.map((item: Record<string, any>) => this.fillModel(item)),
+      items: data.map((item: AnyRecord) => this.fillModel(item)),
     };
   }
 
@@ -92,7 +95,7 @@ export default abstract class KnexRepository<
   async all(wheres: Where[] = []): Promise<TModel[]> {
     const data = await this.selectColumns(this.where(wheres).makeQuery());
 
-    return data.map((item: Record<string, any>) => this.fillModel(item));
+    return data.map((item: AnyRecord) => this.fillModel(item));
   }
 
   /**
@@ -116,7 +119,7 @@ export default abstract class KnexRepository<
   /**
    * Find first model for the given conditions.
    */
-  async first(wheres: Where[] = []): Promise<TModel | undefined> {
+  async first(wheres: Where[] = []): Promise<Optional<TModel>> {
     return this.parseResult(await this.where(wheres).makeQuery().first());
   }
 
@@ -145,7 +148,7 @@ export default abstract class KnexRepository<
   /**
    * Delete model for the given key.
    */
-  async delete(key: string | number): Promise<void> {
+  async delete(key: PrimaryKey): Promise<void> {
     await this.whereKey(key).makeQuery().delete();
   }
 
@@ -176,7 +179,11 @@ export default abstract class KnexRepository<
   protected applyWheres(query: Knex.QueryBuilder): Knex.QueryBuilder {
     this.wheres.forEach(({ key, operator, value }) => {
       if (![null, undefined].includes(value)) {
-        query.where(this.getQualifiedColumnName(key), operator, value);
+        query.where(
+          this.getQualifiedColumnName(key),
+          operator,
+          Operator.in === operator && !Array.isArray(value) ? [value] : value,
+        );
       } else if ([Operator.eq, Operator.in].includes(operator)) {
         query.whereNull(this.getQualifiedColumnName(key));
       } else {

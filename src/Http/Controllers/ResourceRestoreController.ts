@@ -1,7 +1,7 @@
 import Avon from '../../Avon';
 import { Ability } from '../../Contracts';
-import ResourceRestoreRequest from '../Requests/ResourceRestoreRequest';
-import { AvonResponse, EmptyResponse } from '../Responses';
+import type ResourceRestoreRequest from '../Requests/ResourceRestoreRequest';
+import { type AvonResponse, EmptyResponse } from '../Responses';
 import Controller from './Controller';
 
 export default class ResourceRestoreController extends Controller {
@@ -11,6 +11,10 @@ export default class ResourceRestoreController extends Controller {
   public async __invoke(
     request: ResourceRestoreRequest,
   ): Promise<AvonResponse> {
+    request
+      .logger()
+      ?.dump(`Searching on "${request.resourceName()}" repository ...`);
+
     const resource = request.newResource(
       await request
         .resource()
@@ -18,21 +22,31 @@ export default class ResourceRestoreController extends Controller {
         .first(),
     );
 
+    request
+      .logger()
+      ?.dump(
+        `Authorizing user for "${Ability.review}" access on "${request.resourceName()}".`,
+      );
+
     await resource.authorizeTo(request, Ability.restore);
 
-    await request
-      .repository()
-      .transaction<any>(async (repository, transaction) => {
-        await resource.beforeRestore(request, transaction);
+    request.logger()?.dump(`Restoring "${request.resourceName()}" ...`);
 
-        await repository.restore(request.route('resourceId') as string);
+    await request.transaction(async (repository, transaction) => {
+      await resource.beforeRestore(request);
 
-        await resource.afterRestore(request, transaction);
+      await repository.restore(request.route('resourceId') as string);
 
-        await resource.recordRestoreEvent(transaction, Avon.userId(request));
-      });
+      await resource.afterRestore(request);
+
+      await resource.recordRestoreEvent(transaction, Avon.userId(request));
+    });
+
+    request.logger()?.dump(`Restored "${request.resourceName()}" ...`);
 
     await resource.restored(request);
+
+    request.logger()?.dump('Preparing response ...');
 
     return new EmptyResponse();
   }

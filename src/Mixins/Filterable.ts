@@ -1,12 +1,13 @@
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Repository } from '../Repositories';
 import {
-  AbstractMixable,
-  FilterableCallback,
-  Model,
+  type AbstractMixable,
+  type AnyValue,
+  type FilterableCallback,
+  type Model,
   Operator,
 } from '../Contracts';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class Filterable extends Parent {
@@ -21,8 +22,8 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public async applyFilter(
       request: AvonRequest,
       queryBuilder: Repository<Model>,
-      value: any,
-    ): Promise<any> {
+      value: AnyValue,
+    ) {
       if (typeof this.filterableCallback === 'function') {
         await this.filterableCallback?.apply(this, [
           request,

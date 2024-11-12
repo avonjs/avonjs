@@ -1,11 +1,11 @@
 //@ts-check
-const express = require('express');
-const request = require('supertest');
-const bodyParser = require('body-parser');
+const express = require("express");
+const request = require("supertest");
+const bodyParser = require("body-parser");
 
-const { Repositories, Resource, Fields } = require('../../dist');
-const { Fluent } = require('../../dist/Models');
-const targetData = { id: Date.now(), name: Date.now() + ' NAME' };
+const { Repositories, Resource, Fields } = require("../../dist");
+const { Fluent } = require("../../dist/Models");
+const targetData = { id: Date.now(), name: Date.now() + " NAME" };
 const items = [new Fluent(Object.assign({}, targetData))];
 const repository = new (class extends Repositories.Collection {
   searchableColumns() {
@@ -22,7 +22,7 @@ class Update extends Resource {
   }
 
   fields() {
-    return [new Fields.ID(), new Fields.Text('name')];
+    return [new Fields.ID(), new Fields.Text("name")];
   }
 }
 
@@ -32,34 +32,34 @@ const app = express();
 app.use(bodyParser.json());
 
 beforeAll(() => {
-  const { Avon } = require('../../dist');
+  const { Avon } = require("../../dist");
   // configure Avon
   Avon.resources([resource]);
 
-  app.use('/api', Avon.routes(express.Router()));
+  app.use("/api", Avon.express());
 });
 
-describe('PUT resources api', () => {
-  test('Could respond 404 for invalid resources', () => {
+describe("PUT resources api", () => {
+  test("Could respond 404 for invalid resources", () => {
     return request(app)
       .put(`/api/resources/anything/anything`)
-      .expect('Content-Type', /json/)
+      .expect("Content-Type", /json/)
       .expect(404)
       .then(({ body: { code, message, name, meta } }) => {
         expect(code).toBe(404);
-        expect(message).toBe('Resource not found');
-        expect(name).toBe('NotFound');
+        expect(message).toBe("Resource not found");
+        expect(name).toBe("NotFound");
         expect(meta.stack).not.toBeUndefined();
-        expect(meta.stack.message).toBe('Resource not found');
+        expect(meta.stack.message).toBe("Resource not found");
       });
   });
 
-  test('Could update requested resource by given payload', () => {
-    const name = Date.now() + ' ANOTHER NAME';
+  test("Could update requested resource by given payload", () => {
+    const name = Date.now() + " ANOTHER NAME";
     return request(app)
       .put(`/api/resources/${resource.uriKey()}/${targetData.id}`)
       .send({ name })
-      .expect('Content-Type', /json/)
+      .expect("Content-Type", /json/)
       .expect(200)
       .then(async ({ body: { code, data } }) => {
         const item = await repository.find(targetData.id);
@@ -67,8 +67,8 @@ describe('PUT resources api', () => {
         expect(data.authorization).toEqual({
           authorizedToDelete: true,
         });
-        expect(item.getAttribute('name')).toBe(name);
-        expect(item.getAttribute('name')).not.toBe(targetData.name);
+        expect(item.getAttribute("name")).toBe(name);
+        expect(item.getAttribute("name")).not.toBe(targetData.name);
       });
   });
 });

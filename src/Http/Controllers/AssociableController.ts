@@ -1,7 +1,7 @@
-import Resource from '../../Resource';
-import { SearchCollection, Model, Ability } from '../../Contracts';
-import AssociableRequest from '../Requests/AssociableRequest';
-import { AvonResponse } from '../Responses';
+import { Ability, type Model, type SearchCollection } from '../../Contracts';
+import type Resource from '../../Resource';
+import type AssociableRequest from '../Requests/AssociableRequest';
+import type { AvonResponse } from '../Responses';
 import ResourceAssociationResponse from '../Responses/ResourceAssociationResponse';
 import Controller from './Controller';
 
@@ -12,6 +12,12 @@ export default class AssociableController extends Controller {
   public async __invoke(request: AssociableRequest): Promise<AvonResponse> {
     const resource = request.resource();
     const relationship = request.relatedField();
+
+    request
+      .logger()
+      ?.dump(
+        `Searching "${request.resourceName()}" for relation-ship "${relationship.attribute}" ...`,
+      );
 
     const repository = await relationship.searchAssociable(
       request,
@@ -29,13 +35,22 @@ export default class AssociableController extends Controller {
         resource,
       );
     };
+
     const resources = await Promise.all(
       items
         .map((item: Model) => relatedResource(item))
         .filter((associable: Resource) => {
+          request
+            .logger()
+            ?.dump(
+              `Authorizing "${associable.resourceName()}" to allow adding to "${request.resourceName()}" ...`,
+            );
+
           return resource.authorizedTo(request, Ability.add, [associable]);
         }),
     );
+
+    request.logger()?.dump('Preparing response ...');
 
     return new ResourceAssociationResponse(
       await Promise.all(

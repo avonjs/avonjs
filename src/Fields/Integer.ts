@@ -1,10 +1,16 @@
 import Joi from 'joi';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
-import { DefaultCallback, OpenApiSchema } from '../Contracts';
+import type {
+  AnyValue,
+  DefaultCallback,
+  OpenApiSchema,
+  Optional,
+} from '../Contracts';
 import Field from './Field';
 import NumberFilter from './Filters/NumberFilter';
+import ResourceIdFilter from './Filters/ResourceIdFilter';
 
 export default class Integer extends Field {
   /**
@@ -30,10 +36,26 @@ export default class Integer extends Field {
   protected updateRulesSchema = Joi.number().integer();
 
   /**
+   * Indicates a minimum acceptable value.
+   */
+  protected minimum?: number;
+
+  /**
+   * Indicates a maximum acceptable value.
+   */
+  protected maximum?: number;
+
+  /**
+   * Indicates whether the range filter is disabled or not.
+   */
+  protected disableRangeFilter = true;
+
+  /**
    * Specifies the minimum value.
    */
-  public min(min: number = 0) {
-    this.rules(Joi.number().min(min));
+  public min(minimum = 0) {
+    this.minimum = minimum;
+    this.rules(Joi.number().min(minimum));
 
     return this;
   }
@@ -41,8 +63,9 @@ export default class Integer extends Field {
   /**
    * Specifies the maximum value.
    */
-  public max(min: number = 0) {
-    this.rules(Joi.number().max(min));
+  public max(maximum = 0) {
+    this.maximum = maximum;
+    this.rules(Joi.number().max(maximum));
 
     return this;
   }
@@ -50,8 +73,11 @@ export default class Integer extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): number | undefined {
-    return parseInt(value);
+  public getMutatedValue(
+    request: AvonRequest,
+    value: AnyValue,
+  ): Optional<number> {
+    return Number.parseInt(value);
   }
 
   /**
@@ -69,10 +95,21 @@ export default class Integer extends Field {
   }
 
   /**
+   * Prevent filters by range of values and force to accept only array of values.
+   */
+  public preventRangeFilter(disableRangeFilter = true) {
+    this.disableRangeFilter = disableRangeFilter;
+
+    return this;
+  }
+
+  /**
    * Make the field filter.
    */
   public makeFilter(request: AvonRequest): Filter {
-    return new NumberFilter(this);
+    return this.disableRangeFilter
+      ? new ResourceIdFilter(this)
+      : new NumberFilter(this);
   }
 
   /**
@@ -82,6 +119,8 @@ export default class Integer extends Field {
     return {
       ...super.baseSchema(request),
       type: 'integer',
+      minimum: this.minimum,
+      maximum: this.maximum,
     };
   }
 }

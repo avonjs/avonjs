@@ -1,8 +1,8 @@
-import { Field } from '../Fields';
-import { Ordering } from '../Orderings';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Repository } from '../Repositories';
-import { AbstractMixable, Direction, Model } from '../Contracts';
+import { type AbstractMixable, Direction, type Model } from '../Contracts';
+import type { Field } from '../Fields';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Ordering } from '../Orderings';
+import type { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable<Ordering>>(Parent: T) => {
   abstract class OrderableFields extends Parent {
@@ -23,7 +23,7 @@ export default <T extends AbstractMixable<Ordering>>(Parent: T) => {
       request: AvonRequest,
       queryBuilder: Repository<Model>,
       direction: Direction,
-    ): Promise<any> {
+    ) {
       if (
         !Object.values(Direction).includes(direction) &&
         this.isValidNullValue(direction)
@@ -42,7 +42,7 @@ export default <T extends AbstractMixable<Ordering>>(Parent: T) => {
      * Get the query parameter key for filter.
      */
     public key(): string {
-      return this.field.constructor.name + ':' + this.field.attribute;
+      return `${this.field.constructor.name}:${this.field.attribute}`;
     }
   }
 

@@ -1,16 +1,18 @@
+import { randomUUID } from 'node:crypto';
 import collect from 'collect.js';
-import { randomUUID } from 'crypto';
-import { Fluent } from '../Models';
-import { Repository } from '../Repositories';
 import {
-  AbstractMixable,
-  Model,
+  type AbstractMixable,
+  type AnyRecord,
+  type Model,
   Operator,
-  ResourceActionEvent,
-  ResourceActionEventForAction,
-  ResourceStoreActionEvent,
-  ResourceUpdateActionEvent,
+  type PrimaryKey,
+  type ResourceActionEvent,
+  type ResourceActionEventForAction,
+  type ResourceStoreActionEvent,
+  type ResourceUpdateActionEvent,
 } from '../Contracts';
+import { Fluent } from '../Models';
+import type { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable<Repository>>(Parent: T) => {
   abstract class FillsActionEvents extends Parent {
@@ -28,7 +30,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
       return new Fluent({
         ...this.defaultAttributes(params),
         name: 'Create',
-        changes: params.resource.getAttributes(),
+        changes: params.resource.toSerializable(),
       });
     }
 
@@ -39,10 +41,10 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
       return new Fluent({
         ...this.defaultAttributes(params),
         name: 'Update',
-        changes: collect(params.resource.getAttributes())
-          .diffAssoc(collect(params.previous.getAttributes()))
+        changes: collect(params.resource.toSerializable())
+          .diffAssoc(collect(params.previous.toSerializable()))
           .all(),
-        original: params.previous.getAttributes(),
+        original: params.previous.toSerializable(),
       });
     }
 
@@ -54,7 +56,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
         ...this.defaultAttributes(params),
         name: 'Delete',
         changes: {},
-        original: params.resource.getAttributes(),
+        original: params.resource.toSerializable(),
       });
     }
 
@@ -77,9 +79,9 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
         ...this.defaultAttributes(params),
         batch_id: params.batchId ?? randomUUID(),
         name: params.action.name(),
-        original: params.previous.getAttributes(),
-        changes: collect(params.resource.getAttributes())
-          .diffAssoc(collect(params.previous.getAttributes()))
+        original: params.previous.toSerializable(),
+        changes: collect(params.resource.toSerializable())
+          .diffAssoc(collect(params.previous.toSerializable()))
           .all(),
       });
     }
@@ -87,7 +89,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
     /**
      * Get the default attributes for creating a new action event.
      */
-    public defaultAttributes(params: ResourceActionEvent): Record<string, any> {
+    public defaultAttributes(params: ResourceActionEvent): AnyRecord {
       return {
         payload: params.payload ?? {},
         resource_name: params.resourceName,
@@ -104,7 +106,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
     /**
      * Delete resource events for ever.
      */
-    async flush(resourceName: string, key: string | number): Promise<Model[]> {
+    async flush(resourceName: string, key: PrimaryKey): Promise<Model[]> {
       const events = await this.scopeResource(resourceName, key).all();
 
       await Promise.all(events.map((event) => this.delete(event.getKey())));
@@ -115,7 +117,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
     /**
      * Limit query to the given resource.
      */
-    scopeResource(resourceName: string, key: string | number) {
+    scopeResource(resourceName: string, key: PrimaryKey) {
       return this.where([
         {
           key: 'resource_id',

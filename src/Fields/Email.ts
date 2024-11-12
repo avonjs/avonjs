@@ -1,6 +1,6 @@
 import Joi from 'joi';
+import type { ResolveCallback } from '../Contracts';
 import Text from './Text';
-import { ResolveCallback } from '../Contracts';
 
 export default class Email extends Text {
   /**

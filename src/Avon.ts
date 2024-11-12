@@ -1,35 +1,49 @@
-import collect, { Collection } from 'collect.js';
-import { OpenAPIV3 } from 'openapi-types';
-import RouteRegistrar from './Route/RouteRegistrar';
-import { Request, Response, Router } from 'express';
-import { extname, join } from 'path';
-import { readdirSync, statSync } from 'fs';
+import { readdirSync, statSync } from 'node:fs';
+import { extname, join } from 'node:path';
+import express, { type Request, type Response } from 'express';
+import { type Params, expressjwt } from 'express-jwt';
+import Joi, { type AnySchema } from 'joi';
+import { type SignOptions, sign } from 'jsonwebtoken';
+import type { OpenAPIV3 } from 'openapi-types';
+import FieldCollection from './Collections/FieldCollection';
+import { ResourceCollection } from './Collections/ResourceCollection';
+import type {
+  AttemptCallback,
+  Auth,
+  Dictionary,
+  ErrorHandler,
+  Optional,
+  PrimaryKey,
+  UserResolver,
+} from './Contracts';
+import {
+  AuthenticationException,
+  NotFoundException,
+  ResponsableException,
+} from './Exceptions';
+import ValidationException from './Exceptions/ValidationException';
+import { Email, type Field, Text } from './Fields';
+import LoginRequest from './Http/Requests/Auth/LoginRequest';
+import type AvonRequest from './Http/Requests/AvonRequest';
+import type { AvonResponse } from './Http/Responses';
+import LoginResponse from './Http/Responses/Auth/LoginResponse';
+import { Fluent } from './Models';
 import Resource from './Resource';
-import AvonRequest from './Http/Requests/AvonRequest';
-import { AttemptCallback, Auth, ErrorHandler } from './Contracts';
-import { expressjwt } from 'express-jwt';
+import RouteRegistrar from './Route/RouteRegistrar';
 import {
   errorsResponses,
   handleAuthenticationError,
   send,
   validationResponses,
 } from './helpers';
-import FieldCollection from './Collections/FieldCollection';
-import { Email, Field, Text } from './Fields';
-import LoginRequest from './Http/Requests/Auth/LoginRequest';
-import Joi, { AnySchema } from 'joi';
-import ValidationException from './Exceptions/ValidationException';
-import { Fluent } from './Models';
-import { AvonResponse } from './Http/Responses';
-import { NotFoundException, ResponsableException } from './Exceptions';
-import LoginResponse from './Http/Responses/Auth/LoginResponse';
-import { sign, SignOptions } from 'jsonwebtoken';
-
+import Logger from './support/debug';
+// TODO: may i have to export new class instance instead of static method
+// biome-ignore lint/complexity/noStaticOnlyClass:
 export default class Avon {
   /**
    * Indicates application current version.
    */
-  protected static VERSION = '2.11.0';
+  protected static VERSION = '3.0.0';
 
   /**
    * Array of available resources.
@@ -39,22 +53,22 @@ export default class Avon {
   /**
    * Map of available resources.
    */
-  protected static resourceMap: Record<string, Resource> = {};
+  protected static resourceMap: Dictionary<Resource> = {};
 
   /**
    * The error handler callback.
    */
-  protected static errorHandler: ErrorHandler = (error) => console.log(error);
+  protected static errorHandler: ErrorHandler = (error) => console.error(error);
+
+  /**
+   * The user resolver callback.
+   */
+  protected static userResolver: UserResolver = () => null;
 
   /**
    * Extended swagger paths.
    */
   protected static paths: OpenAPIV3.PathsObject = {};
-
-  /**
-   * Indicates JWT params.
-   */
-  protected static jwtSignOptions: SignOptions = {};
 
   /**
    * List of routes without authorization.
@@ -67,12 +81,24 @@ export default class Avon {
   /**
    * The login attempt callback.
    */
-  protected static attemptCallback: AttemptCallback = async () => {};
+  protected static attemptCallback: AttemptCallback = async () => undefined;
 
   /**
    * Set application secret key.
    */
-  protected static appKey: string = 'Avon';
+  protected static appKey = 'Avon';
+
+  /**
+   * Indicates JWT params.
+   */
+  protected static jwtSignOptions: SignOptions = {
+    algorithm: 'HS256',
+  };
+
+  /**
+   * Indicates JWT verify params.
+   */
+  protected static jwtVerifyOptions: Params;
 
   /**
    * The login attempt callback.
@@ -108,13 +134,18 @@ export default class Avon {
   public static resources(resources: Resource[] = []): Avon {
     Avon.resourceInstances = [...Avon.resourceInstances, ...resources];
 
+    Logger.dump(
+      'Resources registered: %O',
+      Avon.resourceCollection().keys().implode(', '),
+    );
+
     return Avon;
   }
 
   /**
    * Find resource for given uriKey.
    */
-  public static resourceForKey(key: string): Resource | undefined {
+  public static resourceForKey(key: string): Optional<Resource> {
     if (Avon.resourceMap[key] === undefined) {
       Avon.resourceMap[key] = Avon.resourceCollection().first(
         (resource: Resource) => resource.uriKey() === key,
@@ -127,41 +158,46 @@ export default class Avon {
   /**
    * Get collection of available resources.
    */
-  public static resourceCollection(): Collection<Resource> {
-    return collect(Avon.resourceInstances);
+  public static resourceCollection() {
+    return new ResourceCollection(Avon.resourceInstances);
   }
 
   /**
-   * Register API routes.
+   * Get express instance.
    */
-  public static routes(router: Router, withAuthentication = false): Router {
+  public static routes(withAuthentication = false) {
+    return Avon.express(withAuthentication);
+  }
+
+  /**
+   * Get express instance.
+   */
+  public static express(withAuthentication = false) {
+    const app = express();
+    app.set('query parser', 'extended');
+
     if (withAuthentication) {
-      router
+      app
         .post('/login', Avon.login)
         .use(Avon.expressjwt())
         .use(handleAuthenticationError);
     }
 
-    const routes = new RouteRegistrar(router);
+    new RouteRegistrar(app).register();
 
-    routes.register();
-
-    return router;
+    return app;
   }
 
+  /**
+   * Get JWT middleware.
+   */
   public static expressjwt() {
-    return expressjwt({
-      secret: Avon.appKey,
-      algorithms: [Avon.jwtSignOptions.algorithm ?? 'HS256'],
-      audience: Avon.jwtSignOptions.audience,
-      issuer: Avon.jwtSignOptions.issuer,
-      jwtid: Avon.jwtSignOptions.jwtid,
-      subject: Avon.jwtSignOptions.subject,
-      allowInvalidAsymmetricKeyTypes:
-        Avon.jwtSignOptions.allowInvalidAsymmetricKeyTypes,
-    }).unless({
-      path: Avon.excepts,
-    });
+    const verifyOptions = Object.assign(
+      { secret: Avon.appKey, algorithms: ['HS256'] },
+      Avon.jwtVerifyOptions,
+    );
+
+    return expressjwt(verifyOptions).unless({ path: Avon.excepts });
   }
 
   /**
@@ -185,16 +221,33 @@ export default class Avon {
   /**
    * Get the user id.
    */
-  public static userId(request: AvonRequest): string | number | undefined {
-    //@ts-ignore
+  public static userId(request: AvonRequest): Optional<PrimaryKey> {
     return (request.getRequest().auth as Auth)?.id;
+  }
+
+  /**
+   * Resolve the user for incoming request to share in the app.
+   */
+  public static resolveUser(request: AvonRequest) {
+    return Avon.userResolver(request);
+  }
+
+  /**
+   * Set the user resolver callback.
+   */
+  public static resolveUserUsing(userResolver: UserResolver) {
+    Avon.userResolver = userResolver;
+
+    return Avon;
   }
 
   /**
    * Register resource from given path.
    */
   public static resourceIn(path: string) {
+    Logger.dump(`Searching resources in directory: ${path}`);
     const files = readdirSync(path);
+    const resources: Resource[] = [];
     // check paths
     for (const file of files) {
       const filePath = join(path, file);
@@ -212,8 +265,15 @@ export default class Avon {
       const resourceClass = require(filePath).default || require(filePath);
       // validate resource
       if (resourceClass.prototype instanceof Resource) {
-        Avon.resources([new resourceClass()]);
+        resources.push(new resourceClass());
       }
+    }
+    // register resources
+    if (resources.length) {
+      Logger.dump(`Registering resources from directory: ${path}`);
+      Avon.resources(resources);
+    } else {
+      Logger.dump(`No resources found in directory: ${path}`);
     }
 
     return Avon;
@@ -267,6 +327,15 @@ export default class Avon {
    */
   public static signOptions(signOptions: SignOptions) {
     Avon.jwtSignOptions = { ...Avon.jwtSignOptions, ...signOptions };
+
+    return Avon;
+  }
+
+  /**
+   * Set the JWT verify options.
+   */
+  public static verifyOptions(verifyOptions: Params) {
+    Avon.jwtVerifyOptions = { ...Avon.jwtVerifyOptions, ...verifyOptions };
 
     return Avon;
   }
@@ -336,15 +405,21 @@ export default class Avon {
    * Set attempt callback.
    */
   public static async attempt(
-    payload: Record<string, unknown>,
+    payload: Dictionary<unknown>,
   ): Promise<AvonResponse> {
-    const user = await Avon.attemptCallback(payload);
+    try {
+      const user = await Avon.attemptCallback(payload);
 
-    NotFoundException.unless(user);
+      NotFoundException.unless(user);
 
-    return new LoginResponse({
-      token: sign(user, Avon.appKey, Avon.jwtSignOptions),
-    });
+      return new LoginResponse({
+        token: sign(user, Avon.appKey, Avon.jwtSignOptions),
+      });
+    } catch (err) {
+      Logger.error(err);
+
+      throw new AuthenticationException();
+    }
   }
 
   /**
@@ -355,12 +430,7 @@ export default class Avon {
       openapi: '3.0.0',
       security: [{ BearerAuth: [] }],
       paths: Avon.resourceCollection().reduce(
-        (paths, resource) => {
-          return {
-            ...paths,
-            ...resource.schema(request),
-          };
-        },
+        (paths, resource) => Object.assign({}, paths, resource.schema(request)),
         { ...Avon.paths, ...Avon.loginSchema(request) },
       ),
       info: Avon.info,
@@ -538,7 +608,7 @@ export default class Avon {
       [`${request.getRequest().baseUrl}/login`]: {
         post: {
           tags: ['auth'],
-          description: `Login to get JWT token`,
+          description: 'Login to get JWT token',
           operationId: 'attempt',
           requestBody: {
             content: {
@@ -555,7 +625,7 @@ export default class Avon {
             ...errorsResponses(),
             ...validationResponses(),
             200: {
-              description: `Get JWT token`,
+              description: 'Get JWT token',
               content: {
                 'application/json': {
                   schema: {

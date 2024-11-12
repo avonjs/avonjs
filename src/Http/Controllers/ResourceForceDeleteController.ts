@@ -1,6 +1,6 @@
 import { Ability } from '../../Contracts';
-import ResourceForceDeleteRequest from '../Requests/ResourceForceDeleteRequest';
-import { AvonResponse, EmptyResponse } from '../Responses';
+import type ResourceForceDeleteRequest from '../Requests/ResourceForceDeleteRequest';
+import { type AvonResponse, EmptyResponse } from '../Responses';
 import Controller from './Controller';
 
 export default class ResourceForceDeleteController extends Controller {
@@ -10,30 +10,48 @@ export default class ResourceForceDeleteController extends Controller {
   public async __invoke(
     request: ResourceForceDeleteRequest,
   ): Promise<AvonResponse> {
+    request
+      .logger()
+      ?.dump(`Searching on "${request.resourceName()}" repository ...`);
+
     const resource = await request.findResourceOrFail();
+
+    request
+      .logger()
+      ?.dump(
+        `Authorizing user for "${Ability.forceDelete}" access on "${request.resourceName()}".`,
+      );
 
     await resource.authorizeTo(request, Ability.forceDelete);
 
-    await request
-      .repository()
-      .transaction<void>(async (repository, transaction) => {
-        // handle prunable fields
-        // await Promise.all(
-        //   resource
-        //     .prunableFields(request, false)
-        //     .map((field) => field.forRequest(request)),
-        // );
+    request.logger()?.dump(`Force deleting "${request.resourceName()}" ...`);
 
-        await resource.beforeForceDelete(request, transaction);
+    await request.transaction(async (repository, transaction) => {
+      // handle prunable fields
+      // await Promise.all(
+      //   resource
+      //     .prunableFields(request, false)
+      //     .map((field) => field.forRequest(request)),
+      // );
 
-        await repository.forceDelete(resource.resource.getKey());
+      await resource.beforeForceDelete(request);
 
-        await resource.afterForceDelete(request, transaction);
+      await repository.forceDelete(resource.resource.getKey());
 
-        await resource.flushActionEvents(transaction);
-      });
+      await resource.afterForceDelete(request);
+
+      await resource.flushActionEvents(transaction);
+    });
+
+    request
+      .logger()
+      ?.dump(
+        `Resource "${request.resourceName()}" by id "${request.resourceId()}" "force deleted".`,
+      );
 
     await resource.deleted(request);
+
+    request.logger()?.dump('Preparing response ...');
 
     return new EmptyResponse();
   }

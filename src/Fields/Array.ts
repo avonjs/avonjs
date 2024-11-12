@@ -1,10 +1,17 @@
 import collect from 'collect.js';
-import Joi, { AnySchema } from 'joi';
-import { OpenAPIV3 } from 'openapi-types';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { FilledCallback, Model, OpenApiSchema } from '../Contracts';
+import Joi, { link, type AnySchema } from 'joi';
+import type { OpenAPIV3 } from 'openapi-types';
+import type {
+  AnyValue,
+  FilledCallback,
+  Model,
+  OpenApiSchema,
+  Optional,
+} from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import Field from './Field';
-
+// TODO: Should be removed or renamed.
+// biome-ignore lint/suspicious/noShadowRestrictedNames:
 export default class Array extends Field {
   /**
    * The validation rules callback for creation and updates.
@@ -22,11 +29,21 @@ export default class Array extends Field {
   protected updateRulesSchema: AnySchema = Joi.array().items(Joi.any());
 
   /**
+   * Minimum length of the array
+   */
+  protected minItems?: number;
+
+  /**
+   * Maximum length of the array
+   */
+  protected maxItems?: number;
+
+  /**
    * Indicates items schema.
    */
   protected itemsSchema: OpenAPIV3.SchemaObject = {
     type: 'string',
-    minLength: 1,
+    minItems: 1,
   };
 
   /**
@@ -37,9 +54,11 @@ export default class Array extends Field {
     requestAttribute: string,
     model: TModel,
     attribute: string,
-  ): FilledCallback | void {
+  ): Optional<FilledCallback> {
     if (!request.exists(requestAttribute)) {
-      return this.fillAttributeFromDefault(request, model, attribute);
+      this.fillAttributeFromDefault(request, model, attribute);
+
+      return;
     }
 
     const value = request.array(requestAttribute);
@@ -55,8 +74,8 @@ export default class Array extends Field {
   /**
    * Specifies the exact number of items in the array.
    */
-  public length(limit: number = 0) {
-    this.rules(Joi.string().length(limit));
+  public length(limit = 0) {
+    this.min(limit).max(limit).rules(Joi.array().length(limit));
 
     return this;
   }
@@ -64,8 +83,9 @@ export default class Array extends Field {
   /**
    * Specifies the minimum number of items in the array.
    */
-  public min(min: number = 0) {
-    this.rules(Joi.array().min(min));
+  public min(minItems = 0) {
+    this.minItems = minItems;
+    this.rules(Joi.array().min(minItems));
 
     return this;
   }
@@ -73,8 +93,9 @@ export default class Array extends Field {
   /**
    * Specifies the maximum number of items in the array.
    */
-  public max(min: number = 0) {
-    this.rules(Joi.array().max(min));
+  public max(maxItems = 0) {
+    this.maxItems = maxItems;
+    this.rules(Joi.array().max(maxItems));
 
     return this;
   }
@@ -82,7 +103,7 @@ export default class Array extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): any[] {
+  public getMutatedValue(request: AvonRequest, value: AnyValue): AnyValue[] {
     return collect(value).values().all();
   }
 
@@ -112,7 +133,7 @@ export default class Array extends Field {
   /**
    * Get the value considered as null.
    */
-  public nullValue(): any {
+  public nullValue(): AnyValue {
     return [];
   }
 
@@ -125,6 +146,8 @@ export default class Array extends Field {
       type: 'array',
       items: this.itemsSchema,
       uniqueItems: true,
+      minItems: this.minItems,
+      maxItems: this.maxItems,
     };
   }
 }

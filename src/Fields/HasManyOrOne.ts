@@ -1,16 +1,16 @@
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
-import { Model, Operator } from '../Contracts';
+import { type AnyValue, type Model, Operator } from '../Contracts';
+import type { Filter } from '../Filters';
+import HasOneOrManyFilter from './Filters/HasOneOrManyFilter';
 import Relation from './Relation';
 import { guessForeignKey } from './ResourceRelationshipGuesser';
-import { Filter } from '../Filters';
-import HasOneOrManyFilter from './Filters/HasOneOrManyFilter';
 
 export default abstract class HasManyOrOne extends Relation {
   /**
    * Indicates related resources have to load.
    */
-  public loaded: boolean = true;
+  public loaded = true;
 
   constructor(resource: string, relation?: string) {
     super(resource, relation);
@@ -53,7 +53,7 @@ export default abstract class HasManyOrOne extends Relation {
   async resolveRelatables(
     request: AvonRequest,
     resources: Model[],
-  ): Promise<any> {
+  ): Promise<AnyValue> {
     const relatables = await this.searchRelatables(request, resources);
 
     resources.forEach((resource) => {

@@ -1,16 +1,17 @@
-import { OpenAPIV3 } from 'openapi-types';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { OpenAPIV3 } from 'openapi-types';
+import {
+  type AnyValue,
+  Direction,
+  type HasSchema,
+  type Model,
+  type OpenApiSchema,
+  type ParameterSerializable,
+  type SeeCallback,
+} from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import QueryParameter from '../Http/Requests/QueryParameter';
 import AuthorizedToSee from '../Mixins/AuthorizedToSee';
-import {
-  ParameterSerializable,
-  HasSchema,
-  Direction,
-  SeeCallback,
-  Model,
-  OpenApiSchema,
-} from '../Contracts';
-import { Repository } from '../Repositories';
+import type { Repository } from '../Repositories';
 
 export default abstract class Ordering
   extends AuthorizedToSee(QueryParameter)
@@ -30,7 +31,7 @@ export default abstract class Ordering
     request: AvonRequest,
     repository: Repository<Model>,
     direction: Direction,
-  ): any;
+  ): AnyValue;
 
   /**
    * Serialize parameters for schema.

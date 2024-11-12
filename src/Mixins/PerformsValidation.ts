@@ -1,9 +1,9 @@
 import collect from 'collect.js';
-import Joi, { AnySchema, ValidationError } from 'joi';
+import Joi, { type AnySchema, ValidationError } from 'joi';
+import type { AbstractMixable, Rules } from '../Contracts';
 import ValidationException from '../Exceptions/ValidationException';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { AbstractMixable, Rules } from '../Contracts';
-import Resource from '../Resource';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type Resource from '../Resource';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class PerformsValidation extends Parent {
@@ -12,7 +12,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      *
      * @throws ValidationException
      */
-    public async validateForCreation(request: AvonRequest): Promise<any> {
+    public async validateForCreation(request: AvonRequest) {
       await this.validatorForCreation(request)
         .validateAsync(this.dataForValidation(request), {
           abortEarly: false,
@@ -55,10 +55,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public async validateForUpdate(
-      request: AvonRequest,
-      resource?: Resource,
-    ): Promise<any> {
+    public async validateForUpdate(request: AvonRequest, resource?: Resource) {
       await this.validatorForUpdate(request, resource)
         .validateAsync(this.dataForValidation(request), {
           abortEarly: false,
@@ -128,21 +125,21 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Handle any post-validation processing.
      */
-    public afterValidation(request: AvonRequest, validator: any): any {
+    public afterValidation(request: AvonRequest, validator: unknown) {
       //
     }
 
     /**
      * Handle any post-creation validation processing.
      */
-    public afterCreationValidation(request: AvonRequest, validator: any): any {
+    public afterCreationValidation(request: AvonRequest, validator: unknown) {
       //
     }
 
     /**
      * Handle any post-update validation processing.
      */
-    public afterUpdateValidation(request: AvonRequest, validator: any): any {
+    public afterUpdateValidation(request: AvonRequest, validator: unknown) {
       //
     }
   }

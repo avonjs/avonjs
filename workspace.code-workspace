@@ -1,0 +1,18 @@
+{
+  "folders": [{ "path": "." }],
+  "settings": {
+    "editor.fontFamily": "JetBrains Mono, Regular",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "biomejs.biome",
+    "prettier.enable": false,
+    "sort-imports.cache-package-json-config-checks": false,
+    "sort-imports.on-save": false,
+    "sort-imports.ignore-type-defs": false,
+    "[markdown]": {
+      "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+    }
+  },
+  "extensions": {
+    "recommendations": ["biomejs.biome"]
+  }
+}

@@ -1,7 +1,7 @@
-import AvonRequest from '../Http/Requests/AvonRequest';
+import { type Model, type OpenApiSchema, Operator } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Repository } from '../Repositories';
 import Filter from './Filter';
-import { Model, OpenApiSchema, Operator } from '../Contracts';
-import { Repository } from '../Repositories';
 
 export default abstract class BooleanFilter extends Filter {
   /**
@@ -15,8 +15,8 @@ export default abstract class BooleanFilter extends Filter {
   public apply(
     request: AvonRequest,
     repository: Repository<Model>,
-    value: unknown,
-  ): any {
+    value: never,
+  ): void {
     repository.where({
       key: this.filterableAttribute(request),
       operator: Operator.eq,
@@ -32,12 +32,14 @@ export default abstract class BooleanFilter extends Filter {
   /**
    * Parse the input value into a boolean.
    */
-  public parseBoolean(value: any) {
+  public parseBoolean(value: never): boolean {
     if (typeof value === 'string') {
-      return value.toLowerCase() === 'true';
-    } else if (typeof value === 'number') {
+      return (value as string).toLowerCase() === 'true';
+    }
+    if (typeof value === 'number') {
       return value === 1;
-    } else if (typeof value === 'boolean') {
+    }
+    if (typeof value === 'boolean') {
       return value;
     }
     return false;

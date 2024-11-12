@@ -1,5 +1,5 @@
-import AvonRequest from '../Requests/AvonRequest';
-import { AvonResponse } from '../Responses';
+import type AvonRequest from '../Requests/AvonRequest';
+import type { AvonResponse } from '../Responses';
 
 export default class Controller {
   /**

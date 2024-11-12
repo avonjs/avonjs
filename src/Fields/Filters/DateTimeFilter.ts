@@ -1,6 +1,6 @@
-import FilterableFields from '../../Mixins/FilterableFields';
 import { DateTime } from '../../Filters';
-import Field from '../Field';
+import FilterableFields from '../../Mixins/FilterableFields';
+import type Field from '../Field';
 
 export default class DateTimeFilter extends FilterableFields(DateTime) {
   constructor(public field: Field) {

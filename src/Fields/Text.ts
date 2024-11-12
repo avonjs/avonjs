@@ -1,8 +1,8 @@
 import Joi from 'joi';
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
-import { DefaultCallback } from '../Contracts';
+import type { AnyValue, DefaultCallback, OpenApiSchema } from '../Contracts';
 import Field from './Field';
 import TextFilter from './Filters/TextFilter';
 
@@ -30,10 +30,21 @@ export default class Text extends Field {
   protected updateRulesSchema = Joi.string();
 
   /**
+   * Indicates a minimum acceptable value.
+   */
+  protected minimum?: number;
+
+  /**
+   * Indicates a maximum acceptable value.
+   */
+  protected maximum?: number;
+
+  /**
    * Specifies the minimum number of string characters.
    */
-  public min(min: number = 0) {
-    this.rules(Joi.string().min(min));
+  public min(minimum = 0) {
+    this.minimum = minimum;
+    this.rules(Joi.string().min(minimum));
 
     return this;
   }
@@ -41,8 +52,9 @@ export default class Text extends Field {
   /**
    * Specifies the maximum number of string characters.
    */
-  public max(min: number = 0) {
-    this.rules(Joi.string().max(min));
+  public max(maximum = 0) {
+    this.maximum = maximum;
+    this.rules(Joi.string().max(maximum));
 
     return this;
   }
@@ -50,7 +62,7 @@ export default class Text extends Field {
   /**
    * Mutate the field value for response.
    */
-  public getMutatedValue(request: AvonRequest, value: any): string | null {
+  public getMutatedValue(request: AvonRequest, value: AnyValue): string | null {
     return String(value);
   }
 
@@ -73,5 +85,16 @@ export default class Text extends Field {
    */
   public makeFilter(request: AvonRequest): Filter {
     return new TextFilter(this);
+  }
+
+  /**
+   * Get the swagger-ui schema.
+   */
+  protected baseSchema(request: AvonRequest): OpenApiSchema {
+    return {
+      ...super.baseSchema(request),
+      minLength: this.minimum,
+      maxLength: this.maximum,
+    };
   }
 }

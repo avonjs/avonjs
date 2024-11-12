@@ -1,8 +1,15 @@
-import { OpenAPIV3 } from 'openapi-types';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { OpenApiFieldSchema, OpenApiSchema, Payload } from './types';
-import { Action } from '../Actions';
-import { UUID } from 'crypto';
+import type { UUID } from 'node:crypto';
+import type { OpenAPIV3 } from 'openapi-types';
+import type { Action } from '../Actions';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type {
+  AnyRecord,
+  AnyValue,
+  OpenApiFieldSchema,
+  OpenApiSchema,
+  Payload,
+  PrimaryKey,
+} from './types';
 
 export interface SearchCollection<TModel extends Model = Model> {
   items: TModel[];
@@ -13,59 +20,64 @@ export interface ParameterSerializable {
   /**
    * Serialize parameters for schema.
    */
-  serializeParameters: (request: AvonRequest) => OpenAPIV3.ParameterObject[];
+  serializeParameters(request: AvonRequest): OpenAPIV3.ParameterObject[];
 }
 
 export interface HasSchema {
   /**
    * Get the swagger-ui schema.
    */
-  schema: (request: AvonRequest) => OpenApiSchema;
+  schema(request: AvonRequest): OpenApiSchema;
 }
 export interface FieldSchema {
   /**
    * Get the swagger-ui schema.
    */
-  schema: (request: AvonRequest) => OpenApiFieldSchema;
+  schema(request: AvonRequest): OpenApiFieldSchema;
 }
 
 export interface Model {
   /**
    * Set value for the given key.
    */
-  setAttribute: (key: string, value: any) => Model;
+  setAttribute(key: string, value: AnyValue): Model;
 
   /**
    * Get value for the given key.
    */
-  getAttribute: <T extends any = undefined>(key: string) => T;
+  getAttribute<T = undefined>(key: string): T;
 
   /**
    * Get the model key.
    */
-  getKey: () => string | number;
+  getKey(): PrimaryKey;
 
   /**
    * Get primary key name of the model.
    */
-  getKeyName: () => string;
+  getKeyName(): string;
 
   /**
    * Get all of the model attributes.
    */
-  getAttributes: () => Record<string, any>;
+  getAttributes(): AnyRecord;
+
+  /**
+   * Get all of the serializable attributes.
+   */
+  toSerializable(): AnyRecord;
 }
 
 export interface SoftDeletes<TModel extends Model> {
   /**
    * Delete model for the given key.
    */
-  forceDelete(key: string | number): Promise<void>;
+  forceDelete(key: PrimaryKey): Promise<void>;
 
   /**
    * Restore the delete model for given key.
    */
-  restore(key: string | number): Promise<TModel>;
+  restore(key: PrimaryKey): Promise<TModel>;
 
   /**
    * Apply soft-delete constraint.
@@ -84,13 +96,13 @@ export interface SoftDeletes<TModel extends Model> {
   /**
    * Determine whether a given resource is "soft-deleted".
    */
-  isSoftDeleted(resource: Model): Boolean;
+  isSoftDeleted(resource: Model): boolean;
 }
 
 export interface ResourceActionEvent {
   resourceName: string;
   resource: Model;
-  userId?: string | number;
+  userId?: PrimaryKey;
   payload?: Payload;
   batchId?: UUID;
   previous?: Model;
@@ -144,10 +156,29 @@ export interface ActionEventRepository<TModel extends Model> {
   /**
    * Delete resource events for ever.
    */
-  flush(resourceName: string, key: string | number): Promise<TModel[]>;
+  flush(resourceName: string, key: PrimaryKey): Promise<TModel[]>;
 }
 
 export interface Transaction {
-  commit(value?: any): Promise<any>;
-  rollback(error?: any): Promise<any>;
+  commit(value?: AnyValue): Promise<AnyValue>;
+  rollback(error?: AnyValue): Promise<AnyValue>;
+}
+
+export interface Logger {
+  /**
+   * Log the "error" level messages.
+   */
+  error(formatter: unknown, ...args: unknown[]): Logger;
+  /**
+   * Log the "info" level messages.
+   */
+  info(formatter: unknown, ...args: unknown[]): Logger;
+  /**
+   * Log the "warn" level messages.
+   */
+  warn(formatter: unknown, ...args: unknown[]): Logger;
+  /**
+   * Log the "debug" level messages.
+   */
+  dump(formatter: unknown, ...args: unknown[]): Logger;
 }

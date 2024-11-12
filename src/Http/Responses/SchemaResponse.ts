@@ -1,14 +1,15 @@
+import type { AnyRecord } from '../../Contracts';
 import AvonResponse from './AvonResponse';
 
 export default class SchemaResponse extends AvonResponse {
-  constructor(data: Record<any, any>, meta: Record<string, any> = {}) {
+  constructor(data: AnyRecord, meta: AnyRecord = {}) {
     super(200, data, meta);
   }
 
   /**
    * Get content for response.
    */
-  public content(): Record<string, any> {
+  public content(): AnyRecord {
     return this.data;
   }
 }

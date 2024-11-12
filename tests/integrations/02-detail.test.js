@@ -31,7 +31,7 @@ beforeAll(() => {
   // configure Avon
   Avon.resources([resource]);
 
-  app.use('/api', Avon.routes(express.Router()));
+  app.use('/api', Avon.express());
 });
 
 describe('GET single resources api', () => {

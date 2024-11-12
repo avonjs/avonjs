@@ -1,15 +1,15 @@
-import {
+import type {
   AbstractMixable,
-  ResourceEvaluatorCallback,
   EvaluatorCallback,
   Model,
+  ResourceEvaluatorCallback,
 } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 import {
   approveCallback,
-  reverseEvaluatorCallback,
   makeEvaluatorCallback,
+  reverseEvaluatorCallback,
 } from '../helpers';
-import AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class Presentable extends Parent {

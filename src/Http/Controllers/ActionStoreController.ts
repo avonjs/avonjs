@@ -1,6 +1,6 @@
+import type ActionRequest from '../Requests/ActionRequest';
+import type AvonResponse from '../Responses/AvonResponse';
 import Controller from './Controller';
-import AvonResponse from '../Responses/AvonResponse';
-import ActionRequest from '../Requests/ActionRequest';
 
 export default class ActionStoreController extends Controller {
   /**

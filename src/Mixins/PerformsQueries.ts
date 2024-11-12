@@ -1,14 +1,14 @@
-import { Filter } from '../Filters';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { Ordering } from '../Orderings';
-import { Repository } from '../Repositories';
 import {
-  AbstractMixable,
-  MatchesQueryParameters,
-  TrashedStatus,
+  type AbstractMixable,
   Direction,
-  Model,
+  type MatchedQueryHandlers,
+  type Model,
+  TrashedStatus,
 } from '../Contracts';
+import type { Filter } from '../Filters';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Ordering } from '../Orderings';
+import type { Repository } from '../Repositories';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class PerformQueries extends Parent {
@@ -17,8 +17,8 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public async search(
       request: AvonRequest,
-      filters: MatchesQueryParameters<Filter> = [],
-      orderings: MatchesQueryParameters<Ordering> = [],
+      filters: MatchedQueryHandlers<Filter> = [],
+      orderings: MatchedQueryHandlers<Ordering> = [],
       withTrashed: TrashedStatus = TrashedStatus.DEFAULT,
     ): Promise<Repository<Model>> {
       return this.indexQuery(
@@ -35,8 +35,8 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      */
     public async initializeSearch(
       request: AvonRequest,
-      filters: MatchesQueryParameters<Filter> = [],
-      orderings: MatchesQueryParameters<Ordering> = [],
+      filters: MatchedQueryHandlers<Filter> = [],
+      orderings: MatchedQueryHandlers<Ordering> = [],
     ): Promise<Repository<Model>> {
       const queryBuilder = this.queryBuilder(request);
 
@@ -57,7 +57,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      * Resolve the resource repository.
      */
     public resolveRepository(request: AvonRequest): Repository<Model> {
-      return this.repository();
+      return this.repository().setTransaction(request.getTransaction());
     }
 
     /**
@@ -86,7 +86,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public async applyFilters(
       request: AvonRequest,
       queryBuilder: Repository<Model>,
-      filters: MatchesQueryParameters<Filter>,
+      filters: MatchedQueryHandlers<Filter>,
     ): Promise<Repository<Model>> {
       await Promise.all(
         filters.map(({ handler, value }) => {
@@ -102,7 +102,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public async applyOrderings(
       request: AvonRequest,
       queryBuilder: Repository<Model>,
-      orderings: MatchesQueryParameters<Ordering> = [],
+      orderings: MatchedQueryHandlers<Ordering> = [],
     ): Promise<Repository<Model>> {
       await Promise.all(
         orderings.map(({ handler, value }) => {

@@ -1,5 +1,5 @@
-import { AbstractMixable, SeeCallback } from '../Contracts';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { AbstractMixable, SeeCallback } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class AuthorizedToSee extends Parent {

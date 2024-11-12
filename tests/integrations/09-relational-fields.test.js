@@ -1,20 +1,20 @@
 //@ts-check
-const express = require('express');
-const request = require('supertest');
-const fs = require('fs');
-const bodyParser = require('body-parser');
+const express = require("express");
+const request = require("supertest");
+const fs = require("fs");
+const bodyParser = require("body-parser");
 
-const { Repositories, Resource, Fields } = require('../../dist');
-const { join } = require('path');
+const { Repositories, Resource, Fields } = require("../../dist");
+const { join } = require("path");
 
-const { Avon } = require('../../dist');
-const { Operator } = require('../../dist/Contracts');
-const categories = join(__dirname, 'categories.json');
-const pivots = join(__dirname, 'pivots.json');
-const posts = join(__dirname, 'posts.json');
-const comments = join(__dirname, 'comments.json');
-const profiles = join(__dirname, 'profiles.json');
-const users = join(__dirname, 'users.json');
+const { Avon } = require("../../dist");
+const { Operator } = require("../../dist/Contracts");
+const categories = join(__dirname, "categories.json");
+const pivots = join(__dirname, "pivots.json");
+const posts = join(__dirname, "posts.json");
+const comments = join(__dirname, "comments.json");
+const profiles = join(__dirname, "profiles.json");
+const users = join(__dirname, "users.json");
 
 class CategoryRepository extends Repositories.File {
   filepath() {
@@ -73,9 +73,9 @@ class Category extends Resource {
   fields() {
     return [
       new Fields.ID(),
-      new Fields.Text('name'),
-      new Fields.BelongsToMany('posts', 'pivots')
-        .pivots(() => [new Fields.Integer('order')])
+      new Fields.Text("name"),
+      new Fields.BelongsToMany("posts", "pivots")
+        .pivots(() => [new Fields.Integer("order")])
         .load(),
     ];
   }
@@ -87,9 +87,9 @@ class Post extends Resource {
   fields() {
     return [
       new Fields.ID(),
-      new Fields.BelongsTo('users'),
-      new Fields.HasMany('comments'),
-      new Fields.BelongsToMany('categories', 'pivots').nullable(),
+      new Fields.BelongsTo("users"),
+      new Fields.HasMany("comments"),
+      new Fields.BelongsToMany("categories", "pivots").nullable(),
     ];
   }
   repository() {
@@ -100,9 +100,9 @@ class Pivot extends Resource {
   fields() {
     return [
       new Fields.ID(),
-      new Fields.Integer('order').default(() => Date.now()),
-      new Fields.BelongsTo('categories'),
-      new Fields.HasMany('posts'),
+      new Fields.Integer("order").default(() => Date.now()),
+      new Fields.BelongsTo("categories"),
+      new Fields.HasMany("posts"),
     ];
   }
   repository() {
@@ -114,8 +114,8 @@ class Comment extends Resource {
   fields() {
     return [
       new Fields.ID(),
-      new Fields.BelongsTo('posts').load(),
-      new Fields.BelongsTo('users').load(),
+      new Fields.BelongsTo("posts").load(),
+      new Fields.BelongsTo("users").load(),
     ];
   }
   repository() {
@@ -125,7 +125,7 @@ class Comment extends Resource {
 
 class Profile extends Resource {
   fields() {
-    return [new Fields.ID(), new Fields.BelongsTo('users')];
+    return [new Fields.ID(), new Fields.BelongsTo("users")];
   }
   repository() {
     return new ProfileRepository();
@@ -136,9 +136,9 @@ class User extends Resource {
   fields() {
     return [
       new Fields.ID(),
-      new Fields.HasOne('profiles').load(),
-      new Fields.HasMany('posts').load(),
-      new Fields.HasMany('comments').load(),
+      new Fields.HasOne("profiles").load(),
+      new Fields.HasMany("posts").load(),
+      new Fields.HasMany("comments").load(),
     ];
   }
   repository() {
@@ -150,36 +150,36 @@ const app = express();
 app.use(bodyParser.json());
 
 beforeAll(() => {
-  fs.writeFileSync(categories, JSON.stringify([{ id: 1, name: 'Post 1' }]));
+  fs.writeFileSync(categories, JSON.stringify([{ id: 1, name: "Post 1" }]));
   fs.writeFileSync(
     pivots,
-    JSON.stringify([{ id: 1, category_id: 1, post_id: 1, order: 1 }]),
+    JSON.stringify([{ id: 1, category_id: 1, post_id: 1, order: 1 }])
   );
   fs.writeFileSync(
     posts,
     JSON.stringify([
-      { id: 1, user_id: 1, name: 'Post 1' },
-      { id: 2, user_id: 2, name: 'Post 2' },
-      { id: 3, user_id: 1, name: 'Post 3' },
-    ]),
+      { id: 1, user_id: 1, name: "Post 1" },
+      { id: 2, user_id: 2, name: "Post 2" },
+      { id: 3, user_id: 1, name: "Post 3" },
+    ])
   );
   fs.writeFileSync(
     comments,
     JSON.stringify([
-      { id: 1, post_id: 1, comment: 'Comment 1', user_id: 1 },
-      { id: 1, post_id: 2, comment: 'Comment 2', user_id: 2 },
-    ]),
+      { id: 1, post_id: 1, comment: "Comment 1", user_id: 1 },
+      { id: 1, post_id: 2, comment: "Comment 2", user_id: 2 },
+    ])
   );
   fs.writeFileSync(
     profiles,
-    JSON.stringify([{ id: 1, user_id: 1, name: 'User 1' }]),
+    JSON.stringify([{ id: 1, user_id: 1, name: "User 1" }])
   );
   fs.writeFileSync(
     users,
     JSON.stringify([
-      { id: 1, name: 'User 1' },
-      { id: 2, name: 'User 2' },
-    ]),
+      { id: 1, name: "User 1" },
+      { id: 2, name: "User 2" },
+    ])
   );
 
   // configure Avon
@@ -192,7 +192,7 @@ beforeAll(() => {
     new User(),
   ]);
 
-  app.use('/api', Avon.routes(express.Router()));
+  app.use("/api", Avon.express());
 });
 
 // create storage
@@ -207,12 +207,12 @@ afterAll(() => {
   } catch (error) {}
 });
 
-describe('The relational resource fields', () => {
-  describe('BelongsTo field', () => {
-    test('Could retrieve data from resources by unloaded relations', () => {
+describe("The relational resource fields", () => {
+  describe("BelongsTo field", () => {
+    test("Could retrieve data from resources by unloaded relations", () => {
       return request(app)
         .get(`/api/resources/${new Post().uriKey()}/1`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .expect(200)
         .then(({ body: { code, data } }) => {
           expect(code).toBe(200);
@@ -220,10 +220,10 @@ describe('The relational resource fields', () => {
         });
     });
 
-    test('Could retrieve data from resources by loaded relations', () => {
+    test("Could retrieve data from resources by loaded relations", () => {
       return request(app)
         .get(`/api/resources/${new Comment().uriKey()}/1`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .expect(200)
         .then(({ body: { code, data } }) => {
           expect(code).toBe(200);
@@ -231,50 +231,50 @@ describe('The relational resource fields', () => {
         });
     });
 
-    test('Could store related resource', () => {
+    test("Could store related resource", () => {
       return request(app)
         .post(`/api/resources/${new Post().uriKey()}`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .send({ user: 2, categories: [] })
         .expect(201)
         .then(async ({ body: { code, data } }) => {
           expect(code).toBe(201);
           const post = await new PostRepository().find(data.fields.id);
-          expect(post?.getAttribute('user_id')).toBe(2);
+          expect(post?.getAttribute("user_id")).toBe(2);
         });
     });
 
-    test('Could update related resource', () => {
+    test("Could update related resource", () => {
       return request(app)
         .put(`/api/resources/${new Post().uriKey()}/3`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .send({ user: 2, categories: [] })
         .expect(200)
         .then(async ({ body: { code, data } }) => {
           expect(code).toBe(200);
           const post = await new PostRepository().find(data.fields.id);
-          expect(post?.getAttribute('user_id')).toBe(2);
+          expect(post?.getAttribute("user_id")).toBe(2);
         });
     });
   });
 
-  describe('HasOne field', () => {
-    test('Could retrieve data from resources by unloaded relations', () => {
+  describe("HasOne field", () => {
+    test("Could retrieve data from resources by unloaded relations", () => {
       return request(app)
         .get(`/api/resources/${new Profile().uriKey()}/1`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .expect(200)
         .then(async ({ body: { code, data } }) => {
           expect(code).toBe(200);
           const post = await new PostRepository().find(data.fields.id);
-          expect(post?.getAttribute('user_id')).toBe(1);
+          expect(post?.getAttribute("user_id")).toBe(1);
         });
     });
 
-    test('Could retrieve data from resources by loaded relations', () => {
+    test("Could retrieve data from resources by loaded relations", () => {
       return request(app)
         .get(`/api/resources/${new User().uriKey()}/1`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .expect(200)
         .then(({ body: { code, data } }) => {
           expect(code).toBe(200);
@@ -283,11 +283,11 @@ describe('The relational resource fields', () => {
     });
   });
 
-  describe('HasMany field', () => {
-    test('Could retrieve data from resources by loaded relations', () => {
+  describe("HasMany field", () => {
+    test("Could retrieve data from resources by loaded relations", () => {
       return request(app)
         .get(`/api/resources/${new Post().uriKey()}/1`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .expect(200)
         .then(({ body: { code, data } }) => {
           expect(code).toBe(200);
@@ -296,11 +296,11 @@ describe('The relational resource fields', () => {
     });
   });
 
-  describe('BelongsToMany field', () => {
-    test('Could retrieve data from resources by unloaded relations', () => {
+  describe("BelongsToMany field", () => {
+    test("Could retrieve data from resources by unloaded relations", () => {
       return request(app)
         .get(`/api/resources/${new Post().uriKey()}/1`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .expect(200)
         .then(({ body: { code, data } }) => {
           expect(code).toBe(200);
@@ -308,10 +308,10 @@ describe('The relational resource fields', () => {
         });
     });
 
-    test('Could retrieve data from resources by loaded relations', () => {
+    test("Could retrieve data from resources by loaded relations", () => {
       return request(app)
         .get(`/api/resources/${new Category().uriKey()}/1`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .expect(200)
         .then(({ body: { code, data } }) => {
           expect(code).toBe(200);
@@ -319,25 +319,25 @@ describe('The relational resource fields', () => {
         });
     });
 
-    test('Could attach related resource', () => {
+    test("Could attach related resource", () => {
       return request(app)
         .post(`/api/resources/${new Category().uriKey()}`)
-        .expect('Content-Type', /json/)
+        .expect("Content-Type", /json/)
         .send({ posts: [{ id: 1, order: 10 }] })
         .expect(201)
         .then(async ({ body: { code, data } }) => {
           expect(code).toBe(201);
           const pivots = await new PivotRepository()
-            .where({ operator: Operator.in, key: 'post_id', value: [1] })
+            .where({ operator: Operator.in, key: "post_id", value: [1] })
             .where({
               operator: Operator.eq,
-              key: 'category_id',
+              key: "category_id",
               value: data.fields.id,
             })
             .all();
           expect(pivots.length).toEqual(1);
-          expect(pivots[0].getAttribute('post_id')).toEqual(1);
-          expect(pivots[0].getAttribute('order')).toEqual(10);
+          expect(pivots[0].getAttribute("post_id")).toEqual(1);
+          expect(pivots[0].getAttribute("order")).toEqual(10);
         });
     });
   });

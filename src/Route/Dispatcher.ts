@@ -1,34 +1,36 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
-import ActionIndexController from '../Http/Controllers/ActionIndexController';
-import ActionRequest from '../Http/Requests/ActionRequest';
-import ActionStoreController from '../Http/Controllers/ActionStoreController';
-import AvonResponse from '../Http/Responses/AvonResponse';
-import Controller from '../Http/Controllers/Controller';
-import ResourceDeleteController from '../Http/Controllers/ResourceDeleteController';
-import ResourceDeleteRequest from '../Http/Requests/ResourceDeleteRequest';
-import ResourceDetailController from '../Http/Controllers/ResourceDetailController';
-import ResourceDetailRequest from '../Http/Requests/ResourceDetailRequest';
-import ResourceForceDeleteController from '../Http/Controllers/ResourceForceDeleteController';
-import ResourceForceDeleteRequest from '../Http/Requests/ResourceForceDeleteRequest';
-import ResourceIndexController from '../Http/Controllers/ResourceIndexController';
-import ResourceIndexRequest from '../Http/Requests/ResourceIndexRequest';
-import ResourceRestoreController from '../Http/Controllers/ResourceRestoreController';
-import ResourceRestoreRequest from '../Http/Requests/ResourceRestoreRequest';
-import ResourceReviewController from '../Http/Controllers/ResourceReviewController';
-import ResourceReviewRequest from '../Http/Requests/ResourceReviewRequest';
-import ResourceStoreController from '../Http/Controllers/ResourceStoreController';
-import ResourceStoreOrAttachRequest from '../Http/Requests/ResourceCreateOrAttachRequest';
-import ResourceUpdateController from '../Http/Controllers/ResourceUpdateController';
-import ResourceUpdateOrUpdateAttachedRequest from '../Http/Requests/ResourceUpdateOrUpdateAttachedRequest';
-import ResponsableException from '../Exceptions/ResponsableException';
-import SchemaController from '../Http/Controllers/SchemaController';
-import SchemaRequest from '../Http/Requests/SchemaRequest';
-import AssociableController from '../Http/Controllers/AssociableController';
-import AssociableRequest from '../Http/Requests/AssociableRequest';
+import { DateTime } from 'luxon';
 import Avon from '../Avon';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import ResponsableException from '../Exceptions/ResponsableException';
+import ActionIndexController from '../Http/Controllers/ActionIndexController';
+import ActionStoreController from '../Http/Controllers/ActionStoreController';
+import AssociableController from '../Http/Controllers/AssociableController';
+import type Controller from '../Http/Controllers/Controller';
+import ResourceDeleteController from '../Http/Controllers/ResourceDeleteController';
+import ResourceDetailController from '../Http/Controllers/ResourceDetailController';
+import ResourceForceDeleteController from '../Http/Controllers/ResourceForceDeleteController';
+import ResourceIndexController from '../Http/Controllers/ResourceIndexController';
+import ResourceRestoreController from '../Http/Controllers/ResourceRestoreController';
+import ResourceReviewController from '../Http/Controllers/ResourceReviewController';
+import ResourceStoreController from '../Http/Controllers/ResourceStoreController';
+import ResourceUpdateController from '../Http/Controllers/ResourceUpdateController';
+import SchemaController from '../Http/Controllers/SchemaController';
+import ActionRequest from '../Http/Requests/ActionRequest';
+import AssociableRequest from '../Http/Requests/AssociableRequest';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import ResourceStoreOrAttachRequest from '../Http/Requests/ResourceCreateOrAttachRequest';
+import ResourceDeleteRequest from '../Http/Requests/ResourceDeleteRequest';
+import ResourceDetailRequest from '../Http/Requests/ResourceDetailRequest';
+import ResourceForceDeleteRequest from '../Http/Requests/ResourceForceDeleteRequest';
+import ResourceIndexRequest from '../Http/Requests/ResourceIndexRequest';
+import ResourceRestoreRequest from '../Http/Requests/ResourceRestoreRequest';
+import ResourceReviewRequest from '../Http/Requests/ResourceReviewRequest';
+import ResourceUpdateOrUpdateAttachedRequest from '../Http/Requests/ResourceUpdateOrUpdateAttachedRequest';
+import SchemaRequest from '../Http/Requests/SchemaRequest';
+import type AvonResponse from '../Http/Responses/AvonResponse';
 import { send } from '../helpers';
+import Debug from '../support/debug';
 
 const controllers: Record<
   string,
@@ -87,7 +89,8 @@ const controllers: Record<
     request: (request: Request) => new SchemaRequest(request),
   },
 };
-
+// TODO: may i have to export new class instance instead of static method
+// biome-ignore lint/complexity/noStaticOnlyClass:
 export default class Dispatcher {
   /**
    * Dispatch incoming request to correspond controller.
@@ -107,12 +110,24 @@ export default class Dispatcher {
       throw Error(`AvonError: Invalid route handler ${controller}@${method}`);
     }
 
-    return (req: Request, res: Response) => {
+    return async (req: Request, res: Response) => {
+      const logger = Debug.extend(Dispatcher.generateRequestId());
+      logger.dump(
+        `Dispatching request "${req.method}:${req.url}" to "${controller}"`,
+      );
       const request = controllers[controller].request(req);
-
+      // set the unique logger for incoming request
+      request.setLogger(logger);
+      // set the unique logger for incoming request
+      request.setUser(await Avon.resolveUser(request));
+      // dispatch request to the controller
       controllerInstance[method as keyof Controller](request)
-        .then((response: AvonResponse) => send(res, response))
+        .then((response: AvonResponse) => {
+          send(res, response);
+          logger.dump('Response sent.');
+        })
         .catch((error: Error) => {
+          logger.dump(error);
           if (error instanceof ResponsableException) {
             send(res, error.toResponse());
           } else {
@@ -123,5 +138,26 @@ export default class Dispatcher {
           }
         });
     };
+  }
+
+  protected static generateRequestId(): string {
+    // Generate the current date with Luxon
+    const date = DateTime.now().toFormat('yyLLdd'); // e.g., "20241026"
+    const time = DateTime.now().toFormat('HHmmss'); // e.g., "153023"
+
+    // Generate microsecond-like precision by combining millisecond precision with a random number
+    const microseconds = Math.floor(
+      DateTime.now().millisecond * 1000 + Math.random() * 1000,
+    )
+      .toString()
+      .padStart(6, '0'); // e.g., "456789"
+
+    // Generate a short random suffix for extra uniqueness
+    const randomSuffix = Math.ceil(Math.random() * 10000)
+      .toString()
+      .padEnd(4, '0'); // e.g., "07"
+
+    // Combine to form the final ID
+    return `${date}-${time}-${microseconds}-${randomSuffix}`;
   }
 }

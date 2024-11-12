@@ -1,7 +1,12 @@
-import AvonRequest from '../Http/Requests/AvonRequest';
+import {
+  type AnyArray,
+  type Model,
+  type OpenApiSchema,
+  Operator,
+} from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Repository } from '../Repositories';
 import Filter from './Filter';
-import { Model, OpenApiSchema, Operator } from '../Contracts';
-import { Repository } from '../Repositories';
 export default abstract class SelectFilter extends Filter {
   /**
    * The help text for the filter.
@@ -14,8 +19,8 @@ export default abstract class SelectFilter extends Filter {
   public apply(
     request: AvonRequest,
     repository: Repository<Model>,
-    value: unknown,
-  ): any {
+    value: never,
+  ): void {
     if (this.options().includes(value) || this.isValidNullValue(value)) {
       repository.where({
         key: this.filterableAttribute(request),
@@ -33,7 +38,7 @@ export default abstract class SelectFilter extends Filter {
   /**
    * Get the possible filtering values.
    */
-  public options(): any[] {
+  public options(): AnyArray {
     return [];
   }
 

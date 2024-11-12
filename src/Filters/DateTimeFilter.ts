@@ -1,8 +1,8 @@
-import { OpenAPIV3 } from 'openapi-types';
-import AvonRequest from '../Http/Requests/AvonRequest';
+import type { OpenAPIV3 } from 'openapi-types';
+import { type Model, type OpenApiSchema, Operator } from '../Contracts';
+import type AvonRequest from '../Http/Requests/AvonRequest';
+import type { Repository } from '../Repositories';
 import Filter from './Filter';
-import { Model, OpenApiSchema, Operator } from '../Contracts';
-import { Repository } from '../Repositories';
 
 export default abstract class DateTimeFilter extends Filter {
   /**
@@ -12,7 +12,7 @@ export default abstract class DateTimeFilter extends Filter {
     request: AvonRequest,
     repository: Repository<Model>,
     dates: Record<string, string>,
-  ): any {
+  ): void {
     if (typeof dates !== 'object') {
       return;
     }

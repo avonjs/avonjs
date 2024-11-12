@@ -1,11 +1,12 @@
+import assert from 'node:assert';
 import FieldCollection from '../Collections/FieldCollection';
-import { Field } from '../Fields';
-import AvonRequest from '../Http/Requests/AvonRequest';
-import { AbstractMixable, Model } from '../Contracts';
+import type { AbstractMixable, Model } from '../Contracts';
+import type { Field } from '../Fields';
+import type AvonRequest from '../Http/Requests/AvonRequest';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class ResolvesFields extends Parent {
-    public resource: any;
+    public abstract resource: Model;
 
     /**
      * Resolve the index fields.
@@ -126,7 +127,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     public availableFields(request: AvonRequest): FieldCollection {
       const fieldsMethod = this.fieldsMethod(request);
 
-      return new FieldCollection(this[fieldsMethod](request));
+      return new FieldCollection(this.callFieldsMethod(fieldsMethod, request));
     }
 
     /**
@@ -161,9 +162,22 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       return new FieldCollection([
         ...this.fields(request),
         ...methods.flatMap((method) => {
-          return this[method as keyof ResolvesFields](request);
+          return this.callFieldsMethod(method, request);
         }),
       ]);
+    }
+
+    /**
+     * Forwards the dynamic filed method calls.
+     */
+    public callFieldsMethod(method: string, request: AvonRequest) {
+      const fieldsMethod = this[method as keyof ResolvesFields];
+      assert(
+        typeof fieldsMethod === 'function',
+        `The "${method}" method is not a function`,
+      );
+
+      return (fieldsMethod as typeof this.fields).call(this, request);
     }
 
     /**

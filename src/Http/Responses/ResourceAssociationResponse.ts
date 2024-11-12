@@ -1,10 +1,8 @@
+import type { AnyRecord } from '../../Contracts';
 import AvonResponse from './AvonResponse';
 
 export default class ResourceAssociationResponse extends AvonResponse {
-  constructor(
-    data: Array<Record<string, any>>,
-    meta: Record<string, any> = {},
-  ) {
+  constructor(data: Array<AnyRecord>, meta: AnyRecord = {}) {
     super(200, data, meta);
   }
 }
