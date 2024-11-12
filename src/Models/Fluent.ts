@@ -16,7 +16,11 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
         return parent.getAttribute(property as string);
       },
       set: (model, key: string, value) => {
-        model.setAttribute(key, value ?? true);
+        if (key in model) {
+          model[key as keyof Model] = value;
+        } else {
+          model.setAttribute(key, value ?? true);
+        }
 
         return true;
       },
@@ -62,13 +66,6 @@ export default class Fluent extends HasAttributes(class {}) implements Model {
    */
   getKeyName(): string {
     return 'id';
-  }
-
-  /**
-   * Return all the attributes.
-   */
-  public getAttributes(): AnyRecord {
-    return this.attributes;
   }
 
   /**

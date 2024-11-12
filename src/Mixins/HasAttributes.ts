@@ -1,6 +1,6 @@
 import { pascalCase } from 'change-case-all';
 import collect from 'collect.js';
-import type { AbstractMixable } from '../Contracts';
+import type { AbstractMixable, AnyRecord } from '../Contracts';
 
 export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
   abstract class HasAttributes extends Parent {
@@ -8,6 +8,16 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
      * The model's attributes.
      */
     public attributes: Record<string, unknown> = {};
+
+    /**
+     * Get hidden attributes on the serialization.
+     */
+    public hidden: string[] = [];
+
+    /**
+     * Get visible attributes on the serialization.
+     */
+    public visible: string[] = [];
 
     /**
      * Set value for the given key.
@@ -49,12 +59,50 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     }
 
     /**
+     * Make an attribute serializable.
+     */
+    makeVisible(attribute: string) {
+      this.visible.push(attribute);
+
+      return this;
+    }
+
+    /**
+     * Hidden an attribute from serializable.
+     */
+    makeHidden(attribute: string) {
+      this.hidden.push(attribute);
+
+      return this;
+    }
+
+    /**
+     * Get all mutated values.
+     */
+    getAttributes(): AnyRecord {
+      return this.attributes;
+    }
+
+    /**
      * Get all mutated values.
      */
     getAttributesValue() {
-      return collect(this.attributes)
+      return collect(this.getAttributes())
         .map((value, key) => this.getAttributeValue(key))
         .all();
+    }
+
+    /**
+     * Get all serializable attributes.
+     */
+    toSerializable(): AnyRecord {
+      const attributes = collect(this.attributes).except(this.hidden);
+
+      if (this.visible.length > 0) {
+        return attributes.only(this.visible).all();
+      }
+
+      return attributes.all();
     }
   }
 

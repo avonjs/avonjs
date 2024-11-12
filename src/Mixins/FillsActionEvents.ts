@@ -30,7 +30,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
       return new Fluent({
         ...this.defaultAttributes(params),
         name: 'Create',
-        changes: params.resource.getAttributes(),
+        changes: params.resource.toSerializable(),
       });
     }
 
@@ -41,10 +41,10 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
       return new Fluent({
         ...this.defaultAttributes(params),
         name: 'Update',
-        changes: collect(params.resource.getAttributes())
-          .diffAssoc(collect(params.previous.getAttributes()))
+        changes: collect(params.resource.toSerializable())
+          .diffAssoc(collect(params.previous.toSerializable()))
           .all(),
-        original: params.previous.getAttributes(),
+        original: params.previous.toSerializable(),
       });
     }
 
@@ -56,7 +56,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
         ...this.defaultAttributes(params),
         name: 'Delete',
         changes: {},
-        original: params.resource.getAttributes(),
+        original: params.resource.toSerializable(),
       });
     }
 
@@ -79,9 +79,9 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
         ...this.defaultAttributes(params),
         batch_id: params.batchId ?? randomUUID(),
         name: params.action.name(),
-        original: params.previous.getAttributes(),
-        changes: collect(params.resource.getAttributes())
-          .diffAssoc(collect(params.previous.getAttributes()))
+        original: params.previous.toSerializable(),
+        changes: collect(params.resource.toSerializable())
+          .diffAssoc(collect(params.previous.toSerializable()))
           .all(),
       });
     }

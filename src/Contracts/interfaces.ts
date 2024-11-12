@@ -40,27 +40,32 @@ export interface Model {
   /**
    * Set value for the given key.
    */
-  setAttribute: (key: string, value: AnyValue) => Model;
+  setAttribute(key: string, value: AnyValue): Model;
 
   /**
    * Get value for the given key.
    */
-  getAttribute: <T = undefined>(key: string) => T;
+  getAttribute<T = undefined>(key: string): T;
 
   /**
    * Get the model key.
    */
-  getKey: () => PrimaryKey;
+  getKey(): PrimaryKey;
 
   /**
    * Get primary key name of the model.
    */
-  getKeyName: () => string;
+  getKeyName(): string;
 
   /**
    * Get all of the model attributes.
    */
-  getAttributes: () => AnyRecord;
+  getAttributes(): AnyRecord;
+
+  /**
+   * Get all of the serializable attributes.
+   */
+  toSerializable(): AnyRecord;
 }
 
 export interface SoftDeletes<TModel extends Model> {
