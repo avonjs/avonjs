@@ -20,20 +20,20 @@ export interface ParameterSerializable {
   /**
    * Serialize parameters for schema.
    */
-  serializeParameters: (request: AvonRequest) => OpenAPIV3.ParameterObject[];
+  serializeParameters(request: AvonRequest): OpenAPIV3.ParameterObject[];
 }
 
 export interface HasSchema {
   /**
    * Get the swagger-ui schema.
    */
-  schema: (request: AvonRequest) => OpenApiSchema;
+  schema(request: AvonRequest): OpenApiSchema;
 }
 export interface FieldSchema {
   /**
    * Get the swagger-ui schema.
    */
-  schema: (request: AvonRequest) => OpenApiFieldSchema;
+  schema(request: AvonRequest): OpenApiFieldSchema;
 }
 
 export interface Model {
