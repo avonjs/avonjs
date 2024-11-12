@@ -10,7 +10,10 @@ export type UserResolver = (
 
 export type ErrorHandler = (error: Error) => void;
 
-export type RunCallback = (request: AvonRequest, resource: Model) => boolean;
+export type RunCallback = (
+  request: AvonRequest,
+  resource: Model,
+) => boolean | Promise<boolean>;
 
 export type SeeCallback = (request: AvonRequest) => boolean;
 

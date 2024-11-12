@@ -20,7 +20,7 @@ import ValidationException from '../Exceptions/ValidationException';
 import type { Field } from '../Fields';
 import type ActionRequest from '../Http/Requests/ActionRequest';
 import type AvonRequest from '../Http/Requests/AvonRequest';
-import { AvonResponse, SuccessfulResponse } from '../Http/Responses';
+import { AvonResponse } from '../Http/Responses';
 import ActionResponse from '../Http/Responses/ActionResponse';
 import AuthorizedToSee from '../Mixins/AuthorizedToSee';
 import { Fluent } from '../Models';
@@ -70,9 +70,16 @@ export default abstract class Action
    * Get models for incoming action.
    */
   protected async getModels(request: ActionRequest) {
-    return (this.isStandalone() ? [] : await request.models()).filter((model) =>
-      this.authorizedToRun(request, model),
-    );
+    const models = this.isStandalone() ? [] : await request.models();
+    const authorizedModels = [];
+
+    for (const model of models) {
+      if (await this.authorizedToRun(request, model)) {
+        authorizedModels.push(model);
+      }
+    }
+
+    return authorizedModels;
   }
 
   /**
@@ -137,7 +144,7 @@ export default abstract class Action
   /**
    * Determine if the action is executable for the given request.
    */
-  public authorizedToRun(request: AvonRequest, model: Model): boolean {
+  public async authorizedToRun(request: AvonRequest, model: Model) {
     return this.runCallback != null
       ? this.runCallback.apply(this, [request, model])
       : true;
