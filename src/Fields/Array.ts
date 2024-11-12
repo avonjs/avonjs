@@ -1,5 +1,5 @@
 import collect from 'collect.js';
-import Joi, { type AnySchema } from 'joi';
+import Joi, { link, type AnySchema } from 'joi';
 import type { OpenAPIV3 } from 'openapi-types';
 import type {
   AnyValue,
@@ -29,11 +29,21 @@ export default class Array extends Field {
   protected updateRulesSchema: AnySchema = Joi.array().items(Joi.any());
 
   /**
+   * Minimum length of the array
+   */
+  protected minItems?: number;
+
+  /**
+   * Maximum length of the array
+   */
+  protected maxItems?: number;
+
+  /**
    * Indicates items schema.
    */
   protected itemsSchema: OpenAPIV3.SchemaObject = {
     type: 'string',
-    minLength: 1,
+    minItems: 1,
   };
 
   /**
@@ -65,7 +75,7 @@ export default class Array extends Field {
    * Specifies the exact number of items in the array.
    */
   public length(limit = 0) {
-    this.rules(Joi.string().length(limit));
+    this.min(limit).max(limit).rules(Joi.array().length(limit));
 
     return this;
   }
@@ -73,8 +83,9 @@ export default class Array extends Field {
   /**
    * Specifies the minimum number of items in the array.
    */
-  public min(min = 0) {
-    this.rules(Joi.array().min(min));
+  public min(minItems = 0) {
+    this.minItems = minItems;
+    this.rules(Joi.array().min(minItems));
 
     return this;
   }
@@ -82,8 +93,9 @@ export default class Array extends Field {
   /**
    * Specifies the maximum number of items in the array.
    */
-  public max(min = 0) {
-    this.rules(Joi.array().max(min));
+  public max(maxItems = 0) {
+    this.maxItems = maxItems;
+    this.rules(Joi.array().max(maxItems));
 
     return this;
   }
@@ -134,6 +146,8 @@ export default class Array extends Field {
       type: 'array',
       items: this.itemsSchema,
       uniqueItems: true,
+      minItems: this.minItems,
+      maxItems: this.maxItems,
     };
   }
 }

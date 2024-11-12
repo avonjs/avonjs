@@ -93,8 +93,8 @@ export default class Text extends Field {
   protected baseSchema(request: AvonRequest): OpenApiSchema {
     return {
       ...super.baseSchema(request),
-      minimum: this.minimum,
-      maximum: this.maximum,
+      minLength: this.minimum,
+      maxLength: this.maximum,
     };
   }
 }
