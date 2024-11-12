@@ -17,6 +17,7 @@
   - [Registering Resources](#registering-resources)
   - [Configuring Swagger UI](#configuring-swagger-ui)
   - [Resource Hooks](#resource-hooks)
+  - [Resource Hooks](#resource-hooks)
 - [Fields](#defining-fields)
   - [Showing / Hiding Fields](#showing--hiding-fields)
   - [Dynamic Field Methods](#dynamic-field-methods)
@@ -40,6 +41,7 @@
   - [Creation Rules](#creation-rules)
   - [Update Rules](#update-rules)
 - [Authorization](#authorization)
+- [Performing Queries](#performing-queries)
 
 **Repositories**
 
@@ -1097,7 +1099,76 @@ If you want to disable authorization for specific resource (thus allowing all ac
 public authorizable(): boolean {
     return false;
 }
+``` 
+
+## Performing Queries
+
+Avon.js provides several helper methods to customize queries when retrieving resources from database storage. These methods allow you to modify queries before they are executed, providing flexibility to meet specific requirements:
+
+- [indexQuery](#index-query)
+- [detailQuery](#detail-query)
+- [reviewQuery](#review-query)
+- [relatableQuery](#relatable-query)
+
+### Index Query
+
+The `indexQuery` method lets you customize the query for the index API. For example, you can join tables or restrict results based on certain conditions:
+
+```js
+indexQuery(request: AvonRequest, queryBuilder: Repository) {
+  return queryBuilder.whereKeys([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+}
 ```
+
+In this example, the final query retrieves resources with IDs `[1, 2, 3, 4, 5, 6, 7, 8, 9]`.
+
+### Detail Query
+
+The `detailQuery` method is called when serving a resource view for specific IDs:
+
+```js
+detailQuery(request: AvonRequest, queryBuilder: Repository) {
+  return queryBuilder.withUsers();
+}
+```
+
+In this example, the `withUsers` method is called on the repository to load related users.
+
+### Review Query
+
+The `reviewQuery` method is triggered when the resource is being restored:
+
+```js
+reviewQuery(request: AvonRequest, queryBuilder: Repository) {
+  return queryBuilder.whereIsNotExpired();
+}
+```
+
+Here, the `whereIsNotExpired` method restricts the query to only non-expired resources.
+
+### Relatable Query
+
+The `relatableQuery` method customizes queries for associable APIs, for example, when assigning a related resource using a relational field:
+
+```js
+relatableQuery(request: AvonRequest, queryBuilder: Repository) {
+  return queryBuilder.isActive();
+}
+```
+
+In this example, the `isActive` method restricts the query to only active resources when assigning a related resource.
+
+**Relatable Query Example**
+
+Suppose you have a `Post` resource with a `BelongsTo` field to assign users to posts. To restrict this field to only active users, add a `relatableQuery` method in the `User` resource to enforce this restriction:
+
+```js
+relatableQuery(request: AvonRequest, queryBuilder: Repository) {
+  return queryBuilder.isActive();
+}
+```
+
+This approach ensures that only active users are available for assignment in related queries.
 
 ### Fields
 
