@@ -3,15 +3,15 @@ import {
   type AnyValue,
   type Model,
   Operator,
-  Optional,
+  type Optional,
   type Order,
+  type PrimaryKey,
   type QueryModifierCallback,
   type SearchCollection,
   type Transaction,
   type TransactionCallback,
   type Where,
 } from '../Contracts';
-import { Fluent } from '../Models';
 
 export default abstract class Repository<TModel extends Model = Model> {
   /**
@@ -165,14 +165,14 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Find model for the given key.
    */
-  async find(key: string | number): Promise<TModel | undefined> {
+  async find(key: PrimaryKey): Promise<Optional<TModel>> {
     return this.whereKey(key).first();
   }
 
   /**
    * Apply primary key condition
    */
-  public whereKey(key: string | number): this {
+  public whereKey(key: PrimaryKey): this {
     return this.where({
       key: this.model().getKeyName(),
       value: key,
@@ -183,7 +183,7 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Apply primary key condition
    */
-  public whereKeys(keys: Array<string | number>): this {
+  public whereKeys(keys: Array<PrimaryKey>): this {
     return this.where({
       key: this.model().getKeyName(),
       value: keys,
@@ -217,7 +217,7 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Find first model for the given conditions.
    */
-  abstract first(wheres?: Where[]): Promise<TModel | undefined>;
+  abstract first(wheres?: Where[]): Promise<Optional<TModel>>;
 
   /**
    * Store given model into the storage.
@@ -232,7 +232,7 @@ export default abstract class Repository<TModel extends Model = Model> {
   /**
    * Delete model for the given key.
    */
-  abstract delete(key: string | number): Promise<void>;
+  abstract delete(key: PrimaryKey): Promise<void>;
 
   /**
    * Create new instance of model.

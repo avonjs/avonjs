@@ -3,6 +3,7 @@ import {
   type Args,
   type Model,
   Operator,
+  type PrimaryKey,
   type SoftDeletes as SoftDeletesContract,
   type Where,
 } from '../Contracts';
@@ -41,7 +42,7 @@ export default <
     /**
      * Delete model for the given key.
      */
-    async delete(key: string | number): Promise<void> {
+    async delete(key: PrimaryKey): Promise<void> {
       const model = await this.find(key);
 
       if (model === undefined) {
@@ -75,7 +76,7 @@ export default <
     /**
      * Delete model for the given key.
      */
-    async forceDelete(key: string | number): Promise<void> {
+    async forceDelete(key: PrimaryKey): Promise<void> {
       this.removeSoftDeleteQueries();
       //@ts-ignore
       await super.delete(key);
@@ -84,7 +85,7 @@ export default <
     /**
      * Restore the delete model for given key.
      */
-    async restore(key: string | number): Promise<TModel> {
+    async restore(key: PrimaryKey): Promise<TModel> {
       const model = await this.onlyTrashed().find(key);
 
       ModelNotFoundException.unless(model);

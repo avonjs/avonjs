@@ -2,18 +2,22 @@ import type Field from '../Fields/Field';
 import type AvonRequest from '../Http/Requests/AvonRequest';
 import type { Repository } from '../Repositories';
 import type { Model, Transaction } from './interfaces';
-import type { AnyValue, Nullable, Optional } from './types';
+import type {
+  AnyValue,
+  Deferred,
+  Nullable,
+  Optional,
+  PrimaryKey,
+} from './types';
 
-export type UserResolver = (
-  request: AvonRequest,
-) => Promise<Nullable<Model>> | Nullable<Model>;
+export type UserResolver = (request: AvonRequest) => Deferred<Nullable<Model>>;
 
 export type ErrorHandler = (error: Error) => void;
 
 export type RunCallback = (
   request: AvonRequest,
   resource: Model,
-) => boolean | Promise<boolean>;
+) => Deferred<boolean>;
 
 export type SeeCallback = (request: AvonRequest) => boolean;
 
@@ -74,13 +78,11 @@ export type RelatableQueryCallback = (
   repository: Repository<Model>,
 ) => Repository<Model>;
 
-export type Auth = {
-  id: string | number;
-};
+export type Auth = { id: PrimaryKey };
 
 export type AttemptCallback = (
   payload: Record<string, unknown>,
-) => Promise<Auth | Nullable>;
+) => Promise<Nullable<Optional<Auth>>>;
 
 export type TransactionCallback<V, R extends Repository> = (
   repository: R,

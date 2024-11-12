@@ -8,6 +8,7 @@ import type {
   OpenApiFieldSchema,
   OpenApiSchema,
   Payload,
+  PrimaryKey,
 } from './types';
 
 export interface SearchCollection<TModel extends Model = Model> {
@@ -49,7 +50,7 @@ export interface Model {
   /**
    * Get the model key.
    */
-  getKey: () => string | number;
+  getKey: () => PrimaryKey;
 
   /**
    * Get primary key name of the model.
@@ -66,12 +67,12 @@ export interface SoftDeletes<TModel extends Model> {
   /**
    * Delete model for the given key.
    */
-  forceDelete(key: string | number): Promise<void>;
+  forceDelete(key: PrimaryKey): Promise<void>;
 
   /**
    * Restore the delete model for given key.
    */
-  restore(key: string | number): Promise<TModel>;
+  restore(key: PrimaryKey): Promise<TModel>;
 
   /**
    * Apply soft-delete constraint.
@@ -96,7 +97,7 @@ export interface SoftDeletes<TModel extends Model> {
 export interface ResourceActionEvent {
   resourceName: string;
   resource: Model;
-  userId?: string | number;
+  userId?: PrimaryKey;
   payload?: Payload;
   batchId?: UUID;
   previous?: Model;
@@ -150,7 +151,7 @@ export interface ActionEventRepository<TModel extends Model> {
   /**
    * Delete resource events for ever.
    */
-  flush(resourceName: string, key: string | number): Promise<TModel[]>;
+  flush(resourceName: string, key: PrimaryKey): Promise<TModel[]>;
 }
 
 export interface Transaction {

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
-import collect, { Collection } from 'collect.js';
-import type { CollectionRecord } from '../Contracts';
+import collect from 'collect.js';
+import type { CollectionRecord, PrimaryKey } from '../Contracts';
 import type { Fluent } from '../Models';
 import CollectionRepository from './CollectionRepository';
 
@@ -48,7 +48,7 @@ export default abstract class FileRepository extends CollectionRepository {
   /**
    * Delete model for the given key.
    */
-  async delete(key: string | number): Promise<void> {
+  async delete(key: PrimaryKey): Promise<void> {
     this.write(
       this.makeCollection()
         .filter((item) => item.getKey() !== key)

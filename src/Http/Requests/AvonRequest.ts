@@ -3,6 +3,7 @@ import {
   type Attributes,
   type Model,
   type Nullable,
+  type Optional,
   RequestTypes,
   type Transaction,
   type TransactionCallback,
@@ -216,9 +217,7 @@ export default abstract class AvonRequest<
   /**
    * Find the resource instance for the request.
    */
-  public async findResource(
-    resourceId?: number,
-  ): Promise<Resource | undefined> {
+  public async findResource(resourceId?: number): Promise<Optional<Resource>> {
     return this.newResource(await this.findModel(resourceId));
   }
 
@@ -236,7 +235,7 @@ export default abstract class AvonRequest<
   /**
    * Find the model instance for the request.
    */
-  public async findModel(resourceId?: number): Promise<Model | undefined> {
+  public async findModel(resourceId?: number): Promise<Optional<Model>> {
     this.logger()?.dump(
       `Searching repository "${this.resourceName()} by id ..."`,
     );

@@ -5,6 +5,8 @@ import {
   Direction,
   type Model,
   Operator,
+  type Optional,
+  type PrimaryKey,
   type SearchCollection,
   type Where,
 } from '../Contracts';
@@ -117,7 +119,7 @@ export default abstract class KnexRepository<
   /**
    * Find first model for the given conditions.
    */
-  async first(wheres: Where[] = []): Promise<TModel | undefined> {
+  async first(wheres: Where[] = []): Promise<Optional<TModel>> {
     return this.parseResult(await this.where(wheres).makeQuery().first());
   }
 
@@ -146,7 +148,7 @@ export default abstract class KnexRepository<
   /**
    * Delete model for the given key.
    */
-  async delete(key: string | number): Promise<void> {
+  async delete(key: PrimaryKey): Promise<void> {
     await this.whereKey(key).makeQuery().delete();
   }
 

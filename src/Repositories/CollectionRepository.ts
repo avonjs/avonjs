@@ -6,6 +6,7 @@ import {
   Direction,
   Operator,
   type Order,
+  type PrimaryKey,
   type SearchCollection,
   type Searchable,
   type Where,
@@ -199,7 +200,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
   /**
    * Delete model for the given key.
    */
-  async delete(key: string | number): Promise<void> {
+  async delete(key: PrimaryKey): Promise<void> {
     const keyName = this.model().getKeyName();
     const index = this.resolveItems().indexOf(
       (item: CollectionRecord) => item[keyName] === key,
@@ -218,7 +219,7 @@ export default abstract class CollectionRepository extends Repository<Fluent> {
   /**
    * Generate new id for storing item.
    */
-  public newId(): string | number {
+  public newId(): PrimaryKey {
     return Date.now();
   }
 

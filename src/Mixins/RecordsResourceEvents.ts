@@ -6,6 +6,7 @@ import type {
   BulkActionResult,
   Model,
   Payload,
+  PrimaryKey,
   Searchable,
   Transaction,
 } from '../Contracts';
@@ -30,7 +31,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     async recordCreationEvent(
       payload: Payload = {},
       transaction?: Transaction,
-      userId?: string | number,
+      userId?: PrimaryKey,
     ) {
       if (this.isRecordable()) {
         await this.makeActionRepository(transaction).store(
@@ -51,7 +52,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       previous: Model,
       payload: Payload = {},
       transaction?: Transaction,
-      userId?: string | number,
+      userId?: PrimaryKey,
     ) {
       if (this.isRecordable()) {
         await this.makeActionRepository(transaction).store(
@@ -69,10 +70,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Create an action event for the resource delete.
      */
-    async recordDeletionEvent(
-      transaction?: Transaction,
-      userId?: string | number,
-    ) {
+    async recordDeletionEvent(transaction?: Transaction, userId?: PrimaryKey) {
       if (this.isRecordable()) {
         await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceDelete({
@@ -87,10 +85,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     /**
      * Create an action event for the resource delete.
      */
-    async recordRestoreEvent(
-      transaction?: Transaction,
-      userId?: string | number,
-    ) {
+    async recordRestoreEvent(transaction?: Transaction, userId?: PrimaryKey) {
       if (this.isRecordable()) {
         await this.makeActionRepository(transaction).store(
           this.actionRepository().forResourceRestore({
@@ -108,7 +103,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
     async recordStandaloneActionEvent(
       action: Action,
       payload: Payload = {},
-      userId?: string | number,
+      userId?: PrimaryKey,
     ) {
       await this.makeActionRepository().store(
         this.actionRepository().forActionRan({
@@ -130,7 +125,7 @@ export default <T extends AbstractMixable = AbstractMixable>(Parent: T) => {
       action: Action,
       changes: BulkActionResult = [],
       payload: Payload = {},
-      userId?: string | number,
+      userId?: PrimaryKey,
     ) {
       const batchId = randomUUID();
 

@@ -5,6 +5,7 @@ import {
   type AnyRecord,
   type Model,
   Operator,
+  type PrimaryKey,
   type ResourceActionEvent,
   type ResourceActionEventForAction,
   type ResourceStoreActionEvent,
@@ -105,7 +106,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
     /**
      * Delete resource events for ever.
      */
-    async flush(resourceName: string, key: string | number): Promise<Model[]> {
+    async flush(resourceName: string, key: PrimaryKey): Promise<Model[]> {
       const events = await this.scopeResource(resourceName, key).all();
 
       await Promise.all(events.map((event) => this.delete(event.getKey())));
@@ -116,7 +117,7 @@ export default <T extends AbstractMixable<Repository>>(Parent: T) => {
     /**
      * Limit query to the given resource.
      */
-    scopeResource(resourceName: string, key: string | number) {
+    scopeResource(resourceName: string, key: PrimaryKey) {
       return this.where([
         {
           key: 'resource_id',

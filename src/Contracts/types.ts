@@ -111,3 +111,4 @@ export type Dictionary<T> = Record<string, T>;
 export type UnknownRecord = Dictionary<unknown>;
 export type RequestBodyContent = Dictionary<OpenAPIV3.MediaTypeObject>;
 export type AnyRecord = Dictionary<AnyValue>;
+export type Deferred<T> = T | Promise<T>;
