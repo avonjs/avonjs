@@ -19,6 +19,7 @@ import type {
   UserResolver,
 } from './Contracts';
 import {
+  AuthenticationException,
   InternalServerErrorException,
   NotFoundException,
   ResponsableException,
@@ -420,7 +421,7 @@ export default class Avon {
     } catch (err) {
       Logger.error(err);
 
-      throw new InternalServerErrorException();
+      throw new AuthenticationException();
     }
   }
 
