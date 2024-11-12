@@ -12,6 +12,7 @@ import * as Responses from './Http/Responses';
 import AvonResponse from './Http/Responses/AvonResponse';
 import FillsActionEvents from './Mixins/FillsActionEvents';
 import FilterableFields from './Mixins/FilterableFields';
+import HasAttributes from './Mixins/HasAttributes';
 import HasTimestamps from './Mixins/HasTimestamps';
 import SoftDeletes from './Mixins/SoftDeletes';
 import * as Models from './Models';
@@ -30,6 +31,7 @@ export {
   AvonRequest,
   AvonResponse,
   SoftDeletes,
+  HasAttributes,
   HasTimestamps,
   FillsActionEvents,
   Filters,
