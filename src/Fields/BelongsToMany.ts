@@ -260,13 +260,20 @@ export default class BelongsToMany extends Relation {
     request: AvonRequest,
     resource: Model,
   ): Promise<AnyValue> {
-    const allowedDetachments = await this.allowedDetachments(request, resource);
+    const detaches = await this.pivotResource
+      .resolveRepository(request)
+      .where({
+        key: this.resourceForeignKeyName(request),
+        value: resource.getAttribute(this.ownerKeyName(request)),
+        operator: Operator.eq,
+      })
+      .all();
 
-    await Promise.all(
-      allowedDetachments.map((relatedResource) => {
+    return Promise.all(
+      detaches.map((pivot) => {
         return this.pivotResource
           .resolveRepository(request)
-          .delete(relatedResource.getKey());
+          .delete(pivot.getKey());
       }),
     );
   }
@@ -275,7 +282,7 @@ export default class BelongsToMany extends Relation {
     return this.pivotResource
       .resolveRepository(request)
       .where({
-        key: this.foreignKeyName(request),
+        key: this.resourceForeignKeyName(request),
         value: model.getAttribute(this.ownerKeyName(request)),
         operator: Operator.eq,
       })
