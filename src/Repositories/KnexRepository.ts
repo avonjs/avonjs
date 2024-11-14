@@ -44,10 +44,11 @@ export default abstract class KnexRepository<
   ): Promise<SearchCollection<Fluent>> {
     const query = this.performSearch(this.makeQuery(), search);
     const offset = (page - 1) * perPage > 0 ? (page - 1) * perPage : 0;
-    const count = await query
+    const [count] = await query
       .clone()
-      .count(`${this.tableName()}.${this.model().getKeyName()} as count`)
-      .first();
+      .clearSelect()
+      .clearGroup()
+      .count(`${this.tableName()}.${this.model().getKeyName()} as count`);
 
     const data = await this.selectColumns(query.limit(perPage).offset(offset));
 
