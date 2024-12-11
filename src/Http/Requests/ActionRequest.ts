@@ -28,10 +28,14 @@ export default class ActionRequest extends AvonRequest {
    * Get the selected models for the action.
    */
   async models(): Promise<Model[]> {
-    const resourceIds = this.get('resources', []);
+    return this.repository().whereKeys(this.resourceIds()).all();
+  }
 
-    return this.repository()
-      .whereKeys(Array.isArray(resourceIds) ? resourceIds : [resourceIds])
-      .all();
+  /**
+   * Get resource IDs from query.
+   */
+  resourceIds() {
+    const resourceIds = this.get('resources', []);
+    return Array.isArray(resourceIds) ? resourceIds : [resourceIds];
   }
 }
