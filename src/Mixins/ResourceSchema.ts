@@ -583,33 +583,15 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
           };
 
           return [
-            `${paths.index}/actions/${action.uriKey()}`,
+            `${action.isInline() ? paths.detail : paths.index}/actions/${action.uriKey()}`,
             {
               post: {
                 tags: [this.uriKey()],
                 description: `Run the ${action.name()} on the given resources`,
                 operationId: `${this.uriKey() as string}-${action.uriKey()}`,
-                parameters: [
-                  {
-                    name: 'resources',
-                    in: 'query',
-                    description: 'Enter record id you want to run action on it',
-                    required: !action.isStandalone(),
-                    style: 'deepObject',
-                    explode: true,
-                    schema: {
-                      type: 'array',
-                      items: {
-                        oneOf: [
-                          { type: 'number', nullable: false, minLength: 1 },
-                          { type: 'string', nullable: false },
-                        ],
-                      },
-                      nullable: false,
-                      minItems: action.isStandalone() ? 0 : 1,
-                    },
-                  },
-                ],
+                parameters: action.isInline()
+                  ? this.singleResourcePathParameters(request)
+                  : this.actionQueryParameters(request, action),
                 requestBody: fields.isEmpty()
                   ? undefined
                   : {
@@ -875,6 +857,36 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
           description: 'The resource primary key',
           example: 1,
           schema: { oneOf: [{ type: 'number' }, { type: 'string' }] },
+        },
+      ];
+    }
+
+    /**
+     * Get the single resource path parameters.
+     */
+    public actionQueryParameters(
+      request: AvonRequest,
+      action: Action,
+    ): OpenAPIV3.ParameterObject[] {
+      return [
+        {
+          name: 'resources',
+          in: 'query',
+          description: 'Enter record id you want to run action on it',
+          required: !action.isStandalone(),
+          style: 'deepObject',
+          explode: true,
+          schema: {
+            type: 'array',
+            items: {
+              oneOf: [
+                { type: 'number', nullable: false, minLength: 1 },
+                { type: 'string', nullable: false },
+              ],
+            },
+            nullable: false,
+            minItems: action.isStandalone() ? 0 : 1,
+          },
         },
       ];
     }

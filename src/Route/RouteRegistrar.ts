@@ -21,6 +21,10 @@ export default class {
       '/resources/:resourceName/actions/:actionName',
       Dispatcher.dispatch('ActionStoreController'),
     );
+    this.router.post(
+      '/resources/:resourceName/:resourceId/actions/:actionName',
+      Dispatcher.dispatch('ActionStoreController'),
+    );
     // Associable Resources...
     this.router.get(
       '/resources/:resourceName/associable/:field',

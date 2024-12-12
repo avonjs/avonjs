@@ -40,6 +40,11 @@ export default abstract class Action
   public standaloneAction = false;
 
   /**
+   * Indicates if the action can be run on a single model.
+   */
+  public inlineAction = false;
+
+  /**
    * Indicates the response status code.
    */
   protected responseCode = 200;
@@ -283,12 +288,32 @@ export default abstract class Action
   }
 
   /**
-   * Determine if the action is a standalone action.
+   * Determine if the action is a "standalone" action.
    *
    * @return bool
    */
   public isStandalone(): boolean {
     return this.standaloneAction;
+  }
+
+  /**
+   * Mark the action as a "inline" action.
+   *
+   * @return this
+   */
+  public inline(): this {
+    this.inlineAction = true;
+
+    return this;
+  }
+
+  /**
+   * Determine if the action is a "inline" action.
+   *
+   * @return bool
+   */
+  public isInline(): boolean {
+    return this.inlineAction;
   }
 
   /**
@@ -298,6 +323,7 @@ export default abstract class Action
     return {
       uriKey: this.uriKey(),
       isStandalone: this.isStandalone(),
+      isInline: this.isInline(),
       fields: this.availableFields(request)
         .mapWithKeys((field: Field) => [field.attribute, field])
         .all() as object[],

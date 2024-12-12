@@ -35,6 +35,10 @@ export default class ActionRequest extends AvonRequest {
    * Get resource IDs from query.
    */
   resourceIds() {
+    if (this.action().isInline()) {
+      return [this.resourceId()];
+    }
+
     const resourceIds = this.get('resources', []);
     return Array.isArray(resourceIds) ? resourceIds : [resourceIds];
   }

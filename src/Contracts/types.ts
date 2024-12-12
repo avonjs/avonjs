@@ -8,6 +8,7 @@ import type { Model } from './interfaces';
 export type SerializedAction = {
   uriKey: string;
   isStandalone: boolean;
+  isInline: boolean;
   fields: AnyRecord[];
 };
 
