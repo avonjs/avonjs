@@ -13,7 +13,7 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "npx tsc --build",
+    "build": "npx tsc --build --clean & npx tsc --build",
     "watch": "npx tsc --watch",
     "test": "jest --runInBand",
     "test:debug": "jest --runInBand --verbose",
