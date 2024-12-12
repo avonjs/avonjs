@@ -71,6 +71,7 @@
 - [Registering Actions](#registering-actions)
 - [Authorization Actions](#authorization-actions)
 - [Standalone Actions](#standalone-actions)
+- [Inline Actions](#inline-actions)
 
 **Activity Log**
 
@@ -1738,10 +1739,27 @@ Typically, actions are executed against resources selected on a resource index o
 */
 actions(request){
   return [
-    new Publish().canRun(request => false)
+    new Publish().standalone()
   ];
 }
 ```
+
+
+## Inline Actions
+
+Typically, actions are executed against all resources selected on a resource index API. However, sometimes you may want an action run only on the certain resources / models. In these situations, you may register the action as a "inline" action by invoking the `inline` method when registering the action. These actions always receives an collection of models with only one model in their `handle` method:
+
+```js
+/**
+* Get the actions available on the entity.
+*/
+actions(request){
+  return [
+    new Publish().inline() 
+  ];
+}
+```
+
 
 # Activity Log
 
