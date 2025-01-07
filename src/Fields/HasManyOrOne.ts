@@ -80,18 +80,19 @@ export default abstract class HasManyOrOne extends Relation {
     request: AvonRequest,
     resources: Model[],
   ): Promise<Model[]> {
-    return await this.relatedResource
-      .resolveRepository(request)
-      .where({
-        key: this.foreignKeyName(request),
-        value: resources
-          .map((resource) => {
-            return resource.getAttribute(this.ownerKeyName(request));
-          })
-          .filter((value) => value),
-        operator: Operator.in,
-      })
-      .all();
+    const repository = this.relatedResource.resolveRepository(request).where({
+      key: this.foreignKeyName(request),
+      value: resources
+        .map((resource) => resource.getAttribute(this.ownerKeyName(request)))
+        .filter((value) => value),
+      operator: Operator.in,
+    });
+    // to ensure only valid data attached
+    const query =
+      this.relatableQueryCallback.apply(repository, [request, repository]) ??
+      repository;
+
+    return await query.all();
   }
 
   /**
