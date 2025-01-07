@@ -90,8 +90,18 @@ export default abstract class Relation extends Lazy {
       .authorized(request)
       .map((field) => field.resolveFilter(request))
       .filter((filter) => filter instanceof Filter)
+      .merge(this.relatedResourceFilters(request))
       .unique((filter: Filter) => filter.key())
       .all() as Filter[];
+  }
+
+  /**
+   * Resolve the related resource filters.
+   */
+  protected relatedResourceFilters(request: AvonRequest): Filter[] {
+    return this.relatedResource
+      .resolveFilters(request)
+      .filter((filter) => filter.authorizedToSee(request));
   }
 
   /**
@@ -103,8 +113,18 @@ export default abstract class Relation extends Lazy {
       .authorized(request)
       .map((field) => field.resolveOrdering(request))
       .filter((ordering) => ordering instanceof Ordering)
+      .merge(this.relatedResourceOrderings(request))
       .unique((ordering: Ordering) => ordering.key())
       .all() as Ordering[];
+  }
+
+  /**
+   * Resolve the related resource orderings.
+   */
+  protected relatedResourceOrderings(request: AvonRequest): Ordering[] {
+    return this.relatedResource
+      .resolveOrderings(request)
+      .filter((ordering) => ordering.authorizedToSee(request));
   }
 
   /**
