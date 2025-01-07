@@ -16,6 +16,7 @@ import type {
   SerializedAction,
   UnknownRecord,
 } from '../Contracts';
+import ModelNotFoundException from '../Exceptions/ModelNotFoundException';
 import ValidationException from '../Exceptions/ValidationException';
 import type { Field } from '../Fields';
 import type ActionRequest from '../Http/Requests/ActionRequest';
@@ -83,6 +84,10 @@ export default abstract class Action
         authorizedModels.push(model);
       }
     }
+
+    ModelNotFoundException.when(
+      this.isInline() && authorizedModels.length === 0,
+    );
 
     return authorizedModels;
   }
