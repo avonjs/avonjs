@@ -594,6 +594,11 @@ export default class Avon {
             },
           },
         },
+        schemas: {
+          PrimaryKey: {
+            anyOf: [{ type: 'number' }, { type: 'string' }],
+          },
+        },
       },
     };
   }

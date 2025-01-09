@@ -527,22 +527,26 @@ export default class BelongsToMany extends Relation {
       ...this.baseSchema(request),
       description: `use the "associable/${this.attribute}" to retrieve data`,
       type: 'array',
-      items: {
-        anyOf: [
-          { type: 'string' },
-          { type: 'number' },
-          {
-            type: 'object',
-            properties: {
-              ...new FieldCollection(this.pivotFields(request)).payloadSchemas(
-                request,
-              ),
-              id: { oneOf: [{ type: 'string' }, { type: 'number' }] },
-            },
-          },
-        ],
-      },
+      items:
+        this.pivotFields(request).length > 0
+          ? {
+              type: 'object',
+              properties: {
+                ...this.pivotSchema(request),
+                id: { $ref: '#components/schemas/PrimaryKey' },
+              },
+            }
+          : { $ref: '#components/schemas/PrimaryKey' },
     };
+  }
+
+  /**
+   * Get the pivot fields swagger-ui schema.
+   */
+  protected pivotSchema(request: AvonRequest) {
+    return new FieldCollection(this.pivotFields(request)).payloadSchemas(
+      request,
+    );
   }
 
   /**

@@ -388,7 +388,7 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
               201: {
                 description: `Get detail of stored ${this.label()}`,
                 content: this.singleResourceContent(request, {
-                  id: { oneOf: [{ type: 'number' }, { type: 'string' }] },
+                  id: { $ref: '#components/schemas/PrimaryKey' },
                 }),
               },
             },
@@ -488,7 +488,7 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
               200: {
                 description: `Get detail of updated ${this.label()}`,
                 content: this.singleResourceContent(request, {
-                  id: { oneOf: [{ type: 'number' }, { type: 'string' }] },
+                  id: { $ref: '#components/schemas/PrimaryKey' },
                 }),
               },
             },
@@ -856,7 +856,7 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
           required: true,
           description: 'The resource primary key',
           example: 1,
-          schema: { oneOf: [{ type: 'number' }, { type: 'string' }] },
+          schema: { $ref: '#components/schemas/PrimaryKey' },
         },
       ];
     }

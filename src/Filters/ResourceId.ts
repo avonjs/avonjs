@@ -31,7 +31,7 @@ export default class ResourceId extends Filter {
   schema(request: AvonRequest): OpenApiSchema {
     return {
       type: 'array',
-      items: { oneOf: [{ type: 'number' }, { type: 'string' }] },
+      items: { $ref: '#components/schemas/PrimaryKey' },
       nullable: this.isNullable(),
     };
   }
