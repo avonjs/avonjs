@@ -76,20 +76,39 @@ export default abstract class Action
    * Get models for incoming action.
    */
   protected async getModels(request: ActionRequest) {
-    const models = this.isStandalone() ? [] : await request.models();
-    const authorizedModels = [];
-
-    for (const model of models) {
-      if (await this.authorizedToRun(request, model)) {
-        authorizedModels.push(model);
-      }
+    if (this.isStandalone()) {
+      return [];
     }
 
-    ModelNotFoundException.when(
-      this.isInline() && authorizedModels.length === 0,
+    const models = await request.models();
+
+    await this.authorizeModels(request, models);
+
+    return models;
+  }
+
+  /**
+   * Authorize models before running action.
+   */
+  protected async authorizeModels(request: ActionRequest, models: Model[]) {
+    const schema = Joi.array().items(
+      Joi.any().external(async (model, helpers) => {
+        // Authorization check logic (async)
+        const isAuthorized = await this.authorizedToRun(request, model);
+
+        if (!isAuthorized) {
+          return helpers.error('any.custom', {
+            error: new Error(
+              `unauthorized to run action on resource with ID:'${model.getKey()}'`,
+            ),
+          });
+        }
+      }, 'Authorization check'),
     );
 
-    return authorizedModels;
+    await schema
+      .validateAsync(models, { abortEarly: false, allowUnknown: true })
+      .catch((error) => ValidationException.throw(error));
   }
 
   /**
