@@ -412,14 +412,19 @@ export default class Avon {
 
       NotFoundException.unless(user);
 
-      return new LoginResponse({
-        token: sign(user, Avon.appKey, Avon.jwtSignOptions),
-      });
+      return new LoginResponse({ token: Avon.sign(user) });
     } catch (err) {
       Logger.error(err);
 
       throw new AuthenticationException();
     }
+  }
+
+  /**
+   * Make JWT token.
+   */
+  public static sign(payload: Auth) {
+    return sign(payload, Avon.appKey, Avon.jwtSignOptions);
   }
 
   /**
