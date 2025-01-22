@@ -16,7 +16,7 @@ import type {
   SerializedAction,
   UnknownRecord,
 } from '../Contracts';
-import ModelNotFoundException from '../Exceptions/ModelNotFoundException';
+import { ForbiddenException } from '../Exceptions';
 import ValidationException from '../Exceptions/ValidationException';
 import type { Field } from '../Fields';
 import type ActionRequest from '../Http/Requests/ActionRequest';
@@ -91,7 +91,20 @@ export default abstract class Action
    * Authorize models before running action.
    */
   protected async authorizeModels(request: ActionRequest, models: Model[]) {
-    const schema = Joi.array().items(
+    await this.authorizationValidator(request)
+      .validateAsync(models, { abortEarly: false, allowUnknown: true })
+      .catch((error) => {
+        this.isInline()
+          ? ForbiddenException.throw('Unauthorized to run action')
+          : ValidationException.throw(error);
+      });
+  }
+
+  /**
+   * Make Joi validator to authorize the models.
+   */
+  protected authorizationValidator(request: ActionRequest) {
+    return Joi.array().items(
       Joi.any().external(async (model, helpers) => {
         // Authorization check logic (async)
         const isAuthorized = await this.authorizedToRun(request, model);
@@ -105,10 +118,6 @@ export default abstract class Action
         }
       }, 'Authorization check'),
     );
-
-    await schema
-      .validateAsync(models, { abortEarly: false, allowUnknown: true })
-      .catch((error) => ValidationException.throw(error));
   }
 
   /**
