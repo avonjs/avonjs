@@ -26,7 +26,7 @@ export default class DateTime extends Field {
   /**
    * Indicates the date store / retrieve format.
    */
-  protected dateFormat = 'YYYY-MM-DD HH:mm:ss';
+  protected dateFormat = 'yyyy-mm-dd HH:mm:ss';
 
   constructor(attribute: string, resolveCallback?: ResolveCallback) {
     super(attribute, resolveCallback);
@@ -42,9 +42,7 @@ export default class DateTime extends Field {
    * Mutate the field value for response.
    */
   public getMutatedValue(request: AvonRequest, value: AnyValue): string {
-    return Formatter.fromFormat(value, this.dateFormat).toFormat(
-      this.dateFormat,
-    );
+    return Formatter.fromJSDate(new Date(value)).toFormat(this.dateFormat);
   }
 
   /**
