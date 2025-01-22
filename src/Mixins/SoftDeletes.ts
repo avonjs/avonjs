@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import {
   type AbstractMixable,
   type Args,
@@ -184,7 +185,14 @@ export default <
      * Get value for `deleted_at` key.
      */
     public getDeletedAtValue(): unknown {
-      return new Date().toDateString();
+      return this.freshTimestamp();
+    }
+
+    /**
+     * Get a fresh timestamp for the model.
+     */
+    public freshTimestamp(): unknown {
+      return DateTime.now().toSQL({ includeOffset: false });
     }
 
     /**
