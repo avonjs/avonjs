@@ -248,17 +248,16 @@ export default abstract class Action
    * @throws {ValidationException}
    */
   public async validate(request: AvonRequest): Promise<void> {
-    await this.validator(request)
-      .validateAsync(this.dataForValidation(request), {
-        abortEarly: false,
-        allowUnknown: true,
-      })
-      .then((value) => {
-        this.afterValidation(request, value);
-      })
-      .catch((error) => {
-        ValidationException.throw(error);
-      });
+    try {
+      const value = await this.validator(request).validateAsync(
+        this.dataForValidation(request),
+        { abortEarly: false, allowUnknown: true },
+      );
+
+      this.afterValidation(request, value);
+    } catch (error) {
+      throw new ValidationException(error as ValidationError);
+    }
   }
 
   /**
