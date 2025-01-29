@@ -16,7 +16,7 @@ export type ErrorHandler = (error: Error) => void;
 
 export type RunCallback = (
   request: AvonRequest,
-  resource: Model,
+  resource: Nullable<Model>,
 ) => Deferred<boolean>;
 
 export type SeeCallback = (request: AvonRequest) => boolean;

@@ -1,5 +1,5 @@
 import collect from 'collect.js';
-import Joi, { type AnySchema } from 'joi';
+import Joi, { ValidationError, type AnySchema } from 'joi';
 import type { OpenAPIV3 } from 'openapi-types';
 import Avon from '../Avon';
 import FieldCollection from '../Collections/FieldCollection';
@@ -8,6 +8,7 @@ import type {
   BulkActionResult,
   HasSchema,
   Model,
+  Nullable,
   OpenApiSchema,
   Optional,
   Rules,
@@ -59,8 +60,11 @@ export default abstract class Action
    * Execute the action for the given request.
    */
   public async handleRequest(request: ActionRequest): Promise<AvonResponse> {
+    const models = await this.resolveModels(request);
+    // Authorize action
+    await this.authorizeAction(request, models);
     // prepare changes for log
-    const changes = this.getChanges(request, await this.getModels(request));
+    const changes = this.getChanges(request, models);
     // handle action
     const results = await this.handle(
       this.resolveFields(request),
@@ -75,29 +79,69 @@ export default abstract class Action
   /**
    * Get models for incoming action.
    */
-  protected async getModels(request: ActionRequest) {
-    if (this.isStandalone()) {
-      return [];
-    }
-
-    const models = await request.models();
-
-    await this.authorizeModels(request, models);
-
-    return models;
+  protected async resolveModels(request: ActionRequest) {
+    return this.isStandalone() ? [] : request.models();
   }
 
   /**
    * Authorize models before running action.
    */
-  protected async authorizeModels(request: ActionRequest, models: Model[]) {
-    await this.authorizationValidator(request)
-      .validateAsync(models, { abortEarly: false, allowUnknown: true })
-      .catch((error) => {
-        this.isInline()
-          ? ForbiddenException.throw('Unauthorized to run action')
-          : ValidationException.throw(error);
-      });
+  protected async authorizeAction(request: ActionRequest, models: Model[]) {
+    try {
+      if (this.isStandalone()) {
+        await this.authorizeStandaloneAction(request);
+      } else if (this.isInline()) {
+        await this.authorizeInlineAction(request, models[0]);
+      } else {
+        await this.authorizeBulkAction(request, models);
+      }
+    } catch (error) {
+      throw this.handleAuthorizationError(error);
+    }
+  }
+
+  /**
+   * Authorize a standalone action.
+   */
+  protected async authorizeStandaloneAction(
+    request: ActionRequest,
+  ): Promise<void> {
+    const isAuthorized = await this.authorizedToRun(request, null);
+    ForbiddenException.unless(isAuthorized, this.unauthorizedMessage());
+  }
+
+  /**
+   * Authorize an inline action.
+   */
+  protected async authorizeInlineAction(
+    request: ActionRequest,
+    model: Model,
+  ): Promise<void> {
+    const isAuthorized = await this.authorizedToRun(request, model);
+    ForbiddenException.unless(isAuthorized, this.unauthorizedMessage());
+  }
+
+  /**
+   * Authorize a bulk action.
+   */
+  protected async authorizeBulkAction(
+    request: ActionRequest,
+    models: Model[],
+  ): Promise<void> {
+    await this.authorizationValidator(request).validateAsync(models, {
+      abortEarly: false,
+      allowUnknown: true,
+    });
+  }
+
+  /**
+   * Handle authorization errors.
+   */
+  protected handleAuthorizationError(error: unknown): Error {
+    if (error instanceof ValidationError) {
+      return new ValidationException(error);
+    }
+    return error as Error;
   }
 
   /**
@@ -111,13 +155,20 @@ export default abstract class Action
 
         if (!isAuthorized) {
           return helpers.error('any.custom', {
-            error: new Error(
-              `unauthorized to run action on resource with ID:'${model.getKey()}'`,
-            ),
+            error: new Error(this.unauthorizedMessage(model)),
           });
         }
       }, 'Authorization check'),
     );
+  }
+
+  /**
+   * Get unauthorized to run message.
+   */
+  protected unauthorizedMessage(model: Nullable<Model> = null) {
+    return model
+      ? `unauthorized to run action on resource with ID:'${model.getKey()}'`
+      : 'Unauthorized to run action';
   }
 
   /**
@@ -182,7 +233,10 @@ export default abstract class Action
   /**
    * Determine if the action is executable for the given request.
    */
-  public async authorizedToRun(request: AvonRequest, model: Model) {
+  public async authorizedToRun(
+    request: AvonRequest,
+    model: Nullable<Model> = null,
+  ) {
     return this.runCallback != null
       ? this.runCallback.apply(this, [request, model])
       : true;
