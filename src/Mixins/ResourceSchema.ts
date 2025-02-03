@@ -851,7 +851,7 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
     ): OpenAPIV3.ParameterObject[] {
       return [
         {
-          name: 'resourceId',
+          name: this.getRouteKeyName(),
           in: 'path',
           required: true,
           description: 'The resource primary key',
@@ -902,13 +902,20 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
 
       return {
         index: resourcePath,
-        detail: `${resourcePath}/{resourceId}`,
-        review: `${resourcePath}/{resourceId}/review`,
-        restore: `${resourcePath}/{resourceId}/restore`,
-        forceDelete: `${resourcePath}/{resourceId}/force`,
+        detail: `${resourcePath}/{${this.getRouteKeyName()}}`,
+        review: `${resourcePath}/{${this.getRouteKeyName()}}/review`,
+        restore: `${resourcePath}/{${this.getRouteKeyName()}}/restore`,
+        forceDelete: `${resourcePath}/{${this.getRouteKeyName()}}/force`,
         action: `${resourcePath}/actions/{actionName}`,
         association: `${resourcePath}/associable/{field}`,
       };
+    }
+
+    /**
+     * Get route key name.
+     */
+    public getRouteKeyName() {
+      return 'resourceId';
     }
 
     /**
