@@ -121,7 +121,9 @@ export default abstract class KnexRepository<
    * Find first model for the given conditions.
    */
   async first(wheres: Where[] = []): Promise<Optional<TModel>> {
-    return this.parseResult(await this.where(wheres).makeQuery().first());
+    const query = this.selectColumns(this.where(wheres).makeQuery());
+
+    return this.parseResult(await query.first());
   }
 
   /**
