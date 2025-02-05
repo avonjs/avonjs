@@ -159,4 +159,11 @@ export default abstract class FormRequest {
   public getRequest(): Request {
     return this.request;
   }
+
+  /**
+   * Check the request method type.
+   */
+  public isMethod(method: string) {
+    return this.request.method.toLowerCase() === method.toLowerCase();
+  }
 }
