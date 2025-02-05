@@ -100,8 +100,14 @@ export const authorizationResponses = (): OpenAPIV3.ResponsesObject => {
  */
 export const errorsResponses = (): OpenAPIV3.ResponsesObject => {
   return {
+    400: {
+      $ref: '#/components/responses/BadRequest',
+    },
     404: {
       $ref: '#/components/responses/NotFound',
+    },
+    405: {
+      $ref: '#/components/responses/MethodNotAllowed',
     },
     500: {
       $ref: '#/components/responses/InternalServerError',

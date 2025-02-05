@@ -17,11 +17,21 @@ export default class {
       '/resources/:resourceName/actions',
       Dispatcher.dispatch('ActionIndexController'),
     );
+    // common actions
     this.router.post(
       '/resources/:resourceName/actions/:actionName',
       Dispatcher.dispatch('ActionStoreController'),
     );
     this.router.post(
+      '/resources/:resourceName/:resourceId/actions/:actionName',
+      Dispatcher.dispatch('ActionStoreController'),
+    );
+    // destructive actions
+    this.router.delete(
+      '/resources/:resourceName/actions/:actionName',
+      Dispatcher.dispatch('ActionStoreController'),
+    );
+    this.router.delete(
       '/resources/:resourceName/:resourceId/actions/:actionName',
       Dispatcher.dispatch('ActionStoreController'),
     );

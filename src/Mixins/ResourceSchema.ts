@@ -585,7 +585,7 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
           return [
             `${action.isInline() ? paths.detail : paths.index}/actions/${action.uriKey()}`,
             {
-              post: {
+              [action.isDestructive() ? 'delete' : 'post']: {
                 tags: [this.uriKey()],
                 description: `Run the ${action.name()} on the given resources`,
                 operationId: `${this.uriKey() as string}-${action.uriKey()}`,

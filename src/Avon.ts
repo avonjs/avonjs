@@ -598,6 +598,31 @@ export default class Avon {
               },
             },
           },
+          MethodNotAllowed: {
+            description: 'Method not allowed error.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    code: { type: 'number', default: 405 },
+                    message: {
+                      type: 'string',
+                      default:
+                        'The requested method is not supported for this endpoint.',
+                    },
+                    name: { type: 'string', default: 'MethodNotAllowed' },
+                    meta: {
+                      type: 'object',
+                      properties: {
+                        stack: { type: 'object' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         schemas: {
           PrimaryKey: {

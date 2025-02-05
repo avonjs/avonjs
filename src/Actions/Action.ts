@@ -47,6 +47,11 @@ export default abstract class Action
   public inlineAction = false;
 
   /**
+   * Indicates if the action destroy some resources.
+   */
+  public destructiveAction = false;
+
+  /**
    * Indicates the response status code.
    */
   protected responseCode = 200;
@@ -400,6 +405,26 @@ export default abstract class Action
    */
   public isInline(): boolean {
     return this.inlineAction;
+  }
+
+  /**
+   * Mark the action as a "destructive" action.
+   *
+   * @return this
+   */
+  public destructive(): this {
+    this.destructiveAction = true;
+
+    return this;
+  }
+
+  /**
+   * Determine if the action is a "destructive" action.
+   *
+   * @return bool
+   */
+  public isDestructive(): boolean {
+    return this.destructiveAction;
   }
 
   /**

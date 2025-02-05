@@ -1,6 +1,7 @@
 import type { Action } from '../../Actions';
 import { type Model, RequestTypes } from '../../Contracts';
 import ActionNotFoundException from '../../Exceptions/ActionNotFoundException';
+import MethodNotAllowedException from '../../Exceptions/MethodNotAllowedException';
 import AvonRequest from './AvonRequest';
 
 export default class ActionRequest extends AvonRequest {
@@ -20,6 +21,13 @@ export default class ActionRequest extends AvonRequest {
       .find((action) => action.uriKey() === this.route('actionName'));
 
     ActionNotFoundException.unless(action);
+
+    MethodNotAllowedException.when(
+      action.isDestructive() && !this.isMethod('delete'),
+    );
+    MethodNotAllowedException.when(
+      !action.isDestructive() && this.isMethod('delete'),
+    );
 
     return action;
   }
