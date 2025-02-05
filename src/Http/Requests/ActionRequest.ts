@@ -2,6 +2,7 @@ import type { Action } from '../../Actions';
 import { type Model, RequestTypes } from '../../Contracts';
 import ActionNotFoundException from '../../Exceptions/ActionNotFoundException';
 import MethodNotAllowedException from '../../Exceptions/MethodNotAllowedException';
+import ModelNotFoundException from '../../Exceptions/ModelNotFoundException';
 import AvonRequest from './AvonRequest';
 
 export default class ActionRequest extends AvonRequest {
@@ -36,7 +37,13 @@ export default class ActionRequest extends AvonRequest {
    * Get the selected models for the action.
    */
   async models(): Promise<Model[]> {
-    return this.repository().whereKeys(this.resourceIds()).all();
+    const models = await this.repository().whereKeys(this.resourceIds()).all();
+
+    ModelNotFoundException.when(
+      models.length === 0 && this.action().isInline(),
+    );
+
+    return models;
   }
 
   /**
