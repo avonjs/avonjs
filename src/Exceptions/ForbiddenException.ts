@@ -1,7 +1,9 @@
 import ResponsableException from './ResponsableException';
 
 export default class ForbiddenException extends ResponsableException {
-  message = 'This action is unauthorized.';
+  constructor(message = 'This action is unauthorized.') {
+    super(message);
+  }
 
   /**
    * Get the response code
