@@ -77,7 +77,8 @@ export default class Integer extends Field {
     request: AvonRequest,
     value: AnyValue,
   ): Optional<number> {
-    return Number.parseInt(value);
+    // to ensure convert float to integer and none-numbers to zero
+    return Number.parseInt(String(Number(value)));
   }
 
   /**
