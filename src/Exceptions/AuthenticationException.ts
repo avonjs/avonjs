@@ -1,8 +1,15 @@
 import ResponsableException from './ResponsableException';
 
 export default class AuthenticationException extends ResponsableException {
-  constructor(protected error?: Error) {
-    super(error?.message ?? 'The user is unauthenticated.');
+  protected error?: Error;
+  constructor(error?: Error | string) {
+    if (typeof error === 'string') {
+      super(error);
+      this.error = new Error(error);
+    } else {
+      super(error?.message ?? 'The user is unauthenticated.');
+      this.error = error;
+    }
   }
 
   /**
