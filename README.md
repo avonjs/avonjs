@@ -150,6 +150,17 @@ app.listen(3000, () => {
 })
 ```
 
+also, you can pass the array of middlewares as second parameter to customize the application behavior:
+
+
+```js  
+app.use('/api', Avon.express(true, [
+  (req, res) => {
+    // custom middleware
+  } 
+]));
+```
+
 ## Authentication
 
 Avon ships by JWT authentication approach but it's disabled by default. to enable authentication you have to pass the `true` value as a second argument of the "express" method:

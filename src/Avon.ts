@@ -1,6 +1,6 @@
 import { readdirSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
-import express, { type Request, type Response } from 'express';
+import express, { IRouterHandler, type Request, type Response } from 'express';
 import { type Params, expressjwt } from 'express-jwt';
 import Joi, { type AnySchema } from 'joi';
 import { type SignOptions, sign } from 'jsonwebtoken';
@@ -172,9 +172,15 @@ export default class Avon {
   /**
    * Get express instance.
    */
-  public static express(withAuthentication = false) {
+  public static express(
+    withAuthentication = false,
+    middlewares: Array<express.RequestHandler> = [],
+  ) {
     const app = express();
     app.set('query parser', 'extended');
+
+    // Apply provided middlewares
+    middlewares.forEach((middleware) => app.use(middleware));
 
     if (withAuthentication) {
       app
