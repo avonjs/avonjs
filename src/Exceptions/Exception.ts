@@ -1,8 +1,11 @@
 import type { AnyValue } from '../Contracts';
 
 export default class Exception extends Error {
-  constructor(message?: string, ...args: readonly unknown[]) {
-    super(message ?? 'Something went wrong.');
+  constructor(
+    public message = 'Something went wrong.',
+    ...args: readonly unknown[]
+  ) {
+    super(message);
   }
 
   /**
