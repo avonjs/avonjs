@@ -43,7 +43,7 @@ export default class Avon {
   /**
    * Indicates application current version.
    */
-  protected static VERSION = '3.4.0';
+  protected static VERSION = '3.4.1';
 
   /**
    * Array of available resources.
@@ -172,6 +172,7 @@ export default class Avon {
   /**
    * Get express instance.
    */
+
   public static express(
     withAuthentication = false,
     middlewares: Array<express.RequestHandler> = [],
@@ -181,15 +182,21 @@ export default class Avon {
 
     // Apply provided middlewares
     middlewares.forEach((middleware) => app.use(middleware));
+    // Define an auth-specific router
+    const authRouter = express.Router();
 
     if (withAuthentication) {
-      app
-        .post('/login', Avon.login)
-        .use(Avon.expressjwt())
-        .use(handleAuthenticationError);
-    }
+      // Login route should be available before authentication middleware
+      authRouter.post('/login', Avon.login);
 
-    new RouteRegistrar(app).register();
+      // Apply authentication middleware only after login
+      app.use(Avon.expressjwt());
+      app.use(handleAuthenticationError);
+    }
+    // Register other application routes
+    new RouteRegistrar(authRouter).register();
+    // Register the authRouter under '/api'
+    app.use(authRouter);
 
     return app;
   }
