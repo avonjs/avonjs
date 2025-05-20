@@ -29,6 +29,7 @@
   - [Optional Fields](#optional-fields)
   - [Filterable Fields](#filterable-fields)
   - [Orderable Fields](#orderable-fields)
+  - [Lookup Fields](#lookup-fields)
   - [Lazy Fields](#lazy-fields)
 - [Relationships](#relationships)
   - [BelongsTo](#belongsto)
@@ -746,6 +747,36 @@ new Fields.Text('name').orderable((request, repository, direction) => {
   });
 })
 ```
+
+
+## Lookup Fields 
+
+Sometimes you may need to find a resource using a field other than its default primary key. You can use the `lookupable()` method to mark a field as a valid lookup key:
+
+```js
+new Fields.Text('name').lookupable()
+```
+
+This allows the resource to be retrieved using that field in route definitions or API calls.
+
+---
+
+### 🔧 Customize Lookup Behavior
+
+If you need more control over how the lookup is performed, you can pass a callback to define custom logic using the `lookupable()` method:
+
+```js
+new Fields.Text('name').lookupable((request, repository, value) => {
+  return repository.where('custom_column', value);
+});
+```
+
+Alternatively, use the `lookupUsing()` method to simply change the database column used for the lookup:
+
+```js
+new Fields.Text('name').lookupUsing('custom_column')
+```
+
 
 ## Lazy Fields
 
