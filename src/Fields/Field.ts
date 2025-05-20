@@ -25,6 +25,7 @@ import type { Filter } from '../Filters';
 import type AvonRequest from '../Http/Requests/AvonRequest';
 import AuthorizedToSee from '../Mixins/AuthorizedToSee';
 import Filterable from '../Mixins/Filterable';
+import Lookupable from '../Mixins/Lookupable';
 import Nullable from '../Mixins/Nullable';
 import Orderable from '../Mixins/Orderable';
 import Presentable from '../Mixins/Presentable';
@@ -36,6 +37,7 @@ import Ordering from './Orderings/Ordering';
 export default abstract class Field
   extends mixin(
     class {},
+    Lookupable,
     Nullable,
     Filterable,
     Orderable,
@@ -625,6 +627,10 @@ export default abstract class Field
    * Determine field is orderable or not.
    */
   public abstract isOrderable(): boolean;
+
+  public lookupable(callback?: FilterableCallback | undefined): this {
+    return super.lookupable(callback);
+  }
 
   public filterable(callback?: FilterableCallback | undefined): this {
     return super.filterable(callback);

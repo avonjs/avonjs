@@ -94,6 +94,9 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
           ...this.resourceUpdateSchema(request),
           ...this.resourceDeleteSchema(request),
         },
+        [paths.lookup]: {
+          ...this.resourceLookupSchema(request),
+        },
         [paths.restore]: {
           ...this.resourceRestoreSchema(request),
         },
@@ -415,6 +418,51 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
               ...this.errorsResponses(),
               200: {
                 description: `Get detail of ${this.label()} for given id`,
+                content: this.singleResourceContent(request),
+              },
+            },
+          },
+        };
+      }
+    }
+
+    /**
+     *
+     */
+    public resourceLookupSchema(
+      request: AvonRequest,
+    ): OpenAPIV3.PathItemObject | undefined {
+      const lookups = this.availableFields(request).filter((field) =>
+        field.isLookupable(),
+      );
+
+      if (this.availableForDetail && lookups.isNotEmpty()) {
+        return {
+          get: {
+            tags: [this.uriKey()],
+            description: `Get detail of resource by the alternative ${this.label()} key`,
+            operationId: 'lookup',
+            parameters: [
+              ...this.singleResourcePathParameters(request),
+              {
+                name: 'field',
+                in: 'path',
+                required: true,
+                description: 'The resource alternative key name',
+                schema: {
+                  type: 'string',
+                  enum: lookups
+                    .map((field) => field.lookupKey())
+                    .values()
+                    .toArray(),
+                },
+              },
+            ],
+            responses: {
+              ...this.authorizationResponses(),
+              ...this.errorsResponses(),
+              200: {
+                description: `Get detail of ${this.label()} for given lookup key`,
                 content: this.singleResourceContent(request),
               },
             },
@@ -903,6 +951,7 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
       return {
         index: resourcePath,
         detail: `${resourcePath}/{${this.getRouteKeyName()}}`,
+        lookup: `${resourcePath}/{${this.getRouteKeyName()}}/using/{field}`,
         review: `${resourcePath}/{${this.getRouteKeyName()}}/review`,
         restore: `${resourcePath}/{${this.getRouteKeyName()}}/restore`,
         forceDelete: `${resourcePath}/{${this.getRouteKeyName()}}/force`,

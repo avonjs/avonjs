@@ -53,6 +53,10 @@ export default class {
       '/resources/:resourceName/:resourceId',
       Dispatcher.dispatch('ResourceDetailController'),
     );
+    this.router.get(
+      '/resources/:resourceName/:resourceId/using/:field',
+      Dispatcher.dispatch('ResourceLookupByFieldController'),
+    );
     this.router.put(
       '/resources/:resourceName/:resourceId',
       Dispatcher.dispatch('ResourceUpdateController'),

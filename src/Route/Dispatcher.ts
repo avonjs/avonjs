@@ -11,6 +11,7 @@ import ResourceDeleteController from '../Http/Controllers/ResourceDeleteControll
 import ResourceDetailController from '../Http/Controllers/ResourceDetailController';
 import ResourceForceDeleteController from '../Http/Controllers/ResourceForceDeleteController';
 import ResourceIndexController from '../Http/Controllers/ResourceIndexController';
+import ResourceLookupByFieldController from '../Http/Controllers/ResourceLookupByFieldController';
 import ResourceRestoreController from '../Http/Controllers/ResourceRestoreController';
 import ResourceReviewController from '../Http/Controllers/ResourceReviewController';
 import ResourceStoreController from '../Http/Controllers/ResourceStoreController';
@@ -24,6 +25,7 @@ import ResourceDeleteRequest from '../Http/Requests/ResourceDeleteRequest';
 import ResourceDetailRequest from '../Http/Requests/ResourceDetailRequest';
 import ResourceForceDeleteRequest from '../Http/Requests/ResourceForceDeleteRequest';
 import ResourceIndexRequest from '../Http/Requests/ResourceIndexRequest';
+import ResourceLookupByFieldRequest from '../Http/Requests/ResourceLookupByFieldRequest';
 import ResourceRestoreRequest from '../Http/Requests/ResourceRestoreRequest';
 import ResourceReviewRequest from '../Http/Requests/ResourceReviewRequest';
 import ResourceUpdateOrUpdateAttachedRequest from '../Http/Requests/ResourceUpdateOrUpdateAttachedRequest';
@@ -50,6 +52,10 @@ const controllers: Record<
   ResourceDetailController: {
     controller: () => new ResourceDetailController(),
     request: (request: Request) => new ResourceDetailRequest(request),
+  },
+  ResourceLookupByFieldController: {
+    controller: () => new ResourceLookupByFieldController(),
+    request: (request: Request) => new ResourceLookupByFieldRequest(request),
   },
   ResourceUpdateController: {
     controller: () => new ResourceUpdateController(),
