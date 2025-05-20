@@ -452,7 +452,7 @@ export default <TModel, T extends AbstractMixable = AbstractMixable>(
                 schema: {
                   type: 'string',
                   enum: lookups
-                    .map((field) => field.lookupKey())
+                    .map((field) => field.attribute)
                     .values()
                     .toArray(),
                 },
