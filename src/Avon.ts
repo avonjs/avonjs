@@ -1,8 +1,8 @@
 import { readdirSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
-import express, { IRouterHandler, type Request, type Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import { type Params, expressjwt } from 'express-jwt';
-import Joi, { type AnySchema } from 'joi';
+import Joi, { type ValidationError, type AnySchema } from 'joi';
 import { type SignOptions, sign } from 'jsonwebtoken';
 import type { OpenAPIV3 } from 'openapi-types';
 import FieldCollection from './Collections/FieldCollection';
@@ -378,29 +378,31 @@ export default class Avon {
     const request = new LoginRequest(req);
     const payload = new Fluent();
     // validate credentials
-    await Avon.performValidation(request)
-      .then(() => {
-        // resolve credentials
-        Avon.fieldsForLogin().each((field) => field.fill(request, payload));
-        // attempt login
-        Avon.attempt(payload.getAttributes())
-          .then((response) => send(res, response))
-          .catch((error) => {
-            if (error instanceof ResponsableException) {
-              send(res, error.toResponse());
-            } else {
-              Avon.handleError(error);
-              res
-                .status(500)
-                .send({ message: error.message, name: 'InternalServerError' });
-            }
-          });
-      })
-      .catch((error) => {
-        send(res, new ValidationException(error).toResponse());
-      });
+    try {
+      await Avon.performValidation(request);
+    } catch (error) {
+      send(res, new ValidationException(error as ValidationError).toResponse());
+    }
+    // try login
+    try {
+      // resolve credentials
+      Avon.fieldsForLogin().each((field) => field.fill(request, payload));
+      // attempt login
+      const response = await Avon.attempt(request, payload.getAttributes());
+      // respond by token
+      send(res, response);
+    } catch (error) {
+      if (error instanceof ResponsableException) {
+        send(res, error.toResponse());
+      } else {
+        Avon.handleError(error as Error);
+        res.status(500).send({
+          message: (error as Error).message,
+          name: 'InternalServerError',
+        });
+      }
+    }
   }
-
   /**
    * Perform login request validation.
    */
@@ -418,10 +420,11 @@ export default class Avon {
    * Set attempt callback.
    */
   public static async attempt(
+    request: LoginRequest,
     payload: Dictionary<unknown>,
   ): Promise<AvonResponse> {
     try {
-      const user = await Avon.attemptCallback(payload);
+      const user = await Avon.attemptCallback(request, payload);
 
       NotFoundException.unless(user);
 

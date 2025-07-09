@@ -81,6 +81,7 @@ export type RelatableQueryCallback = (
 export type Auth = { id: PrimaryKey };
 
 export type AttemptCallback = (
+  request: AvonRequest,
   payload: Record<string, unknown>,
 ) => Promise<Nullable<Optional<Auth>>>;
 
