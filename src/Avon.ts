@@ -16,11 +16,7 @@ import type {
   PrimaryKey,
   UserResolver,
 } from './Contracts';
-import {
-  AuthenticationException,
-  NotFoundException,
-  ResponsableException,
-} from './Exceptions';
+import { AuthenticationException, ResponsableException } from './Exceptions';
 import ValidationException from './Exceptions/ValidationException';
 import { Email, type Field, Text } from './Fields';
 import LoginRequest from './Http/Requests/Auth/LoginRequest';
@@ -423,17 +419,11 @@ export default class Avon {
     request: LoginRequest,
     payload: Dictionary<unknown>,
   ): Promise<AvonResponse> {
-    try {
-      const user = await Avon.attemptCallback(request, payload);
+    const user = await Avon.attemptCallback(request, payload);
 
-      NotFoundException.unless(user);
+    AuthenticationException.unless(user);
 
-      return new LoginResponse({ token: Avon.sign(user) });
-    } catch (err) {
-      Logger.error(err);
-
-      throw new AuthenticationException();
-    }
+    return new LoginResponse({ token: Avon.sign(user) });
   }
 
   /**
